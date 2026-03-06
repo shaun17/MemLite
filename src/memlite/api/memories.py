@@ -142,6 +142,17 @@ async def list_memories(
     return [to_episode_response(episode).model_dump() for episode in episodes]
 
 
+@router.get("/{uid}", response_model=dict | None)
+async def get_memory(
+    uid: str,
+    resources: ResourceManager = Depends(get_resources),
+) -> dict | None:
+    episodes = await resources.episode_store.get_episodes([uid])
+    if not episodes:
+        return None
+    return to_episode_response(episodes[0]).model_dump()
+
+
 @router.delete("/episodes", response_model=dict[str, str])
 async def delete_episodic_memories(
     payload: EpisodicDeleteRequest,

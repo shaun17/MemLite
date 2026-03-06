@@ -29,6 +29,20 @@ class SessionCreateRequest(BaseModel):
     group_id: str | None = None
 
 
+class SessionResponse(BaseModel):
+    session_key: str
+    org_id: str
+    project_id: str
+    session_id: str
+    user_id: str | None
+    agent_id: str | None
+    group_id: str | None
+    summary: str
+    summary_updated_at: str | None
+    created_at: str
+    updated_at: str
+
+
 class EpisodeInput(BaseModel):
     uid: str
     session_key: str
@@ -291,6 +305,10 @@ def to_project_response(project) -> ProjectResponse:
 
 def to_episode_response(episode) -> EpisodeResponse:
     return EpisodeResponse.model_validate(episode, from_attributes=True)
+
+
+def to_session_response(session) -> SessionResponse:
+    return SessionResponse.model_validate(session, from_attributes=True)
 
 
 def to_feature_response(feature) -> SemanticFeatureResponse:

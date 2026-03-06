@@ -12,6 +12,7 @@ from memlite.api.metrics import router as metrics_router
 from memlite.api.projects import router as projects_router
 from memlite.api.semantic_config import router as semantic_config_router
 from memlite.api.semantic_features import router as semantic_features_router
+from memlite.api.sessions import router as sessions_router
 from memlite.app.resources import ResourceManager
 from memlite.common.config import get_settings
 from memlite.common.logging import configure_logging
@@ -36,6 +37,7 @@ def create_app() -> FastAPI:
     app.include_router(health_router)
     app.include_router(metrics_router)
     app.include_router(projects_router)
+    app.include_router(sessions_router)
     app.include_router(memories_router)
     app.include_router(memory_config_router)
     app.include_router(semantic_features_router)

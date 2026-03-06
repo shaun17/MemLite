@@ -98,6 +98,58 @@ def test_memory_routes_add_search_list_and_delete(tmp_path: Path, monkeypatch):
         assert searched_after.json()["episodic_matches"] == []
 
 
+def test_session_routes_and_memory_get(tmp_path: Path, monkeypatch):
+    monkeypatch.setenv("MEMLITE_SQLITE_PATH", str(tmp_path / "memlite.sqlite3"))
+    monkeypatch.setenv("MEMLITE_KUZU_PATH", str(tmp_path / "graph.kuzu"))
+    reset_settings_cache()
+
+    with TestClient(create_app()) as client:
+        client.post("/projects", json={"org_id": "org-a", "project_id": "project-a"})
+        created = client.post(
+            "/sessions",
+            json={
+                "session_key": "session-a",
+                "org_id": "org-a",
+                "project_id": "project-a",
+                "session_id": "session-a",
+                "user_id": "user-1",
+            },
+        )
+        fetched = client.get("/sessions/session-a")
+        listed = client.get(
+            "/sessions",
+            params={"org_id": "org-a", "project_id": "project-a", "user_id": "user-1"},
+        )
+        client.post(
+            "/memories",
+            json={
+                "session_key": "session-a",
+                "episodes": [
+                    {
+                        "uid": "ep-1",
+                        "session_key": "session-a",
+                        "session_id": "session-a",
+                        "producer_id": "user-1",
+                        "producer_role": "user",
+                        "sequence_num": 1,
+                        "content": "Ramen is my favorite food.",
+                    }
+                ],
+            },
+        )
+        memory = client.get("/memories/ep-1")
+        deleted = client.delete("/sessions/session-a")
+
+        assert created.status_code == 200
+        assert fetched.status_code == 200
+        assert fetched.json()["session_key"] == "session-a"
+        assert listed.status_code == 200
+        assert listed.json()[0]["session_key"] == "session-a"
+        assert memory.status_code == 200
+        assert memory.json()["uid"] == "ep-1"
+        assert deleted.status_code == 200
+
+
 def test_semantic_feature_routes_crud(tmp_path: Path, monkeypatch):
     monkeypatch.setenv("MEMLITE_SQLITE_PATH", str(tmp_path / "memlite.sqlite3"))
     monkeypatch.setenv("MEMLITE_KUZU_PATH", str(tmp_path / "graph.kuzu"))

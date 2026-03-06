@@ -605,31 +605,32 @@
 
 ### TODO
 
-- [ ] 插件配置 schema
-- [ ] local install 支持
-- [ ] memory_search
-- [ ] memory_store
-- [ ] memory_forget
-- [ ] memory_get
-- [ ] memory_list
-- [ ] autoRecall
-- [ ] autoCapture
-- [ ] UI hints / openclaw.plugin.json
-- [ ] 文档说明
+- [x] 插件配置 schema
+- [x] local install 支持
+- [x] memory_search
+- [x] memory_store
+- [x] memory_forget
+- [x] memory_get
+- [x] memory_list
+- [x] autoRecall
+- [x] autoCapture
+- [x] UI hints / openclaw.plugin.json
+- [x] 文档说明
 
 ### 测试 TODO
 
-- [ ] 插件配置解析测试
-- [ ] search/store/forget/get/list 测试
-- [ ] autoRecall 测试
-- [ ] autoCapture 测试
-- [ ] OpenClaw 本地安装 smoke test
-- [ ] 插件错误路径测试
+- [x] 插件配置解析测试
+- [x] search/store/forget/get/list 测试
+- [x] autoRecall 测试
+- [x] autoCapture 测试
+- [x] OpenClaw 本地安装 smoke test
+- [x] 插件错误路径测试
 
 ### 验收标准
 
 - OpenClaw 本地安装可用
 - autoRecall/autoCapture 生效
+- 当前进展：`94` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`5` 个 OpenClaw 插件测试通过
 
 ## 16. Phase 12：CLI、安装与初始化
 
