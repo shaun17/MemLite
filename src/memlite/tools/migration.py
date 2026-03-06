@@ -126,13 +126,15 @@ async def repair_snapshot(settings: Settings) -> dict[str, int]:
     resources = ResourceManager.create(settings)
     await resources.initialize()
     try:
+        orphan_deleted = await cleanup_orphan_data(resources)
         semantic_count = await rebuild_semantic_vectors(resources)
         derivative_count = await rebuild_derivative_graph(resources)
-        orphan_deleted = await _cleanup_soft_delete_residue(resources)
+        residue_deleted = await _cleanup_soft_delete_residue(resources)
         return {
             "semantic_vectors_rebuilt": semantic_count,
             "episodes_rebuilt": derivative_count,
-            "soft_delete_residue_removed": orphan_deleted,
+            "orphan_records_removed": orphan_deleted,
+            "soft_delete_residue_removed": residue_deleted,
         }
     finally:
         await resources.close()
@@ -212,6 +214,41 @@ async def _cleanup_soft_delete_residue(resources: ResourceManager) -> int:
     deleted_ids = [episode.uid for episode in deleted_episodes if episode.deleted == 1]
     await resources.semantic_feature_store.delete_history(deleted_ids)
     return len(deleted_ids)
+
+
+async def cleanup_orphan_data(resources: ResourceManager) -> int:
+    """Clean orphan vectors and graph nodes that are not backed by SQLite truth."""
+    report = await _reconcile_sqlite_vec(resources)
+    graph_report = await _reconcile_kuzu(resources)
+    deleted = 0
+
+    orphan_semantic_vector_ids = report["orphan_semantic_vector_ids"]
+    if orphan_semantic_vector_ids:
+        await resources.semantic_feature_store.vector_index.delete_many(orphan_semantic_vector_ids)
+        deleted += len(orphan_semantic_vector_ids)
+
+    orphan_derivative_vector_ids = report["orphan_derivative_vector_ids"]
+    if orphan_derivative_vector_ids:
+        await resources.derivative_index.delete_many(orphan_derivative_vector_ids)
+        deleted += len(orphan_derivative_vector_ids)
+
+    orphan_episode_graph_nodes = graph_report["orphan_episode_graph_nodes"]
+    if orphan_episode_graph_nodes:
+        await resources.graph_store.delete_nodes(
+            node_table="Episode",
+            uids=orphan_episode_graph_nodes,
+        )
+        deleted += len(orphan_episode_graph_nodes)
+
+    orphan_derivative_nodes = graph_report["orphan_derivative_nodes"]
+    if orphan_derivative_nodes:
+        await resources.graph_store.delete_nodes(
+            node_table="Derivative",
+            uids=orphan_derivative_nodes,
+        )
+        deleted += len(orphan_derivative_nodes)
+
+    return deleted
 
 
 def _vector_item_id(uid: str) -> int:

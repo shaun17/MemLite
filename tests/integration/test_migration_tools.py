@@ -115,8 +115,67 @@ async def test_reconcile_and_repair_tools(tmp_path: Path):
 
     assert repaired["semantic_vectors_rebuilt"] == 0
     assert repaired["episodes_rebuilt"] == 1
+    assert repaired["orphan_records_removed"] == 0
 
     after = await reconcile_snapshot(settings)
     assert after["missing_embedding_feature_ids"] == [1]
     assert after["missing_derivative_vector_ids"] == []
     assert after["missing_episode_graph_nodes"] == []
+
+
+@pytest.mark.anyio
+async def test_repair_cleans_orphans_and_is_idempotent(tmp_path: Path):
+    settings = Settings(
+        sqlite_path=tmp_path / "memlite.sqlite3",
+        kuzu_path=tmp_path / "kuzu",
+    )
+    resources = await _seed_dataset(settings)
+    engine = resources.sqlite.create_engine()
+    async with engine.begin() as conn:
+        await conn.execute(
+            text(
+                """
+                INSERT INTO derivative_feature_vectors (feature_id, embedding_json)
+                VALUES (123456, '[1.0, 0.0, 0.0, 0.0]')
+                """
+            )
+        )
+    await resources.graph_store.add_nodes(
+        node_table="Episode",
+        nodes=[
+            {
+                "uid": "orphan-episode",
+                "session_id": "ghost",
+                "content": "ghost",
+                "content_type": "text",
+                "created_at": "2026-03-06T00:00:00Z",
+                "metadata_json": "{}",
+            }
+        ],
+    )
+    await resources.graph_store.add_nodes(
+        node_table="Derivative",
+        nodes=[
+            {
+                "uid": "orphan-derivative",
+                "episode_uid": "orphan-episode",
+                "session_id": "ghost",
+                "content": "ghost",
+                "content_type": "text",
+                "sequence_num": 1,
+                "metadata_json": "{}",
+            }
+        ],
+    )
+    await resources.close()
+
+    first = await repair_snapshot(settings)
+    second = await repair_snapshot(settings)
+
+    assert first["orphan_records_removed"] >= 3
+    assert second["orphan_records_removed"] == 0
+
+    after = await reconcile_snapshot(settings)
+    assert after["orphan_derivative_vector_ids"] == []
+    assert after["orphan_episode_graph_nodes"] == []
+    assert after["orphan_derivative_nodes"] == []

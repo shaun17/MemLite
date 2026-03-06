@@ -693,21 +693,21 @@
 #### 17.3 修复工具
 - [x] 重建 derivative 向量
 - [x] 重建 graph 节点/边
-- [ ] 清理 orphan 数据
+- [x] 清理 orphan 数据
 - [x] 清理 soft delete residue
 
 ### 测试 TODO
 
 - [x] 迁移小样本测试
 - [x] 对账工具正确性测试
-- [ ] 修复工具幂等性测试
+- [x] 修复工具幂等性测试
 - [x] 迁移后检索可用性测试
 
 ### 验收标准
 
 - 数据可迁移
 - 对账与修复工具可用
-- 当前进展：`97` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`5` 个 OpenClaw 插件测试通过
+- 当前进展：`98` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`5` 个 OpenClaw 插件测试通过
 
 ## 18. Phase 14：性能、稳定性、可观测性
 
