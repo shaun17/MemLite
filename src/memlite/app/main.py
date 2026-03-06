@@ -6,9 +6,11 @@ import uvicorn
 from fastapi import FastAPI
 
 from memlite.api.health import router as health_router
+from memlite.api.memory_config import router as memory_config_router
 from memlite.api.memories import router as memories_router
 from memlite.api.metrics import router as metrics_router
 from memlite.api.projects import router as projects_router
+from memlite.api.semantic_config import router as semantic_config_router
 from memlite.api.semantic_features import router as semantic_features_router
 from memlite.app.resources import ResourceManager
 from memlite.common.config import get_settings
@@ -35,7 +37,9 @@ def create_app() -> FastAPI:
     app.include_router(metrics_router)
     app.include_router(projects_router)
     app.include_router(memories_router)
+    app.include_router(memory_config_router)
     app.include_router(semantic_features_router)
+    app.include_router(semantic_config_router)
     return app
 
 

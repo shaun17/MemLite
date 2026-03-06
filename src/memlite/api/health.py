@@ -16,3 +16,13 @@ def health() -> dict[str, str]:
         "service": settings.app_name,
         "environment": settings.environment,
     }
+
+
+@router.get("/version")
+def version() -> dict[str, str]:
+    """Return basic service version information."""
+    settings = get_settings()
+    return {
+        "service": settings.app_name,
+        "version": "0.1.0",
+    }

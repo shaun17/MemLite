@@ -171,6 +171,22 @@ class SqliteSemanticConfigStore:
             ).mappings().first()
         return None if row is None else SetConfigRecord(**row)
 
+    async def list_set_ids(self) -> list[str]:
+        engine = self._engine_factory.create_engine()
+        async with engine.connect() as conn:
+            rows = (
+                await conn.execute(
+                    text(
+                        """
+                        SELECT set_id
+                        FROM semantic_config_set_id_resources
+                        ORDER BY set_id
+                        """
+                    )
+                )
+            ).all()
+        return [str(row[0]) for row in rows]
+
     async def register_set_id_set_type(self, *, set_id: str, set_type_id: int) -> None:
         async def _register(session):
             await session.execute(
@@ -236,6 +252,24 @@ class SqliteSemanticConfigStore:
                 )
             ).mappings().first()
         return None if row is None else CategoryRecord(**row)
+
+    async def get_category_set_ids(self, name: str) -> list[str]:
+        engine = self._engine_factory.create_engine()
+        async with engine.connect() as conn:
+            rows = (
+                await conn.execute(
+                    text(
+                        """
+                        SELECT DISTINCT set_id
+                        FROM semantic_config_category
+                        WHERE name = :name AND set_id IS NOT NULL
+                        ORDER BY set_id
+                        """
+                    ),
+                    {"name": name},
+                )
+            ).all()
+        return [str(row[0]) for row in rows]
 
     async def list_categories_for_set(self, set_id: str) -> list[CategoryRecord]:
         engine = self._engine_factory.create_engine()

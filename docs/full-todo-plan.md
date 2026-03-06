@@ -77,7 +77,7 @@
 
 - 已修复问题：`semantic_feature_store.py` 已改为使用时区感知 UTC 时间，移除了 `datetime.utcnow()` 弃用告警来源。
 - 已完成两批基础框架任务：工程目录、配置加载、环境变量支持、日志模块、异常与错误码、资源管理器骨架、抽象存储接口、健康检查、metrics 和测试目录。
-- 已使用 Python 3.12 本地虚拟环境完成两批基础测试验证，当前通过 `72` 个测试用例。
+- 已使用 Python 3.12 本地虚拟环境完成两批基础测试验证，当前通过 `74` 个测试用例。
 
 ## 5. Phase 1：工程骨架与架构实现
 
@@ -440,36 +440,36 @@
 - [x] update feature
 
 #### semantic set / config 接口
-- [ ] create semantic set type
-- [ ] list semantic set types
-- [ ] delete semantic set type
-- [ ] get semantic set id
-- [ ] list semantic set ids
-- [ ] configure semantic set
+- [x] create semantic set type
+- [x] list semantic set types
+- [x] delete semantic set type
+- [x] get semantic set id
+- [x] list semantic set ids
+- [x] configure semantic set
 
 #### category / tag 接口
-- [ ] get semantic category
-- [ ] add semantic category
-- [ ] add semantic category template
-- [ ] list semantic category templates
-- [ ] disable semantic category
-- [ ] get semantic category set ids
-- [ ] delete semantic category
-- [ ] add semantic tag
-- [ ] delete semantic tag
+- [x] get semantic category
+- [x] add semantic category
+- [x] add semantic category template
+- [x] list semantic category templates
+- [x] disable semantic category
+- [x] get semantic category set ids
+- [x] delete semantic category
+- [x] add semantic tag
+- [x] delete semantic tag
 
 #### episodic config 接口
-- [ ] get episodic memory config
-- [ ] configure episodic memory
-- [ ] get short-term memory config
-- [ ] configure short-term memory
-- [ ] get long-term memory config
-- [ ] configure long-term memory
+- [x] get episodic memory config
+- [x] configure episodic memory
+- [x] get short-term memory config
+- [x] configure short-term memory
+- [x] get long-term memory config
+- [x] configure long-term memory
 
 #### system 接口
 - [x] health
-- [ ] metrics
-- [ ] version
+- [x] metrics
+- [x] version
 
 ### 测试 TODO
 
@@ -479,14 +479,14 @@
 - [ ] filter 参数解析测试
 
 #### API 测试
-- [ ] 所有 REST 路由成功路径测试
-- [ ] 所有 REST 路由错误路径测试
+- [x] 所有 REST 路由成功路径测试
+- [x] 所有 REST 路由错误路径测试
 - [ ] 鉴权/无鉴权模式测试
-- [ ] OpenAPI 生成测试
+- [x] OpenAPI 生成测试
 
 #### 回归测试
 - [ ] 返回 JSON 结构兼容测试
-- [ ] HTTP 状态码兼容测试
+- [x] HTTP 状态码兼容测试
 
 ### 验收标准
 
@@ -741,7 +741,7 @@
 - [ ] 基准测试脚本
 - [ ] 幂等性测试
 - [ ] 重试/补偿逻辑测试
-- [ ] metrics 暴露测试
+- [x] metrics 暴露测试
 
 ### 验收标准
 
@@ -782,7 +782,7 @@
 
 #### 发布
 - [ ] changelog
-- [ ] versioning
+- [x] versioning
 - [ ] release build
 - [ ] smoke test
 - [ ] 发布说明
@@ -871,8 +871,8 @@
 - [ ] 所有 semantic 接口
 - [ ] 所有 config 接口
 - [x] health
-- [ ] metrics
-- [ ] version
+- [x] metrics
+- [x] version
 
 ### H. MCP
 - [ ] stdio

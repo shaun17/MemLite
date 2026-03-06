@@ -6,9 +6,11 @@ from memlite.common.config import Settings
 from memlite.episodic.delete import EpisodicDeleteService
 from memlite.episodic.derivative_pipeline import DerivativePipeline
 from memlite.episodic.search import EpisodicSearchService
+from memlite.memory.config_service import MemoryConfigService
 from memlite.metrics.service import MetricsService
 from memlite.orchestrator.memory_orchestrator import MemoryOrchestrator
 from memlite.semantic.service import SemanticService
+from memlite.semantic.session_manager import SemanticSessionManager
 from memlite.storage.episode_store import SqliteEpisodeStore
 from memlite.storage.graph_store import KuzuGraphStore
 from memlite.storage.kuzu_engine import KuzuEngineFactory
@@ -38,6 +40,7 @@ class ResourceManager:
 
     settings: Settings
     metrics: MetricsService
+    memory_config: MemoryConfigService
     sqlite: SqliteEngineFactory
     kuzu: KuzuEngineFactory
     project_store: SqliteProjectStore
@@ -51,6 +54,7 @@ class ResourceManager:
     episodic_search: EpisodicSearchService
     episodic_delete: EpisodicDeleteService
     semantic_service: SemanticService
+    semantic_session_manager: SemanticSessionManager
     orchestrator: MemoryOrchestrator
 
     @classmethod
@@ -86,6 +90,7 @@ class ResourceManager:
             embedder=default_embedder,
             default_category_resolver=lambda _set_id: [],
         )
+        semantic_session_manager = SemanticSessionManager(semantic_config_store)
         orchestrator = MemoryOrchestrator(
             project_store=project_store,
             session_store=session_store,
@@ -99,6 +104,7 @@ class ResourceManager:
         return cls(
             settings=settings,
             metrics=MetricsService(),
+            memory_config=MemoryConfigService(),
             sqlite=sqlite,
             kuzu=kuzu,
             project_store=project_store,
@@ -112,6 +118,7 @@ class ResourceManager:
             episodic_search=episodic_search,
             episodic_delete=episodic_delete,
             semantic_service=semantic_service,
+            semantic_session_manager=semantic_session_manager,
             orchestrator=orchestrator,
         )
 

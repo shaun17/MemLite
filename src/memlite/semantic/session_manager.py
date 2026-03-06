@@ -53,6 +53,9 @@ class SemanticSessionManager:
     async def delete_set_type(self, set_type_id: int) -> None:
         await self._config_store.delete_set_type(set_type_id)
 
+    async def list_set_ids(self) -> list[str]:
+        return await self._config_store.list_set_ids()
+
     async def bind_set(self, request: SetBindingRequest) -> SetConfigRecord | None:
         await self._config_store.set_setid_config(
             set_id=request.set_id,
@@ -88,8 +91,14 @@ class SemanticSessionManager:
             set_type_id=set_type_id,
         )
 
+    async def get_category(self, category_id: int) -> CategoryRecord | None:
+        return await self._config_store.get_category(category_id)
+
     async def list_categories(self, set_id: str) -> list[CategoryRecord]:
         return await self._config_store.list_categories_for_set(set_id)
+
+    async def get_category_set_ids(self, name: str) -> list[str]:
+        return await self._config_store.get_category_set_ids(name)
 
     async def delete_category(self, category_id: int) -> None:
         await self._config_store.delete_category(category_id)

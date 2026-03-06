@@ -128,3 +128,126 @@ def test_semantic_feature_routes_crud(tmp_path: Path, monkeypatch):
         assert fetched.json()["value"] == "ramen"
         assert updated.status_code == 200
         assert fetched_after.json()["value"] == "soba"
+
+
+def test_semantic_config_routes_and_version(tmp_path: Path, monkeypatch):
+    monkeypatch.setenv("MEMLITE_SQLITE_PATH", str(tmp_path / "memlite.sqlite3"))
+    monkeypatch.setenv("MEMLITE_KUZU_PATH", str(tmp_path / "graph.kuzu"))
+    reset_settings_cache()
+
+    with TestClient(create_app()) as client:
+        set_type = client.post(
+            "/semantic/config/set-types",
+            json={
+                "org_id": "org-a",
+                "metadata_tags_sig": "user_id|agent_id",
+                "name": "default",
+            },
+        )
+        set_type_id = set_type.json()["id"]
+        set_config = client.post(
+            "/semantic/config/sets",
+            json={
+                "set_id": "set-a",
+                "set_type_id": set_type_id,
+                "set_name": "Set A",
+                "embedder_name": "default",
+            },
+        )
+        category = client.post(
+            "/semantic/config/categories",
+            json={
+                "set_id": "set-a",
+                "name": "profile",
+                "prompt": "profile prompt",
+            },
+        )
+        category_id = category.json()["id"]
+        template = client.post(
+            "/semantic/config/category-templates",
+            json={
+                "set_type_id": set_type_id,
+                "name": "profile-template",
+                "category_name": "profile",
+                "prompt": "template prompt",
+            },
+        )
+        tag = client.post(
+            "/semantic/config/tags",
+            json={
+                "category_id": category_id,
+                "name": "food",
+                "description": "Food preference",
+            },
+        )
+        disabled = client.post(
+            "/semantic/config/disabled-categories",
+            json={"set_id": "set-a", "category_name": "profile"},
+        )
+
+        listed_set_types = client.get("/semantic/config/set-types", params={"org_id": "org-a"})
+        fetched_set = client.get("/semantic/config/sets/set-a")
+        listed_set_ids = client.get("/semantic/config/sets")
+        fetched_category = client.get(f"/semantic/config/categories/{category_id}")
+        category_set_ids = client.get("/semantic/config/categories/profile/set-ids")
+        listed_templates = client.get(
+            "/semantic/config/category-templates",
+            params={"set_type_id": set_type_id},
+        )
+        listed_tags = client.get("/semantic/config/tags", params={"category_id": category_id})
+        version = client.get("/version")
+
+        assert set_type.status_code == 200
+        assert set_config.status_code == 200
+        assert category.status_code == 200
+        assert template.status_code == 200
+        assert tag.status_code == 200
+        assert disabled.status_code == 200
+        assert listed_set_types.status_code == 200
+        assert listed_set_types.json()[0]["id"] == set_type_id
+        assert fetched_set.json()["set_name"] == "Set A"
+        assert listed_set_ids.json() == ["set-a"]
+        assert fetched_category.json()["name"] == "profile"
+        assert category_set_ids.json() == ["set-a"]
+        assert listed_templates.json()[0]["name"] == "profile-template"
+        assert listed_tags.json()[0]["name"] == "food"
+        assert version.json()["version"] == "0.1.0"
+
+
+def test_memory_config_routes_and_error_paths_and_openapi(tmp_path: Path, monkeypatch):
+    monkeypatch.setenv("MEMLITE_SQLITE_PATH", str(tmp_path / "memlite.sqlite3"))
+    monkeypatch.setenv("MEMLITE_KUZU_PATH", str(tmp_path / "graph.kuzu"))
+    reset_settings_cache()
+
+    with TestClient(create_app()) as client:
+        episodic = client.get("/memory-config/episodic")
+        updated_episodic = client.patch(
+            "/memory-config/episodic",
+            json={"top_k": 8, "min_score": 0.2, "context_window": 2},
+        )
+        short_term = client.patch(
+            "/memory-config/short-term",
+            json={"message_capacity": 2048, "summary_enabled": False},
+        )
+        long_term = client.patch(
+            "/memory-config/long-term",
+            json={"semantic_enabled": True, "episodic_enabled": False},
+        )
+        missing_project = client.get("/projects/org-x/project-x")
+        missing_feature = client.get("/semantic/features/9999")
+        invalid_project = client.post("/projects", json={"org_id": "org-a"})
+        openapi = client.get("/openapi.json")
+
+        assert episodic.status_code == 200
+        assert episodic.json()["top_k"] == 5
+        assert updated_episodic.status_code == 200
+        assert updated_episodic.json()["top_k"] == 8
+        assert short_term.status_code == 200
+        assert short_term.json()["message_capacity"] == 2048
+        assert long_term.status_code == 200
+        assert long_term.json()["episodic_enabled"] is False
+        assert missing_project.status_code == 404
+        assert missing_feature.status_code == 404
+        assert invalid_project.status_code == 422
+        assert openapi.status_code == 200
+        assert "/projects" in openapi.json()["paths"]

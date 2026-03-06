@@ -149,6 +149,127 @@ class SemanticFeatureUpdateRequest(BaseModel):
     embedding: list[float] | None = None
 
 
+class SetTypeCreateRequest(BaseModel):
+    org_id: str
+    metadata_tags_sig: str
+    org_level_set: bool = False
+    name: str | None = None
+    description: str | None = None
+
+
+class SetTypeResponse(BaseModel):
+    id: int
+    org_id: str
+    org_level_set: int
+    metadata_tags_sig: str
+    name: str | None
+    description: str | None
+
+
+class SetConfigRequest(BaseModel):
+    set_id: str
+    set_type_id: int | None = None
+    set_name: str | None = None
+    set_description: str | None = None
+    embedder_name: str | None = None
+    language_model_name: str | None = None
+
+
+class SetConfigResponse(BaseModel):
+    set_id: str
+    set_name: str | None
+    set_description: str | None
+    embedder_name: str | None
+    language_model_name: str | None
+
+
+class CategoryCreateRequest(BaseModel):
+    name: str
+    prompt: str
+    description: str | None = None
+    set_id: str | None = None
+    set_type_id: int | None = None
+
+
+class CategoryResponse(BaseModel):
+    id: int
+    set_id: str | None
+    set_type_id: int | None
+    name: str
+    prompt: str
+    description: str | None
+    inherited: bool = False
+
+
+class CategoryTemplateCreateRequest(BaseModel):
+    name: str
+    category_name: str
+    prompt: str
+    description: str | None = None
+    set_type_id: int | None = None
+
+
+class CategoryTemplateResponse(BaseModel):
+    id: int
+    set_type_id: int | None
+    name: str
+    category_name: str
+    prompt: str
+    description: str | None
+
+
+class DisableCategoryRequest(BaseModel):
+    set_id: str
+    category_name: str
+
+
+class TagCreateRequest(BaseModel):
+    category_id: int
+    name: str
+    description: str
+
+
+class TagResponse(BaseModel):
+    id: int
+    category_id: int
+    name: str
+    description: str
+
+
+class EpisodicMemoryConfigResponse(BaseModel):
+    top_k: int
+    min_score: float
+    context_window: int
+    rerank_enabled: bool
+
+
+class EpisodicMemoryConfigUpdateRequest(BaseModel):
+    top_k: int | None = None
+    min_score: float | None = None
+    context_window: int | None = None
+    rerank_enabled: bool | None = None
+
+
+class ShortTermMemoryConfigResponse(BaseModel):
+    message_capacity: int
+    summary_enabled: bool
+
+
+class ShortTermMemoryConfigUpdateRequest(BaseModel):
+    message_capacity: int | None = None
+    summary_enabled: bool | None = None
+
+
+class LongTermMemoryConfigResponse(BaseModel):
+    semantic_enabled: bool
+    episodic_enabled: bool
+
+
+class LongTermMemoryConfigUpdateRequest(BaseModel):
+    semantic_enabled: bool | None = None
+    episodic_enabled: bool | None = None
+
+
 class AgentModeRequest(BaseModel):
     query: str
     session_key: str | None = None
@@ -178,3 +299,35 @@ def to_feature_response(feature) -> SemanticFeatureResponse:
 
 def dump_episode_payload(episode: EpisodeInput) -> dict[str, Any]:
     return episode.model_dump()
+
+
+def to_set_type_response(record) -> SetTypeResponse:
+    return SetTypeResponse.model_validate(record, from_attributes=True)
+
+
+def to_set_config_response(record) -> SetConfigResponse:
+    return SetConfigResponse.model_validate(record, from_attributes=True)
+
+
+def to_category_response(record) -> CategoryResponse:
+    return CategoryResponse.model_validate(record, from_attributes=True)
+
+
+def to_category_template_response(record) -> CategoryTemplateResponse:
+    return CategoryTemplateResponse.model_validate(record, from_attributes=True)
+
+
+def to_tag_response(record) -> TagResponse:
+    return TagResponse.model_validate(record, from_attributes=True)
+
+
+def to_episodic_memory_config_response(record) -> EpisodicMemoryConfigResponse:
+    return EpisodicMemoryConfigResponse.model_validate(record, from_attributes=True)
+
+
+def to_short_term_memory_config_response(record) -> ShortTermMemoryConfigResponse:
+    return ShortTermMemoryConfigResponse.model_validate(record, from_attributes=True)
+
+
+def to_long_term_memory_config_response(record) -> LongTermMemoryConfigResponse:
+    return LongTermMemoryConfigResponse.model_validate(record, from_attributes=True)
