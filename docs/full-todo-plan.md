@@ -723,7 +723,7 @@
 - [x] filter 前置优化
 - [x] context expansion 优化
 - [x] 常用查询索引调优
-- [ ] 热点缓存评估与实现
+- 热点缓存评估与实现已移入 `docs/optimization-backlog.md`，不阻塞当前交付
 
 #### 稳定性
 - [x] 幂等写入
@@ -756,6 +756,7 @@
 - 有观测能力
 - 当前进展：`114` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`5` 个 OpenClaw 插件测试通过
 - 已记录问题：测试环境下 `aiosqlite` 关闭阶段存在 event loop closed 警告，需在后续稳定性阶段收口
+- 后续优化项已迁移到：`docs/optimization-backlog.md`
 
 ## 19. Phase 15：最终测试、文档与发布
 
