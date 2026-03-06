@@ -77,7 +77,7 @@
 
 - 已修复问题：`semantic_feature_store.py` 已改为使用时区感知 UTC 时间，移除了 `datetime.utcnow()` 弃用告警来源。
 - 已完成两批基础框架任务：工程目录、配置加载、环境变量支持、日志模块、异常与错误码、资源管理器骨架、抽象存储接口、健康检查、metrics 和测试目录。
-- 已使用 Python 3.12 本地虚拟环境完成两批基础测试验证，当前通过 `69` 个测试用例。
+- 已使用 Python 3.12 本地虚拟环境完成两批基础测试验证，当前通过 `72` 个测试用例。
 
 ## 5. Phase 1：工程骨架与架构实现
 
@@ -421,23 +421,23 @@
 ### TODO
 
 #### 项目接口
-- [ ] create project
-- [ ] get project
-- [ ] list projects
-- [ ] delete project
-- [ ] get episode count
+- [x] create project
+- [x] get project
+- [x] list projects
+- [x] delete project
+- [x] get episode count
 
 #### memory 接口
-- [ ] add memories
-- [ ] search memories
-- [ ] list memories
-- [ ] delete episodic memories
-- [ ] delete semantic memories
+- [x] add memories
+- [x] search memories
+- [x] list memories
+- [x] delete episodic memories
+- [x] delete semantic memories
 
 #### semantic feature 接口
-- [ ] add feature
-- [ ] get feature
-- [ ] update feature
+- [x] add feature
+- [x] get feature
+- [x] update feature
 
 #### semantic set / config 接口
 - [ ] create semantic set type
@@ -467,7 +467,7 @@
 - [ ] configure long-term memory
 
 #### system 接口
-- [ ] health
+- [x] health
 - [ ] metrics
 - [ ] version
 
@@ -796,10 +796,10 @@
 ## 20. 功能全覆盖验收清单
 
 ### A. 项目与会话
-- [ ] create project
-- [ ] get project
-- [ ] list projects
-- [ ] delete project
+- [x] create project
+- [x] get project
+- [x] list projects
+- [x] delete project
 - [ ] episode count
 - [ ] create session
 - [ ] get session
@@ -828,9 +828,9 @@
 - [ ] close/reset
 
 ### D. Semantic Memory
-- [ ] add feature
-- [ ] get feature
-- [ ] update feature
+- [x] add feature
+- [x] get feature
+- [x] update feature
 - [ ] delete feature(s)
 - [ ] list/search feature set
 - [ ] delete feature set
@@ -870,7 +870,7 @@
 - [ ] 所有 memory 接口
 - [ ] 所有 semantic 接口
 - [ ] 所有 config 接口
-- [ ] health
+- [x] health
 - [ ] metrics
 - [ ] version
 
@@ -933,7 +933,7 @@
 - [ ] OpenClaw plugin
 
 ### E2E 测试
-- [ ] create project -> add memory -> search -> delete
+- [x] create project -> add memory -> search -> delete
 - [ ] add memory -> semantic ingestion -> recall
 - [ ] session close/reopen -> summary restore
 - [ ] plugin autoCapture -> autoRecall
