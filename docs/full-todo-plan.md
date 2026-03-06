@@ -673,40 +673,41 @@
 ### TODO
 
 #### 17.1 迁移工具
-- [ ] projects 导出
-- [ ] sessions 导出
-- [ ] episodes 导出
-- [ ] semantic features 导出
-- [ ] citations 导出
-- [ ] config 导出
-- [ ] SQLite 导入
-- [ ] sqlite-vec 重建
-- [ ] Kùzu 重建
+- [x] projects 导出
+- [x] sessions 导出
+- [x] episodes 导出
+- [x] semantic features 导出
+- [x] citations 导出
+- [x] config 导出
+- [x] SQLite 导入
+- [x] sqlite-vec 重建
+- [x] Kùzu 重建
 
 #### 17.2 对账工具
-- [ ] SQLite ↔ sqlite-vec 对账
-- [ ] SQLite ↔ Kùzu 对账
-- [ ] orphan derivative 检测
-- [ ] missing graph edge 检测
-- [ ] missing embedding 检测
+- [x] SQLite ↔ sqlite-vec 对账
+- [x] SQLite ↔ Kùzu 对账
+- [x] orphan derivative 检测
+- [x] missing graph edge 检测
+- [x] missing embedding 检测
 
 #### 17.3 修复工具
-- [ ] 重建 derivative 向量
-- [ ] 重建 graph 节点/边
+- [x] 重建 derivative 向量
+- [x] 重建 graph 节点/边
 - [ ] 清理 orphan 数据
-- [ ] 清理 soft delete residue
+- [x] 清理 soft delete residue
 
 ### 测试 TODO
 
-- [ ] 迁移小样本测试
-- [ ] 对账工具正确性测试
+- [x] 迁移小样本测试
+- [x] 对账工具正确性测试
 - [ ] 修复工具幂等性测试
-- [ ] 迁移后检索可用性测试
+- [x] 迁移后检索可用性测试
 
 ### 验收标准
 
 - 数据可迁移
 - 对账与修复工具可用
+- 当前进展：`97` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`5` 个 OpenClaw 插件测试通过
 
 ## 18. Phase 14：性能、稳定性、可观测性
 

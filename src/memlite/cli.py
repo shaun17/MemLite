@@ -10,6 +10,12 @@ from pathlib import Path
 from memlite.app.resources import ResourceManager
 from memlite.common.config import DEFAULT_DATA_DIR, Settings, get_settings
 from memlite.storage.sqlite_vec import SqliteVecExtensionLoader
+from memlite.tools.migration import (
+    export_snapshot,
+    import_snapshot,
+    reconcile_snapshot,
+    repair_snapshot,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -45,6 +51,28 @@ def build_parser() -> argparse.ArgumentParser:
     sample_parser.add_argument("--data-dir", type=Path, default=None)
     sample_parser.add_argument("--overwrite", action="store_true")
 
+    export_parser = subparsers.add_parser("export", help="Export a MemLite snapshot to JSON")
+    export_parser.add_argument("--output", type=Path, required=True)
+    export_parser.add_argument("--data-dir", type=Path, default=None)
+
+    import_parser = subparsers.add_parser("import", help="Import a MemLite snapshot from JSON")
+    import_parser.add_argument("--input", type=Path, required=True)
+    import_parser.add_argument("--data-dir", type=Path, default=None)
+
+    reconcile_parser = subparsers.add_parser(
+        "reconcile",
+        help="Reconcile SQLite, sqlite-vec and Kùzu state",
+    )
+    reconcile_parser.add_argument("--output", type=Path, default=None)
+    reconcile_parser.add_argument("--data-dir", type=Path, default=None)
+
+    repair_parser = subparsers.add_parser(
+        "repair",
+        help="Repair derivative graph/vector state from SQLite truth",
+    )
+    repair_parser.add_argument("--output", type=Path, default=None)
+    repair_parser.add_argument("--data-dir", type=Path, default=None)
+
     return parser
 
 
@@ -74,6 +102,18 @@ def main(argv: list[str] | None = None) -> int:
             overwrite=args.overwrite,
         )
         return 0
+    if args.command == "export":
+        asyncio.run(_run_export(output=args.output, data_dir=args.data_dir))
+        return 0
+    if args.command == "import":
+        asyncio.run(_run_import(input_path=args.input, data_dir=args.data_dir))
+        return 0
+    if args.command == "reconcile":
+        asyncio.run(_run_reconcile(output=args.output, data_dir=args.data_dir))
+        return 0
+    if args.command == "repair":
+        asyncio.run(_run_repair(output=args.output, data_dir=args.data_dir))
+        return 0
     return 1
 
 
@@ -83,6 +123,40 @@ async def _run_init(*, data_dir: Path | None) -> None:
     print(f"initialized data dir: {settings.data_dir}")
     print(f"sqlite: {settings.sqlite_path}")
     print(f"kuzu: {settings.kuzu_path}")
+
+
+async def _run_export(*, output: Path, data_dir: Path | None) -> None:
+    settings = build_settings(data_dir=data_dir)
+    written = await export_snapshot(settings, output)
+    print(f"exported snapshot: {written}")
+
+
+async def _run_import(*, input_path: Path, data_dir: Path | None) -> None:
+    settings = build_settings(data_dir=data_dir)
+    await import_snapshot(settings, input_path)
+    print(f"imported snapshot: {input_path}")
+
+
+async def _run_reconcile(*, output: Path | None, data_dir: Path | None) -> None:
+    settings = build_settings(data_dir=data_dir)
+    result = await reconcile_snapshot(settings)
+    if output is not None:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json_dump(result), encoding="utf-8")
+        print(f"wrote reconcile report: {output}")
+        return
+    print(json_dump(result))
+
+
+async def _run_repair(*, output: Path | None, data_dir: Path | None) -> None:
+    settings = build_settings(data_dir=data_dir)
+    result = await repair_snapshot(settings)
+    if output is not None:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json_dump(result), encoding="utf-8")
+        print(f"wrote repair report: {output}")
+        return
+    print(json_dump(result))
 
 
 def build_settings(
@@ -180,6 +254,13 @@ def detect_sqlite_vec(*, extension_path: Path | None) -> int:
     else:
         print(f"sqlite-vec missing: {configured}")
     return 1
+
+
+def json_dump(payload: object) -> str:
+    """Serialize a CLI result payload."""
+    import json
+
+    return json.dumps(payload, indent=2, ensure_ascii=False)
 
 
 if __name__ == "__main__":

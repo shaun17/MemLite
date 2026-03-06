@@ -46,6 +46,13 @@ asyncio.run(main())
 - 初始化本地存储：`memlite-configure init --data-dir ~/.memlite`
 - 检测 `sqlite-vec`：`memlite-configure detect-sqlite-vec --extension-path /path/to/sqlite-vec.dylib`
 
+## 迁移与修复工具
+
+- 导出快照：`memlite-configure export --output snapshot.json --data-dir ~/.memlite`
+- 导入快照：`memlite-configure import --input snapshot.json --data-dir ~/.memlite`
+- 对账报告：`memlite-configure reconcile --output reconcile.json --data-dir ~/.memlite`
+- 修复导数图与向量：`memlite-configure repair --output repair.json --data-dir ~/.memlite`
+
 ## 适用场景
 
 - 本地开发与单机部署
