@@ -727,25 +727,25 @@
 
 #### 稳定性
 - [ ] 幂等写入
-- [ ] 幂等删除
+- [x] 幂等删除
 - [x] 重试机制
-- [ ] 后台补偿任务
-- [ ] 崩溃恢复逻辑
+- [x] 后台补偿任务
+- [x] 崩溃恢复逻辑
 
 #### 可观测性
 - [x] access log
 - [x] error log
 - [x] search latency 指标
-- [ ] ingestion backlog 指标
+- [x] ingestion backlog 指标
 - [x] vec query latency 指标
 - [x] graph query latency 指标
-- [ ] repair queue 指标
+- [x] repair queue 指标
 
 ### 测试 TODO
 
 - [ ] 压测脚本
 - [ ] 基准测试脚本
-- [ ] 幂等性测试
+- [x] 幂等性测试
 - [x] 重试/补偿逻辑测试
 - [x] metrics 暴露测试
 
@@ -754,7 +754,7 @@
 - 有性能数据
 - 有稳定性测试
 - 有观测能力
-- 当前进展：`104` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`5` 个 OpenClaw 插件测试通过
+- 当前进展：`107` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`5` 个 OpenClaw 插件测试通过
 - 已记录问题：测试环境下 `aiosqlite` 关闭阶段存在 event loop closed 警告，需在后续稳定性阶段收口
 
 ## 19. Phase 15：最终测试、文档与发布
@@ -956,9 +956,9 @@
 ### 非功能测试
 - [ ] 性能基准
 - [ ] 压测
-- [ ] 幂等性
-- [ ] 补偿机制
-- [ ] 崩溃恢复
+- [x] 幂等性
+- [x] 补偿机制
+- [x] 崩溃恢复
 - [ ] 迁移一致性
 
 ## 22. 最终结论

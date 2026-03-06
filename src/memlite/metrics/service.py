@@ -15,6 +15,9 @@ class MetricsService:
     def increment(self, name: str, value: int = 1) -> None:
         self.counters[name] = self.counters.get(name, 0) + value
 
+    def set_gauge(self, name: str, value: int) -> None:
+        self.counters[name] = value
+
     def observe_timing(self, name: str, value_ms: float) -> None:
         bucket = self.timings_ms.setdefault(name, [])
         bucket.append(round(value_ms, 3))

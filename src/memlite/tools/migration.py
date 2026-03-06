@@ -5,11 +5,14 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Any
+from typing import TYPE_CHECKING
 
 from sqlalchemy import text
 
-from memlite.app.resources import ResourceManager
 from memlite.common.config import Settings
+
+if TYPE_CHECKING:
+    from memlite.app.resources import ResourceManager
 
 EXPORT_TABLES = (
     "projects",
@@ -31,6 +34,8 @@ EXPORT_TABLES = (
 
 async def export_snapshot(settings: Settings, output: Path) -> Path:
     """Export the current MemLite state into a JSON snapshot."""
+    from memlite.app.resources import ResourceManager
+
     resources = ResourceManager.create(settings)
     await resources.initialize()
     try:
@@ -49,6 +54,8 @@ async def export_snapshot(settings: Settings, output: Path) -> Path:
 
 async def import_snapshot(settings: Settings, source: Path) -> None:
     """Import a MemLite JSON snapshot into SQLite and rebuild derived state."""
+    from memlite.app.resources import ResourceManager
+
     snapshot = json.loads(source.read_text(encoding="utf-8"))
     tables: dict[str, list[dict[str, Any]]] = snapshot["tables"]
     resources = ResourceManager.create(settings)
@@ -111,18 +118,27 @@ async def rebuild_derivative_graph(resources: ResourceManager) -> int:
 
 async def reconcile_snapshot(settings: Settings) -> dict[str, Any]:
     """Reconcile SQLite, sqlite-vec and Kùzu state."""
+    from memlite.app.resources import ResourceManager
+
     resources = ResourceManager.create(settings)
     await resources.initialize()
     try:
-        sqlite_vec = await _reconcile_sqlite_vec(resources)
-        kuzu = await _reconcile_kuzu(resources)
-        return {**sqlite_vec, **kuzu}
+        return await reconcile_runtime(resources)
     finally:
         await resources.close()
 
 
+async def reconcile_runtime(resources: ResourceManager) -> dict[str, Any]:
+    """Reconcile live runtime resources without creating a nested container."""
+    sqlite_vec = await _reconcile_sqlite_vec(resources)
+    kuzu = await _reconcile_kuzu(resources)
+    return {**sqlite_vec, **kuzu}
+
+
 async def repair_snapshot(settings: Settings) -> dict[str, int]:
     """Repair missing derivative vectors and graph state from SQLite truth."""
+    from memlite.app.resources import ResourceManager
+
     resources = ResourceManager.create(settings)
     await resources.initialize()
     try:

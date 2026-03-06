@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass, field
 
+from memlite.app.background import BackgroundTaskRunner
 from memlite.common.config import Settings
 from memlite.episodic.delete import EpisodicDeleteService
 from memlite.episodic.derivative_pipeline import DerivativePipeline
@@ -56,6 +57,7 @@ class ResourceManager:
     semantic_service: SemanticService
     semantic_session_manager: SemanticSessionManager
     orchestrator: MemoryOrchestrator
+    background_tasks: BackgroundTaskRunner
     _initialized: bool = field(default=False, init=False, repr=False)
 
     @classmethod
@@ -106,7 +108,7 @@ class ResourceManager:
             episodic_delete_service=episodic_delete,
             derivative_pipeline=derivative_pipeline,
         )
-        return cls(
+        resources = cls(
             settings=settings,
             metrics=metrics,
             memory_config=MemoryConfigService(),
@@ -125,7 +127,10 @@ class ResourceManager:
             semantic_service=semantic_service,
             semantic_session_manager=semantic_session_manager,
             orchestrator=orchestrator,
+            background_tasks=None,  # type: ignore[arg-type]
         )
+        resources.background_tasks = BackgroundTaskRunner(resources=resources)
+        return resources
 
     async def initialize(self) -> None:
         """Initialize backing stores and schemas."""
@@ -135,6 +140,7 @@ class ResourceManager:
         await self.semantic_feature_store.initialize()
         await self.derivative_index.initialize()
         await self.kuzu.initialize_schema()
+        await self.background_tasks.run_startup_recovery()
         self._initialized = True
 
     async def close(self) -> None:

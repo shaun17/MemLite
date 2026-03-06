@@ -142,7 +142,9 @@ class SqliteEpisodeStore:
 
         async def _delete(session):
             await session.execute(
-                text(f"UPDATE episodes SET deleted = 1 WHERE uid IN ({placeholders})"),
+                text(
+                    f"UPDATE episodes SET deleted = 1 WHERE uid IN ({placeholders}) AND deleted = 0"
+                ),
                 params,
             )
 
@@ -151,7 +153,9 @@ class SqliteEpisodeStore:
     async def delete_session_episodes(self, session_key: str) -> None:
         async def _delete(session):
             await session.execute(
-                text("UPDATE episodes SET deleted = 1 WHERE session_key = :session_key"),
+                text(
+                    "UPDATE episodes SET deleted = 1 WHERE session_key = :session_key AND deleted = 0"
+                ),
                 {"session_key": session_key},
             )
 
