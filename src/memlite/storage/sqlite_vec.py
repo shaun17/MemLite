@@ -110,6 +110,28 @@ class SqliteVecIndex:
         results.sort(key=lambda item: item.score, reverse=True)
         return results[:limit]
 
+    async def delete(self, item_id: int) -> None:
+        """Delete a single embedding by item id."""
+        await self.delete_many([item_id])
+
+    async def delete_many(self, item_ids: list[int]) -> None:
+        """Delete multiple embeddings by item ids."""
+        if not item_ids:
+            return
+
+        placeholders = ", ".join(f":item_id_{idx}" for idx in range(len(item_ids)))
+        params = {f"item_id_{idx}": item_id for idx, item_id in enumerate(item_ids)}
+
+        async def _delete(session: AsyncSession) -> None:
+            await session.execute(
+                text(
+                    f"DELETE FROM {self._table_name} WHERE feature_id IN ({placeholders})"
+                ),
+                params,
+            )
+
+        await run_in_transaction(self._engine_factory.create_session_factory(), _delete)
+
 
 def _cosine_similarity(left: list[float], right: list[float]) -> float:
     if not left or not right or len(left) != len(right):

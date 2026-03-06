@@ -259,6 +259,65 @@ class SqliteSemanticFeatureStore:
             ).all()
         return [str(row[0]) for row in rows]
 
+    async def get_feature_ids_by_history_ids(self, history_ids: list[str]) -> list[int]:
+        """Return feature ids cited by the given episode/history ids."""
+        if not history_ids:
+            return []
+        placeholders = ", ".join(
+            f":history_id_{idx}" for idx in range(len(history_ids))
+        )
+        params = {
+            f"history_id_{idx}": history_id
+            for idx, history_id in enumerate(history_ids)
+        }
+        engine = self._engine_factory.create_engine()
+        async with engine.connect() as conn:
+            rows = (
+                await conn.execute(
+                    text(
+                        f"""
+                        SELECT DISTINCT feature_id
+                        FROM semantic_citations
+                        WHERE episode_id IN ({placeholders})
+                        ORDER BY feature_id
+                        """
+                    ),
+                    params,
+                )
+            ).all()
+        return [int(row[0]) for row in rows]
+
+    async def get_orphan_feature_ids(self, feature_ids: list[int]) -> list[int]:
+        """Return feature ids that no longer have any citations."""
+        if not feature_ids:
+            return []
+        placeholders = ", ".join(
+            f":feature_id_{idx}" for idx in range(len(feature_ids))
+        )
+        params = {
+            f"feature_id_{idx}": feature_id
+            for idx, feature_id in enumerate(feature_ids)
+        }
+        engine = self._engine_factory.create_engine()
+        async with engine.connect() as conn:
+            rows = (
+                await conn.execute(
+                    text(
+                        f"""
+                        SELECT f.id
+                        FROM semantic_features f
+                        LEFT JOIN semantic_citations c ON c.feature_id = f.id
+                        WHERE f.id IN ({placeholders})
+                        GROUP BY f.id
+                        HAVING COUNT(c.episode_id) = 0
+                        ORDER BY f.id
+                        """
+                    ),
+                    params,
+                )
+            ).all()
+        return [int(row[0]) for row in rows]
+
     async def get_history_messages(
         self,
         *,

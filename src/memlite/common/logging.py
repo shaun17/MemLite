@@ -14,3 +14,4 @@ def configure_logging(settings: Settings) -> None:
         format=_LOG_FORMAT,
         force=True,
     )
+    logging.getLogger("aiosqlite").setLevel(logging.INFO)

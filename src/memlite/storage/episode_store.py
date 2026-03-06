@@ -157,6 +157,32 @@ class SqliteEpisodeStore:
 
         await run_in_transaction(self._engine_factory.create_session_factory(), _delete)
 
+    async def purge_episodes(self, uids: list[str]) -> None:
+        """Physically delete episodes by uid."""
+        if not uids:
+            return
+        placeholders = ", ".join(f":uid_{idx}" for idx in range(len(uids)))
+        params = {f"uid_{idx}": uid for idx, uid in enumerate(uids)}
+
+        async def _delete(session):
+            await session.execute(
+                text(f"DELETE FROM episodes WHERE uid IN ({placeholders})"),
+                params,
+            )
+
+        await run_in_transaction(self._engine_factory.create_session_factory(), _delete)
+
+    async def purge_session_episodes(self, session_key: str) -> None:
+        """Physically delete all episodes for a session."""
+
+        async def _delete(session):
+            await session.execute(
+                text("DELETE FROM episodes WHERE session_key = :session_key"),
+                {"session_key": session_key},
+            )
+
+        await run_in_transaction(self._engine_factory.create_session_factory(), _delete)
+
     async def count_episodes(
         self, *, session_key: str | None = None, include_deleted: bool = False
     ) -> int:

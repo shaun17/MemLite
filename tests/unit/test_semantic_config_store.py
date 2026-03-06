@@ -43,12 +43,20 @@ async def test_semantic_config_store_crud(tmp_path: Path):
         name="food",
         description="Food preference",
     )
+    template_id = await store.create_category_template(
+        set_type_id=set_type_id,
+        name="profile-template",
+        category_name="profile",
+        prompt="template prompt",
+        description="template description",
+    )
     await store.add_disabled_category_to_setid(set_id="set-a", category_name="profile")
 
     set_types = await store.list_set_types("org-a")
     config = await store.get_setid_config("set-a")
     categories = await store.list_categories_for_set("set-a")
     tags = await store.list_tags(local_category_id)
+    templates = await store.list_category_templates(set_type_id=set_type_id)
     disabled = await store.get_disabled_categories("set-a")
     category = await store.get_category(local_category_id)
 
@@ -57,10 +65,12 @@ async def test_semantic_config_store_crud(tmp_path: Path):
     assert [entry.name for entry in categories] == ["preferences", "profile"]
     assert categories[1].inherited is True
     assert [entry.name for entry in tags] == ["food"]
+    assert [entry.name for entry in templates] == ["profile-template"]
     assert disabled == ["profile"]
     assert category is not None and category.description == "local category"
 
     await store.delete_tag(tag_id)
+    await store.delete_category_template(template_id)
     await store.remove_disabled_category_from_setid(set_id="set-a", category_name="profile")
     await store.delete_category(local_category_id)
     await store.delete_category(inherited_category_id)

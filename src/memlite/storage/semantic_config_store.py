@@ -38,6 +38,16 @@ class TagRecord:
 
 
 @dataclass(slots=True)
+class CategoryTemplateRecord:
+    id: int
+    set_type_id: int | None
+    name: str
+    category_name: str
+    prompt: str
+    description: str | None
+
+
+@dataclass(slots=True)
 class SetConfigRecord:
     set_id: str
     set_name: str | None
@@ -329,6 +339,73 @@ class SqliteSemanticConfigStore:
             await session.execute(
                 text("DELETE FROM semantic_config_tag WHERE id = :tag_id"),
                 {"tag_id": tag_id},
+            )
+
+        await run_in_transaction(self._engine_factory.create_session_factory(), _delete)
+
+    async def create_category_template(
+        self,
+        *,
+        name: str,
+        category_name: str,
+        prompt: str,
+        description: str | None = None,
+        set_type_id: int | None = None,
+    ) -> int:
+        async def _create(session):
+            result = await session.execute(
+                text(
+                    """
+                    INSERT INTO semantic_config_category_template (
+                        set_type_id, name, category_name, prompt, description
+                    ) VALUES (
+                        :set_type_id, :name, :category_name, :prompt, :description
+                    )
+                    RETURNING id
+                    """
+                ),
+                {
+                    "set_type_id": set_type_id,
+                    "name": name,
+                    "category_name": category_name,
+                    "prompt": prompt,
+                    "description": description,
+                },
+            )
+            return int(result.scalar_one())
+
+        return await run_in_transaction(
+            self._engine_factory.create_session_factory(),
+            _create,
+        )
+
+    async def list_category_templates(
+        self,
+        *,
+        set_type_id: int | None = None,
+    ) -> list[CategoryTemplateRecord]:
+        query = (
+            "SELECT id, set_type_id, name, category_name, prompt, description "
+            "FROM semantic_config_category_template"
+        )
+        params: dict[str, object] = {}
+        if set_type_id is not None:
+            query += " WHERE set_type_id = :set_type_id"
+            params["set_type_id"] = set_type_id
+        query += " ORDER BY id"
+
+        engine = self._engine_factory.create_engine()
+        async with engine.connect() as conn:
+            rows = (await conn.execute(text(query), params)).mappings().all()
+        return [CategoryTemplateRecord(**row) for row in rows]
+
+    async def delete_category_template(self, template_id: int) -> None:
+        async def _delete(session):
+            await session.execute(
+                text(
+                    "DELETE FROM semantic_config_category_template WHERE id = :template_id"
+                ),
+                {"template_id": template_id},
             )
 
         await run_in_transaction(self._engine_factory.create_session_factory(), _delete)

@@ -89,6 +89,18 @@ BOOTSTRAP_STATEMENTS = (
     )
     """,
     """
+    CREATE TABLE IF NOT EXISTS semantic_config_category_template (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        set_type_id INTEGER NULL,
+        name TEXT NOT NULL,
+        category_name TEXT NOT NULL,
+        prompt TEXT NOT NULL,
+        description TEXT NULL,
+        FOREIGN KEY(set_type_id) REFERENCES semantic_config_set_type(id) ON DELETE CASCADE,
+        UNIQUE (set_type_id, name)
+    )
+    """,
+    """
     CREATE TABLE IF NOT EXISTS semantic_config_tag (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         category_id INTEGER NOT NULL,

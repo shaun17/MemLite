@@ -37,3 +37,26 @@ async def test_sqlite_vec_index_supports_init_batch_and_search(tmp_path: Path):
     assert [result.item_id for result in results] == [1, 3]
 
     await factory.dispose()
+
+
+@pytest.mark.anyio
+async def test_sqlite_vec_top_k_order_is_stable_for_same_query(tmp_path: Path):
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    await factory.initialize_schema()
+    index = SqliteVecIndex(factory, "stable_feature_vectors")
+    await index.initialize()
+    await index.batch_upsert(
+        [
+            (1, [1.0, 0.0]),
+            (2, [0.8, 0.2]),
+            (3, [0.6, 0.4]),
+        ]
+    )
+
+    first = await index.search_top_k([1.0, 0.0], limit=3)
+    second = await index.search_top_k([1.0, 0.0], limit=3)
+
+    assert [result.item_id for result in first] == [1, 2, 3]
+    assert [result.item_id for result in second] == [1, 2, 3]
+
+    await factory.dispose()

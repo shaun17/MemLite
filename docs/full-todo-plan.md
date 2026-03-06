@@ -77,7 +77,7 @@
 
 - 已修复问题：`semantic_feature_store.py` 已改为使用时区感知 UTC 时间，移除了 `datetime.utcnow()` 弃用告警来源。
 - 已完成两批基础框架任务：工程目录、配置加载、环境变量支持、日志模块、异常与错误码、资源管理器骨架、抽象存储接口、健康检查、metrics 和测试目录。
-- 已使用 Python 3.12 本地虚拟环境完成两批基础测试验证，当前通过 `37` 个测试用例。
+- 已使用 Python 3.12 本地虚拟环境完成两批基础测试验证，当前通过 `69` 个测试用例。
 
 ## 5. Phase 1：工程骨架与架构实现
 
@@ -261,21 +261,21 @@
 - [x] 实现 get_set_ids_starts_with
 
 #### 8.4 Semantic Service
-- [ ] 实现 semantic ingestion worker
-- [ ] 实现默认 category 注入逻辑
-- [ ] 实现 set_id config 选择逻辑
-- [ ] 实现 feature embedding 生成
-- [ ] 实现 semantic search
-- [ ] 实现 semantic list
-- [ ] 实现 semantic delete
+- [x] 实现 semantic ingestion worker
+- [x] 实现默认 category 注入逻辑
+- [x] 实现 set_id config 选择逻辑
+- [x] 实现 feature embedding 生成
+- [x] 实现 semantic search
+- [x] 实现 semantic list
+- [x] 实现 semantic delete
 
 #### 8.5 Semantic Session Manager
-- [ ] 实现 set_type 管理
-- [ ] 实现 category 管理
-- [ ] 实现 category template 管理
-- [ ] 实现 tag 管理
-- [ ] 实现 disable category
-- [ ] 实现 set 绑定/配置逻辑
+- [x] 实现 set_type 管理
+- [x] 实现 category 管理
+- [x] 实现 category template 管理
+- [x] 实现 tag 管理
+- [x] 实现 disable category
+- [x] 实现 set 绑定/配置逻辑
 
 ### 测试 TODO
 
@@ -285,17 +285,17 @@
 - [x] feature vector add/update/delete 测试
 - [x] citation CRUD 测试
 - [x] history ingestion 状态测试
-- [ ] semantic config 参与检索测试
-- [ ] set/category/tag 管理测试
+- [x] semantic config 参与检索测试
+- [x] set/category/tag 管理测试
 
 #### 集成测试
-- [ ] add message -> semantic ingestion -> search 测试
+- [x] add message -> semantic ingestion -> search 测试
 - [x] semantic list/delete 测试
 - [x] citations 返回正确性测试
 
 #### 回归测试
-- [ ] 结构化过滤语义不变测试
-- [ ] vector search top-k 稳定性测试
+- [x] 结构化过滤语义不变测试
+- [x] vector search top-k 稳定性测试
 
 ### 验收标准
 
@@ -311,64 +311,64 @@
 ### TODO
 
 #### 9.1 Kùzu 基础
-- [ ] Kùzu 数据目录初始化
-- [ ] Kùzu schema 初始化
-- [ ] 连接/会话管理
-- [ ] 统一图查询封装
+- [x] Kùzu 数据目录初始化
+- [x] Kùzu schema 初始化
+- [x] 连接/会话管理
+- [x] 统一图查询封装
 
 #### 9.2 Graph Store
-- [ ] 实现 add_nodes
-- [ ] 实现 add_edges
-- [ ] 实现 get_nodes
-- [ ] 实现 search_related_nodes
-- [ ] 实现 search_matching_nodes
-- [ ] 实现 search_directional_nodes
-- [ ] 实现 delete_nodes
+- [x] 实现 add_nodes
+- [x] 实现 add_edges
+- [x] 实现 get_nodes
+- [x] 实现 search_related_nodes
+- [x] 实现 search_matching_nodes
+- [x] 实现 search_directional_nodes
+- [x] 实现 delete_nodes
 
 #### 9.3 Derivative 流程
-- [ ] 实现 episode -> derivative 派生
-- [ ] 实现 sentence chunking
-- [ ] 实现 derivative metadata 映射
-- [ ] 实现 derivative vector 写入 sqlite-vec
-- [ ] 实现 derivative graph 写入 Kùzu
+- [x] 实现 episode -> derivative 派生
+- [x] 实现 sentence chunking
+- [x] 实现 derivative metadata 映射
+- [x] 实现 derivative vector 写入 sqlite-vec
+- [x] 实现 derivative graph 写入 Kùzu
 
 #### 9.4 Episodic Search
-- [ ] 实现 query embedding
-- [ ] 实现 derivative similarity search
-- [ ] 实现 derivative -> episode 回查
-- [ ] 实现 context expansion
-- [ ] 实现 rerank
-- [ ] 实现 dedupe + unify
-- [ ] 实现 score threshold
-- [ ] 实现 metadata filter
+- [x] 实现 query embedding
+- [x] 实现 derivative similarity search
+- [x] 实现 derivative -> episode 回查
+- [x] 实现 context expansion
+- [x] 实现 rerank
+- [x] 实现 dedupe + unify
+- [x] 实现 score threshold
+- [x] 实现 metadata filter
 
 #### 9.5 Episodic Delete
 - [x] 实现 delete episodes
-- [ ] 实现 delete matching episodes
+- [x] 实现 delete matching episodes
 - [x] 实现 delete session episodic memory
-- [ ] 实现清理 derivative 向量
-- [ ] 实现清理 graph 节点与边
+- [x] 实现清理 derivative 向量
+- [x] 实现清理 graph 节点与边
 
 ### 测试 TODO
 
 #### 单元测试
-- [ ] Kùzu 初始化测试
-- [ ] graph add/get/delete 测试
-- [ ] derivative 派生测试
-- [ ] sentence chunking 测试
-- [ ] episodic similarity search 测试
-- [ ] filter + search 测试
-- [ ] context expansion 测试
-- [ ] delete cleanup 测试
+- [x] Kùzu 初始化测试
+- [x] graph add/get/delete 测试
+- [x] derivative 派生测试
+- [x] sentence chunking 测试
+- [x] episodic similarity search 测试
+- [x] filter + search 测试
+- [x] context expansion 测试
+- [x] delete cleanup 测试
 
 #### 集成测试
-- [ ] add episodic -> search 测试
-- [ ] search + expand_context 测试
-- [ ] delete episode -> verify no residue 测试
+- [x] add episodic -> search 测试
+- [x] search + expand_context 测试
+- [x] delete episode -> verify no residue 测试
 
 #### 回归测试
-- [ ] episodic 返回结构稳定性测试
-- [ ] chronology 排序稳定性测试
+- [x] episodic 返回结构稳定性测试
+- [x] chronology 排序稳定性测试
 
 ### 验收标准
 
@@ -383,29 +383,29 @@
 
 ### TODO
 
-- [ ] 实现统一 orchestrator
-- [ ] 打通 project/session/episode/semantic 生命周期
-- [ ] 实现 mixed retrieval
-- [ ] 实现 agent mode
-- [ ] 实现 short-term + long-term 组合检索
-- [ ] 实现 episode delete 触发 semantic cleanup
-- [ ] 实现 project delete 级联清理
-- [ ] 实现 session delete 级联清理
-- [ ] 实现 retrieval policy 决策
-- [ ] 实现 query rewrite / split 策略接口
+- [x] 实现统一 orchestrator
+- [x] 打通 project/session/episode/semantic 生命周期
+- [x] 实现 mixed retrieval
+- [x] 实现 agent mode
+- [x] 实现 short-term + long-term 组合检索
+- [x] 实现 episode delete 触发 semantic cleanup
+- [x] 实现 project delete 级联清理
+- [x] 实现 session delete 级联清理
+- [x] 实现 retrieval policy 决策
+- [x] 实现 query rewrite / split 策略接口
 
 ### 测试 TODO
 
 #### 单元测试
-- [ ] orchestrator 路由决策测试
-- [ ] mixed retrieval 合并测试
-- [ ] delete cleanup 协同测试
-- [ ] project/session 级联删除测试
+- [x] orchestrator 路由决策测试
+- [x] mixed retrieval 合并测试
+- [x] delete cleanup 协同测试
+- [x] project/session 级联删除测试
 
 #### 集成测试
-- [ ] mixed retrieval e2e 测试
-- [ ] agent mode 返回测试
-- [ ] episodic + semantic 联合搜索测试
+- [x] mixed retrieval e2e 测试
+- [x] agent mode 返回测试
+- [x] episodic + semantic 联合搜索测试
 
 ### 验收标准
 
