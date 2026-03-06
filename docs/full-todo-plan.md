@@ -718,10 +718,10 @@
 ### TODO
 
 #### 性能
-- [ ] 批量 embedding 写入优化
-- [ ] top-k 查询参数调优
+- [x] 批量 embedding 写入优化
+- [x] top-k 查询参数调优
 - [x] filter 前置优化
-- [ ] context expansion 优化
+- [x] context expansion 优化
 - [x] 常用查询索引调优
 - [ ] 热点缓存评估与实现
 
@@ -743,7 +743,7 @@
 
 ### 测试 TODO
 
-- [ ] 压测脚本
+- [x] 压测脚本
 - [x] 基准测试脚本
 - [x] 幂等性测试
 - [x] 重试/补偿逻辑测试
@@ -754,7 +754,7 @@
 - 有性能数据
 - 有稳定性测试
 - 有观测能力
-- 当前进展：`111` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`5` 个 OpenClaw 插件测试通过
+- 当前进展：`114` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`5` 个 OpenClaw 插件测试通过
 - 已记录问题：测试环境下 `aiosqlite` 关闭阶段存在 event loop closed 警告，需在后续稳定性阶段收口
 
 ## 19. Phase 15：最终测试、文档与发布

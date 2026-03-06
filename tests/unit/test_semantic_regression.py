@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from memlite.common.config import Settings
-from memlite.semantic.service import SemanticService
+from memlite.semantic.service import SemanticService, _candidate_limit
 from memlite.storage.semantic_config_store import SqliteSemanticConfigStore
 from memlite.storage.semantic_feature_store import SqliteSemanticFeatureStore
 from memlite.storage.sqlite_engine import SqliteEngineFactory
@@ -69,3 +69,8 @@ async def test_structured_filters_keep_semantic_search_behavior_stable(tmp_path:
     ]
 
     await factory.dispose()
+
+
+def test_semantic_candidate_limit_respects_max_candidates():
+    assert _candidate_limit(limit=5, multiplier=3, max_candidates=10) == 10
+    assert _candidate_limit(limit=2, multiplier=3, max_candidates=10) == 6

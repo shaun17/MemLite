@@ -44,6 +44,8 @@ class EpisodicSearchService:
         embedder: EmbedderFn,
         reranker: RerankerFn | None = None,
         metrics=None,
+        candidate_multiplier: int = 4,
+        max_candidates: int = 100,
     ) -> None:
         self._episode_store = episode_store
         self._graph_store = graph_store
@@ -51,6 +53,8 @@ class EpisodicSearchService:
         self._embedder = embedder
         self._reranker = reranker
         self._metrics = metrics
+        self._candidate_multiplier = max(candidate_multiplier, 1)
+        self._max_candidates = max(max_candidates, 1)
 
     async def search(
         self,
@@ -94,7 +98,11 @@ class EpisodicSearchService:
         }
         vector_hits = await self._derivative_index.search_top_k(
             query_vector,
-            limit=max(limit * 4, limit),
+            limit=_candidate_limit(
+                limit=limit,
+                multiplier=self._candidate_multiplier,
+                max_candidates=self._max_candidates,
+            ),
             allowed_item_ids=set(derivative_by_id.keys()),
         )
         relevant_hits = [
@@ -206,12 +214,16 @@ class EpisodicSearchService:
         context_window: int,
     ) -> list[EpisodeRecord]:
         expanded_by_uid: dict[str, EpisodeRecord] = {}
+        session_cache: dict[str, list[EpisodeRecord]] = {}
         for match in matches:
             episode = match.episode
-            session_episodes = await self._episode_store.list_episodes(
-                session_key=episode.session_key,
-                include_deleted=False,
-            )
+            session_episodes = session_cache.get(episode.session_key)
+            if session_episodes is None:
+                session_episodes = await self._episode_store.list_episodes(
+                    session_key=episode.session_key,
+                    include_deleted=False,
+                )
+                session_cache[episode.session_key] = session_episodes
             min_sequence = max(episode.sequence_num - context_window, 0)
             max_sequence = episode.sequence_num + context_window
             for candidate in session_episodes:
@@ -221,3 +233,8 @@ class EpisodicSearchService:
             expanded_by_uid.values(),
             key=lambda episode: (episode.sequence_num, episode.created_at, episode.uid),
         )
+
+
+def _candidate_limit(*, limit: int, multiplier: int, max_candidates: int) -> int:
+    requested = max(limit, 1) * max(multiplier, 1)
+    return min(max(requested, limit), max_candidates)

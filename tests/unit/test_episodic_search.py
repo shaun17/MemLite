@@ -4,7 +4,7 @@ import pytest
 
 from memlite.common.config import Settings
 from memlite.episodic.derivative_pipeline import DerivativePipeline
-from memlite.episodic.search import EpisodicSearchService
+from memlite.episodic.search import EpisodicSearchService, _candidate_limit
 from memlite.storage.episode_store import SqliteEpisodeStore
 from memlite.storage.graph_store import KuzuGraphStore
 from memlite.storage.kuzu_engine import KuzuEngineFactory
@@ -181,3 +181,8 @@ async def test_episodic_search_result_structure_is_stable(tmp_path: Path):
     assert results.matches[0].derivative_uid.startswith("ep-1:d:")
     assert isinstance(results.matches[0].score, float)
     assert [episode.uid for episode in results.expanded_context] == ["ep-1", "ep-2"]
+
+
+def test_episodic_candidate_limit_respects_max_candidates():
+    assert _candidate_limit(limit=5, multiplier=4, max_candidates=12) == 12
+    assert _candidate_limit(limit=2, multiplier=4, max_candidates=20) == 8

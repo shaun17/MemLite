@@ -17,6 +17,7 @@ from memlite.tools.migration import (
     repair_snapshot,
 )
 from memlite.tools.benchmark import benchmark_search_workload
+from memlite.tools.loadtest import load_test_memory_search
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -83,6 +84,19 @@ def build_parser() -> argparse.ArgumentParser:
     benchmark_parser.add_argument("--episode-count", type=int, default=25)
     benchmark_parser.add_argument("--query-iterations", type=int, default=10)
 
+    load_test_parser = subparsers.add_parser(
+        "load-test",
+        help="Run concurrent HTTP load against the memory search API",
+    )
+    load_test_parser.add_argument("--base-url", default="http://127.0.0.1:8080")
+    load_test_parser.add_argument("--org-id", default="demo-org")
+    load_test_parser.add_argument("--project-id", default="demo-project")
+    load_test_parser.add_argument("--query", default="memory recall")
+    load_test_parser.add_argument("--total-requests", type=int, default=100)
+    load_test_parser.add_argument("--concurrency", type=int, default=10)
+    load_test_parser.add_argument("--timeout-seconds", type=float, default=5.0)
+    load_test_parser.add_argument("--output", type=Path, default=None)
+
     return parser
 
 
@@ -131,6 +145,20 @@ def main(argv: list[str] | None = None) -> int:
                 data_dir=args.data_dir,
                 episode_count=args.episode_count,
                 query_iterations=args.query_iterations,
+            )
+        )
+        return 0
+    if args.command == "load-test":
+        asyncio.run(
+            _run_load_test(
+                base_url=args.base_url,
+                org_id=args.org_id,
+                project_id=args.project_id,
+                query=args.query,
+                total_requests=args.total_requests,
+                concurrency=args.concurrency,
+                timeout_seconds=args.timeout_seconds,
+                output=args.output,
             )
         )
         return 0
@@ -196,6 +224,34 @@ async def _run_benchmark_search(
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(json_dump(result), encoding="utf-8")
         print(f"wrote benchmark report: {output}")
+        return
+    print(json_dump(result))
+
+
+async def _run_load_test(
+    *,
+    base_url: str,
+    org_id: str,
+    project_id: str,
+    query: str,
+    total_requests: int,
+    concurrency: int,
+    timeout_seconds: float,
+    output: Path | None,
+) -> None:
+    result = await load_test_memory_search(
+        base_url=base_url,
+        org_id=org_id,
+        project_id=project_id,
+        query=query,
+        total_requests=total_requests,
+        concurrency=concurrency,
+        timeout_seconds=timeout_seconds,
+    )
+    if output is not None:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json_dump(result), encoding="utf-8")
+        print(f"wrote load test report: {output}")
         return
     print(json_dump(result))
 

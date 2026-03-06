@@ -53,6 +53,7 @@ asyncio.run(main())
 - 对账报告：`memlite-configure reconcile --output reconcile.json --data-dir ~/.memlite`
 - 修复导数图与向量：`memlite-configure repair --output repair.json --data-dir ~/.memlite`
 - 搜索基准：`memlite-configure benchmark-search --output benchmark.json --data-dir ~/.memlite`
+- 接口压测：`memlite-configure load-test --base-url http://127.0.0.1:8080 --total-requests 200 --concurrency 20`
 
 ## 适用场景
 

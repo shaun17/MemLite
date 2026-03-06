@@ -85,6 +85,8 @@ class ResourceManager:
             derivative_index=derivative_index,
             embedder=default_embedder,
             metrics=metrics,
+            candidate_multiplier=settings.episodic_search_candidate_multiplier,
+            max_candidates=settings.episodic_search_max_candidates,
         )
         episodic_delete = EpisodicDeleteService(
             episode_store=episode_store,
@@ -96,6 +98,8 @@ class ResourceManager:
             config_store=semantic_config_store,
             embedder=default_embedder,
             default_category_resolver=lambda _set_id: [],
+            candidate_multiplier=settings.semantic_search_candidate_multiplier,
+            max_candidates=settings.semantic_search_max_candidates,
         )
         semantic_session_manager = SemanticSessionManager(semantic_config_store)
         orchestrator = MemoryOrchestrator(

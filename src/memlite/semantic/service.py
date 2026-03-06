@@ -36,11 +36,15 @@ class SemanticService:
         config_store: SqliteSemanticConfigStore,
         embedder: EmbedderFn,
         default_category_resolver: DefaultCategoryResolver,
+        candidate_multiplier: int = 3,
+        max_candidates: int = 100,
     ) -> None:
         self._feature_store = feature_store
         self._config_store = config_store
         self._embedder = embedder
         self._default_category_resolver = default_category_resolver
+        self._candidate_multiplier = max(candidate_multiplier, 1)
+        self._max_candidates = max(max_candidates, 1)
 
     async def get_default_categories(self, set_id: str) -> list[CategoryRecord]:
         """Return effective categories after config merge and disable rules."""
@@ -92,7 +96,11 @@ class SemanticService:
 
         vector_hits = await self._feature_store.vector_index.search_top_k(
             embedding,
-            limit=max(limit * 3, limit),
+            limit=_candidate_limit(
+                limit=limit,
+                multiplier=self._candidate_multiplier,
+                max_candidates=self._max_candidates,
+            ),
             allowed_item_ids=set(candidate_feature_ids),
         )
         eligible_hits = _select_positive_hits(vector_hits, min_score=min_score)
@@ -214,3 +222,8 @@ def _select_positive_hits(
     hits: list[VectorSearchResult], *, min_score: float
 ) -> list[VectorSearchResult]:
     return [hit for hit in hits if hit.score >= min_score]
+
+
+def _candidate_limit(*, limit: int, multiplier: int, max_candidates: int) -> int:
+    requested = max(limit, 1) * max(multiplier, 1)
+    return min(max(requested, limit), max_candidates)

@@ -74,22 +74,27 @@ class SqliteVecIndex:
 
     async def batch_upsert(self, items: list[tuple[int, list[float]]]) -> None:
         """Insert or replace multiple embeddings."""
+        if not items:
+            return
+
         async def _upsert(session: AsyncSession) -> None:
-            for item_id, embedding in items:
-                await session.execute(
-                    text(
-                        f"""
-                        INSERT INTO {self._table_name} (feature_id, embedding_json)
-                        VALUES (:feature_id, :embedding_json)
-                        ON CONFLICT(feature_id)
-                        DO UPDATE SET embedding_json = excluded.embedding_json
-                        """
-                    ),
+            await session.execute(
+                text(
+                    f"""
+                    INSERT INTO {self._table_name} (feature_id, embedding_json)
+                    VALUES (:feature_id, :embedding_json)
+                    ON CONFLICT(feature_id)
+                    DO UPDATE SET embedding_json = excluded.embedding_json
+                    """
+                ),
+                [
                     {
                         "feature_id": item_id,
                         "embedding_json": json.dumps(embedding),
-                    },
-                )
+                    }
+                    for item_id, embedding in items
+                ],
+            )
 
         await run_in_transaction(self._engine_factory.create_session_factory(), _upsert)
 

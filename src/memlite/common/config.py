@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     sqlite_path: Path = Field(default=DEFAULT_SQLITE_PATH)
     kuzu_path: Path = Field(default=DEFAULT_KUZU_PATH)
     sqlite_vec_extension_path: Path | None = Field(default=None)
+    semantic_search_candidate_multiplier: int = Field(default=3)
+    semantic_search_max_candidates: int = Field(default=100)
+    episodic_search_candidate_multiplier: int = Field(default=4)
+    episodic_search_max_candidates: int = Field(default=100)
 
     @property
     def data_dir(self) -> Path:
