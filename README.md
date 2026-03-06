@@ -52,6 +52,7 @@ asyncio.run(main())
 - 导入快照：`memlite-configure import --input snapshot.json --data-dir ~/.memlite`
 - 对账报告：`memlite-configure reconcile --output reconcile.json --data-dir ~/.memlite`
 - 修复导数图与向量：`memlite-configure repair --output repair.json --data-dir ~/.memlite`
+- 搜索基准：`memlite-configure benchmark-search --output benchmark.json --data-dir ~/.memlite`
 
 ## 适用场景
 

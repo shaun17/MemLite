@@ -97,3 +97,36 @@ async def test_semantic_feature_store_query_delete_and_history(tmp_path: Path):
     assert remaining_citations == ["episode-1"]
 
     await factory.dispose()
+
+
+@pytest.mark.anyio
+async def test_semantic_feature_store_add_is_idempotent_for_same_payload(tmp_path: Path):
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    await factory.initialize_schema()
+    store = SqliteSemanticFeatureStore(factory)
+    await store.initialize()
+
+    first_id = await store.add_feature(
+        set_id="set-a",
+        category="profile",
+        tag="food",
+        feature_name="favorite_food",
+        value="ramen",
+        metadata_json='{"source":"same"}',
+        embedding=[1.0, 0.0],
+    )
+    second_id = await store.add_feature(
+        set_id="set-a",
+        category="profile",
+        tag="food",
+        feature_name="favorite_food",
+        value="ramen",
+        metadata_json='{"source":"same"}',
+        embedding=[1.0, 0.0],
+    )
+    features = await store.query_features(set_id="set-a")
+
+    assert first_id == second_id
+    assert [feature.id for feature in features] == [first_id]
+
+    await factory.dispose()

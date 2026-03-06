@@ -79,15 +79,27 @@ class SemanticService:
     ) -> SemanticSearchResult:
         """Search semantic features using vector similarity and filters."""
         embedding = await self.generate_feature_embedding(query)
+        allowed_categories = await self._resolve_allowed_categories(set_id, category)
+        candidate_feature_ids = await self._feature_store.query_feature_ids(
+            set_id=set_id,
+            categories=allowed_categories,
+            category=category,
+            tag=tag,
+            include_deleted=False,
+        )
+        if not candidate_feature_ids:
+            return SemanticSearchResult(features=[])
+
         vector_hits = await self._feature_store.vector_index.search_top_k(
-            embedding, limit=max(limit * 3, limit)
+            embedding,
+            limit=max(limit * 3, limit),
+            allowed_item_ids=set(candidate_feature_ids),
         )
         eligible_hits = _select_positive_hits(vector_hits, min_score=min_score)
         hit_ids = [hit.item_id for hit in eligible_hits]
         if not hit_ids:
             return SemanticSearchResult(features=[])
 
-        allowed_categories = await self._resolve_allowed_categories(set_id, category)
         features = await self._feature_store.query_features(
             set_id=set_id,
             category=category,

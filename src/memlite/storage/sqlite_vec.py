@@ -94,19 +94,45 @@ class SqliteVecIndex:
         await run_in_transaction(self._engine_factory.create_session_factory(), _upsert)
 
     async def search_top_k(
-        self, query_embedding: list[float], limit: int = 10
+        self,
+        query_embedding: list[float],
+        limit: int = 10,
+        allowed_item_ids: set[int] | None = None,
     ) -> list[VectorSearchResult]:
         """Return top-k vectors ranked by cosine similarity."""
         started = perf_counter()
+        if allowed_item_ids is not None and not allowed_item_ids:
+            return []
         engine = self._engine_factory.create_engine()
         async with engine.connect() as conn:
-            rows = (
-                await conn.execute(
-                    text(
-                        f"SELECT feature_id, embedding_json FROM {self._table_name}"
+            if allowed_item_ids is None:
+                rows = (
+                    await conn.execute(
+                        text(
+                            f"SELECT feature_id, embedding_json FROM {self._table_name}"
+                        )
                     )
+                ).all()
+            else:
+                placeholders = ", ".join(
+                    f":item_id_{idx}" for idx in range(len(allowed_item_ids))
                 )
-            ).all()
+                params = {
+                    f"item_id_{idx}": item_id
+                    for idx, item_id in enumerate(sorted(allowed_item_ids))
+                }
+                rows = (
+                    await conn.execute(
+                        text(
+                            f"""
+                            SELECT feature_id, embedding_json
+                            FROM {self._table_name}
+                            WHERE feature_id IN ({placeholders})
+                            """
+                        ),
+                        params,
+                    )
+                ).all()
 
         results = []
         for feature_id, embedding_json in rows:

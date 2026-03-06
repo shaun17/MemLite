@@ -15,9 +15,12 @@ def test_cli_parser_supports_expected_commands():
     parser = build_parser()
 
     args = parser.parse_args(["configure", "--output", ".env"])
+    benchmark_args = parser.parse_args(["benchmark-search", "--episode-count", "5"])
 
     assert args.command == "configure"
     assert args.output == Path(".env")
+    assert benchmark_args.command == "benchmark-search"
+    assert benchmark_args.episode_count == 5
 
 
 def test_render_env_contains_required_keys(tmp_path: Path):

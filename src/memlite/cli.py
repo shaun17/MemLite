@@ -16,6 +16,7 @@ from memlite.tools.migration import (
     reconcile_snapshot,
     repair_snapshot,
 )
+from memlite.tools.benchmark import benchmark_search_workload
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -73,6 +74,15 @@ def build_parser() -> argparse.ArgumentParser:
     repair_parser.add_argument("--output", type=Path, default=None)
     repair_parser.add_argument("--data-dir", type=Path, default=None)
 
+    benchmark_parser = subparsers.add_parser(
+        "benchmark-search",
+        help="Run a local search benchmark against episodic and semantic paths",
+    )
+    benchmark_parser.add_argument("--output", type=Path, default=None)
+    benchmark_parser.add_argument("--data-dir", type=Path, default=None)
+    benchmark_parser.add_argument("--episode-count", type=int, default=25)
+    benchmark_parser.add_argument("--query-iterations", type=int, default=10)
+
     return parser
 
 
@@ -113,6 +123,16 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "repair":
         asyncio.run(_run_repair(output=args.output, data_dir=args.data_dir))
+        return 0
+    if args.command == "benchmark-search":
+        asyncio.run(
+            _run_benchmark_search(
+                output=args.output,
+                data_dir=args.data_dir,
+                episode_count=args.episode_count,
+                query_iterations=args.query_iterations,
+            )
+        )
         return 0
     return 1
 
@@ -155,6 +175,27 @@ async def _run_repair(*, output: Path | None, data_dir: Path | None) -> None:
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(json_dump(result), encoding="utf-8")
         print(f"wrote repair report: {output}")
+        return
+    print(json_dump(result))
+
+
+async def _run_benchmark_search(
+    *,
+    output: Path | None,
+    data_dir: Path | None,
+    episode_count: int,
+    query_iterations: int,
+) -> None:
+    settings = build_settings(data_dir=data_dir)
+    result = await benchmark_search_workload(
+        settings=settings,
+        episode_count=episode_count,
+        query_iterations=query_iterations,
+    )
+    if output is not None:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json_dump(result), encoding="utf-8")
+        print(f"wrote benchmark report: {output}")
         return
     print(json_dump(result))
 

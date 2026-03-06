@@ -65,10 +65,27 @@ class EpisodicSearchService:
     ) -> EpisodicSearchResult:
         started = perf_counter()
         query_vector = await self._embedder(query)
+        allowed_episode_uids: set[str] | None = None
+        if producer_role is not None or episode_type is not None:
+            allowed_episodes = await self._episode_store.find_matching_episodes(
+                session_id=session_id,
+                producer_role=producer_role,
+                episode_type=episode_type,
+                include_deleted=False,
+            )
+            allowed_episode_uids = {episode.uid for episode in allowed_episodes}
+            if not allowed_episode_uids:
+                return EpisodicSearchResult(matches=[], expanded_context=[])
         derivative_nodes = await self._graph_store.search_matching_nodes(
             node_table="Derivative",
             match_filters={"session_id": session_id} if session_id else None,
         )
+        if allowed_episode_uids is not None:
+            derivative_nodes = [
+                node
+                for node in derivative_nodes
+                if str(node.properties.get("episode_uid")) in allowed_episode_uids
+            ]
         if not derivative_nodes:
             return EpisodicSearchResult(matches=[], expanded_context=[])
 
@@ -78,6 +95,7 @@ class EpisodicSearchService:
         vector_hits = await self._derivative_index.search_top_k(
             query_vector,
             limit=max(limit * 4, limit),
+            allowed_item_ids=set(derivative_by_id.keys()),
         )
         relevant_hits = [
             hit for hit in vector_hits if hit.score >= min_score and hit.item_id in derivative_by_id

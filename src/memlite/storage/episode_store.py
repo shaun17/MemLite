@@ -53,6 +53,19 @@ class SqliteEpisodeStore:
                             :produced_for_id, :sequence_num, :content, :content_type,
                             :episode_type, :metadata_json, :filterable_metadata_json, :deleted
                         )
+                        ON CONFLICT(uid) DO UPDATE SET
+                            session_key = excluded.session_key,
+                            session_id = excluded.session_id,
+                            producer_id = excluded.producer_id,
+                            producer_role = excluded.producer_role,
+                            produced_for_id = excluded.produced_for_id,
+                            sequence_num = excluded.sequence_num,
+                            content = excluded.content,
+                            content_type = excluded.content_type,
+                            episode_type = excluded.episode_type,
+                            metadata_json = excluded.metadata_json,
+                            filterable_metadata_json = excluded.filterable_metadata_json,
+                            deleted = excluded.deleted
                         """
                     ),
                     {
@@ -210,6 +223,7 @@ class SqliteEpisodeStore:
     async def find_matching_episodes(
         self,
         *,
+        session_id: str | None = None,
         session_key: str | None = None,
         producer_role: str | None = None,
         episode_type: str | None = None,
@@ -218,6 +232,7 @@ class SqliteEpisodeStore:
         clauses: list[str] = []
         params: dict[str, Any] = {}
         for key, value in {
+            "session_id": session_id,
             "session_key": session_key,
             "producer_role": producer_role,
             "episode_type": episode_type,

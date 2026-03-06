@@ -47,6 +47,19 @@ class SqliteSemanticFeatureStore:
         metadata_json: str | None = None,
         embedding: list[float] | None = None,
     ) -> int:
+        existing_feature_id = await self.find_existing_feature_id(
+            set_id=set_id,
+            category=category,
+            tag=tag,
+            feature_name=feature_name,
+            value=value,
+            metadata_json=metadata_json,
+        )
+        if existing_feature_id is not None:
+            if embedding is not None:
+                await self._vector_index.upsert(existing_feature_id, embedding)
+            return existing_feature_id
+
         async def _add(session):
             result = await session.execute(
                 text(
@@ -76,6 +89,48 @@ class SqliteSemanticFeatureStore:
         if embedding is not None:
             await self._vector_index.upsert(feature_id, embedding)
         return feature_id
+
+    async def find_existing_feature_id(
+        self,
+        *,
+        set_id: str,
+        category: str,
+        tag: str,
+        feature_name: str,
+        value: str,
+        metadata_json: str | None,
+    ) -> int | None:
+        """Return an active feature id for the same logical payload."""
+        engine = self._engine_factory.create_engine()
+        async with engine.connect() as conn:
+            row = (
+                await conn.execute(
+                    text(
+                        """
+                        SELECT id
+                        FROM semantic_features
+                        WHERE set_id = :set_id
+                          AND category = :category
+                          AND tag = :tag
+                          AND feature_name = :feature_name
+                          AND value = :value
+                          AND COALESCE(metadata_json, '') = COALESCE(:metadata_json, '')
+                          AND deleted = 0
+                        ORDER BY id
+                        LIMIT 1
+                        """
+                    ),
+                    {
+                        "set_id": set_id,
+                        "category": category,
+                        "tag": tag,
+                        "feature_name": feature_name,
+                        "value": value,
+                        "metadata_json": metadata_json,
+                    },
+                )
+            ).first()
+        return None if row is None else int(row[0])
 
     async def get_feature(self, feature_id: int) -> SemanticFeatureRecord | None:
         engine = self._engine_factory.create_engine()
@@ -233,6 +288,52 @@ class SqliteSemanticFeatureStore:
         async with engine.connect() as conn:
             rows = (await conn.execute(text(query), params)).mappings().all()
         return [SemanticFeatureRecord(**row) for row in rows]
+
+    async def query_feature_ids(
+        self,
+        *,
+        set_id: str | None = None,
+        categories: set[str] | None = None,
+        category: str | None = None,
+        tag: str | None = None,
+        feature_name: str | None = None,
+        include_deleted: bool = False,
+    ) -> list[int]:
+        """Return feature ids for the given filter set."""
+        clauses: list[str] = []
+        params: dict[str, Any] = {}
+        for key, value in {
+            "set_id": set_id,
+            "category": category,
+            "tag": tag,
+            "feature_name": feature_name,
+        }.items():
+            if value is not None:
+                clauses.append(f"{key} = :{key}")
+                params[key] = value
+        if categories is not None:
+            placeholders = ", ".join(
+                f":allowed_category_{idx}" for idx in range(len(categories))
+            )
+            clauses.append(f"category IN ({placeholders})")
+            params.update(
+                {
+                    f"allowed_category_{idx}": value
+                    for idx, value in enumerate(sorted(categories))
+                }
+            )
+        if not include_deleted:
+            clauses.append("deleted = 0")
+
+        query = "SELECT id FROM semantic_features"
+        if clauses:
+            query += " WHERE " + " AND ".join(clauses)
+        query += " ORDER BY id"
+
+        engine = self._engine_factory.create_engine()
+        async with engine.connect() as conn:
+            rows = (await conn.execute(text(query), params)).all()
+        return [int(row[0]) for row in rows]
 
     async def add_citations(self, feature_id: int, history_ids: list[str]) -> None:
         async def _insert(session):

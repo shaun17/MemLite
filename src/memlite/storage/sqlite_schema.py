@@ -138,6 +138,14 @@ BOOTSTRAP_STATEMENTS = (
         FOREIGN KEY(feature_id) REFERENCES semantic_features(id) ON DELETE CASCADE
     )
     """,
+    "CREATE INDEX IF NOT EXISTS idx_sessions_org_project ON sessions (org_id, project_id)",
+    "CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions (user_id)",
+    "CREATE INDEX IF NOT EXISTS idx_sessions_group_id ON sessions (group_id)",
+    "CREATE INDEX IF NOT EXISTS idx_episodes_session_deleted_sequence ON episodes (session_key, deleted, sequence_num)",
+    "CREATE INDEX IF NOT EXISTS idx_episodes_session_id_deleted ON episodes (session_id, deleted)",
+    "CREATE INDEX IF NOT EXISTS idx_episodes_role_type_deleted ON episodes (producer_role, episode_type, deleted)",
+    "CREATE INDEX IF NOT EXISTS idx_semantic_features_lookup ON semantic_features (set_id, category, tag, feature_name, deleted)",
+    "CREATE INDEX IF NOT EXISTS idx_semantic_features_prefix_set_id ON semantic_features (set_id)",
 )
 
 
@@ -167,4 +175,7 @@ BOOTSTRAP_STATEMENTS = BOOTSTRAP_STATEMENTS + (
         PRIMARY KEY (set_id, history_id)
     )
     """,
+    "CREATE INDEX IF NOT EXISTS idx_semantic_citations_episode_id ON semantic_citations (episode_id)",
+    "CREATE INDEX IF NOT EXISTS idx_semantic_history_pending ON semantic_set_ingested_history (ingested, set_id, created_at)",
+    "CREATE INDEX IF NOT EXISTS idx_semantic_history_set_created ON semantic_set_ingested_history (set_id, created_at)",
 )

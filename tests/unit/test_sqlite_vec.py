@@ -60,3 +60,28 @@ async def test_sqlite_vec_top_k_order_is_stable_for_same_query(tmp_path: Path):
     assert [result.item_id for result in second] == [1, 2, 3]
 
     await factory.dispose()
+
+
+@pytest.mark.anyio
+async def test_sqlite_vec_search_honors_allowed_item_ids(tmp_path: Path):
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    await factory.initialize_schema()
+    index = SqliteVecIndex(factory, "filtered_feature_vectors")
+    await index.initialize()
+    await index.batch_upsert(
+        [
+            (1, [1.0, 0.0]),
+            (2, [0.9, 0.1]),
+            (3, [0.0, 1.0]),
+        ]
+    )
+
+    results = await index.search_top_k(
+        [1.0, 0.0],
+        limit=3,
+        allowed_item_ids={2, 3},
+    )
+
+    assert [result.item_id for result in results] == [2, 3]
+
+    await factory.dispose()

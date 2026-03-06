@@ -52,3 +52,39 @@ async def test_delete_episodes_is_idempotent(tmp_path: Path):
     assert remaining == []
     assert [episode.uid for episode in deleted] == ["ep-1"]
     await resources.close()
+
+
+@pytest.mark.anyio
+async def test_add_episode_is_idempotent(tmp_path: Path):
+    settings = Settings(
+        sqlite_path=tmp_path / "memlite.sqlite3",
+        kuzu_path=tmp_path / "kuzu",
+    )
+    resources = ResourceManager.create(settings)
+    await resources.initialize()
+    await resources.session_store.create_session(
+        session_key="session-1",
+        org_id="org-1",
+        project_id="project-1",
+        session_id="session-1",
+    )
+
+    payload = {
+        "uid": "episode-1",
+        "session_key": "session-1",
+        "session_id": "session-1",
+        "producer_id": "user-1",
+        "producer_role": "user",
+        "sequence_num": 1,
+        "content": "same content",
+        "content_type": "text",
+        "episode_type": "message",
+    }
+    await resources.episode_store.add_episode(payload)
+    await resources.episode_store.add_episode(payload)
+
+    episodes = await resources.episode_store.list_episodes(session_key="session-1")
+
+    assert [episode.uid for episode in episodes] == ["episode-1"]
+
+    await resources.close()
