@@ -31,6 +31,7 @@ dev = [
 memlite-server = "memlite.app.main:main"
 memlite-mcp-stdio = "memlite.mcp.__main__:run_stdio_main"
 memlite-mcp-http = "memlite.mcp.__main__:run_http_main"
+memlite-configure = "memlite.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

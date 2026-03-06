@@ -39,6 +39,13 @@ asyncio.run(main())
 
 完整示例见 `examples/python_sdk_quickstart.py`。
 
+## 初始化工具
+
+- 生成示例配置：`memlite-configure sample-config --output .env.example`
+- 生成实际配置：`memlite-configure configure --output .env --data-dir ~/.memlite`
+- 初始化本地存储：`memlite-configure init --data-dir ~/.memlite`
+- 检测 `sqlite-vec`：`memlite-configure detect-sqlite-vec --extension-path /path/to/sqlite-vec.dylib`
+
 ## 适用场景
 
 - 本地开发与单机部署

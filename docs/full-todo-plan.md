@@ -639,28 +639,29 @@
 
 ### TODO
 
-- [ ] `memlite-server`
-- [ ] `memlite-mcp-stdio`
-- [ ] `memlite-mcp-http`
-- [ ] `memlite-configure`
-- [ ] 配置向导
-- [ ] SQLite 初始化命令
-- [ ] Kùzu 初始化命令
-- [ ] sqlite-vec 检测命令
-- [ ] 本地 data 目录初始化
-- [ ] 示例配置生成
+- [x] `memlite-server`
+- [x] `memlite-mcp-stdio`
+- [x] `memlite-mcp-http`
+- [x] `memlite-configure`
+- [x] 配置向导
+- [x] SQLite 初始化命令
+- [x] Kùzu 初始化命令
+- [x] sqlite-vec 检测命令
+- [x] 本地 data 目录初始化
+- [x] 示例配置生成
 
 ### 测试 TODO
 
-- [ ] CLI 参数测试
-- [ ] CLI 初始化测试
-- [ ] 配置写回测试
-- [ ] 新机器初始化 smoke test
+- [x] CLI 参数测试
+- [x] CLI 初始化测试
+- [x] 配置写回测试
+- [x] 新机器初始化 smoke test
 
 ### 验收标准
 
 - 新环境可快速初始化
 - CLI 行为稳定
+- 当前进展：`93` 个 Python 测试通过，`5` 个 TypeScript 测试通过
 
 ## 17. Phase 13：迁移工具、对账与修复工具
 
