@@ -17,6 +17,27 @@ MemLite 是一个面向 AI Agent 与 LLM 应用的轻量级长期记忆系统方
 
 - `docs/architecture.md`：系统架构文档
 - `docs/technical-solution.md`：技术方案与实施计划
+- `docs/full-todo-plan.md`：开发任务与状态跟踪
+
+## Python SDK Quickstart
+
+```python
+import asyncio
+
+from memlite.client import MemLiteClient
+
+
+async def main() -> None:
+    async with MemLiteClient(base_url="http://127.0.0.1:8080") as client:
+        await client.projects.create(org_id="demo-org", project_id="demo-project")
+        projects = await client.projects.list(org_id="demo-org")
+        print(projects)
+
+
+asyncio.run(main())
+```
+
+完整示例见 `examples/python_sdk_quickstart.py`。
 
 ## 适用场景
 
@@ -32,4 +53,3 @@ MemLite 是一个面向 AI Agent 与 LLM 应用的轻量级长期记忆系统方
 - 优先单进程/单机优化，再考虑多实例扩展
 - 数据模型统一，避免强绑定某一数据库特性
 - 检索质量优先，必要时采用“两段式召回 + 精排”策略
-

@@ -539,29 +539,30 @@
 
 ### TODO
 
-- [ ] client 实现
-- [ ] project 实现
-- [ ] memory 实现
-- [ ] config 实现
-- [ ] error 模型
-- [ ] retries
-- [ ] context manager
-- [ ] 示例代码
-- [ ] 文档补全
+- [x] client 实现
+- [x] project 实现
+- [x] memory 实现
+- [x] config 实现
+- [x] error 模型
+- [x] retries
+- [x] context manager
+- [x] 示例代码
+- [x] 文档补全
 
 ### 测试 TODO
 
-- [ ] client 初始化测试
-- [ ] project CRUD 测试
-- [ ] memory add/search/list/delete 测试
-- [ ] retry 测试
-- [ ] error handling 测试
-- [ ] integration complete 测试
+- [x] client 初始化测试
+- [x] project CRUD 测试
+- [x] memory add/search/list/delete 测试
+- [x] retry 测试
+- [x] error handling 测试
+- [x] integration complete 测试
 
 ### 验收标准
 
 - Python SDK 全量可用
 - 示例脚本可执行
+- 当前进展：`86` 个测试通过
 
 ## 14. Phase 10：TypeScript SDK
 
