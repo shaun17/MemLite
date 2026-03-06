@@ -62,6 +62,8 @@ class ResourceManager:
 
     @classmethod
     def create(cls, settings: Settings) -> "ResourceManager":
+        # Resource wiring stays in one place so API, MCP and CLI all reuse the
+        # exact same runtime graph and recovery hooks.
         sqlite = SqliteEngineFactory(settings)
         kuzu = KuzuEngineFactory(settings)
         metrics = MetricsService()

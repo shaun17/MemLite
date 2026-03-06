@@ -505,7 +505,7 @@
 - [x] http 模式实现
 - [x] 生命周期管理
 - [x] tool 注册
-- [ ] context/auth 注入
+- [x] context/auth 注入
 - [x] tool schema 校验
 - [x] tool 错误处理
 
@@ -524,12 +524,13 @@
 - [x] tool 参数校验测试
 - [x] tool 错误路径测试
 - [x] 生命周期初始化/释放测试
+- [x] context/auth 测试
 
 ### 验收标准
 
 - MCP stdio/http 均可用
 - 所有 tool 均有测试覆盖
-- 当前进展：`79` 个测试通过
+- 当前进展：`116` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`5` 个 OpenClaw 插件测试通过
 
 ## 13. Phase 9：Python SDK
 
@@ -754,7 +755,7 @@
 - 有性能数据
 - 有稳定性测试
 - 有观测能力
-- 当前进展：`114` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`5` 个 OpenClaw 插件测试通过
+- 当前进展：`116` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`5` 个 OpenClaw 插件测试通过
 - 已记录问题：测试环境下 `aiosqlite` 关闭阶段存在 event loop closed 警告，需在后续稳定性阶段收口
 - 后续优化项已迁移到：`docs/optimization-backlog.md`
 

@@ -151,6 +151,9 @@ class MemoryOrchestrator:
         episodes: list[dict[str, object | None]],
         semantic_set_id: str | None = None,
     ) -> list[EpisodeRecord]:
+        # Persist first, then fan out to derivative and semantic projections.
+        # This keeps SQLite as the recovery point if a downstream projection
+        # fails and needs rebuild/compensation.
         await self._episode_store.add_episodes(episodes)
         persisted = await self._episode_store.get_episodes(
             [str(payload["uid"]) for payload in episodes]
@@ -199,6 +202,8 @@ class MemoryOrchestrator:
     ) -> MemorySearchResponse:
         rewritten_query = await self._query_rewriter(query)
         subqueries = await self._query_splitter(rewritten_query)
+        # Retrieval mode is resolved once so episodic and semantic branches
+        # share the same query rewrite/split decisions.
         resolved_mode = self._resolve_mode(
             requested_mode=mode,
             session_id=session_id,

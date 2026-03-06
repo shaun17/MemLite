@@ -83,6 +83,8 @@ class SemanticService:
     ) -> SemanticSearchResult:
         """Search semantic features using vector similarity and filters."""
         embedding = await self.generate_feature_embedding(query)
+        # Filter first in SQLite so vector scoring only runs on the candidate
+        # slice that is actually visible to the caller.
         allowed_categories = await self._resolve_allowed_categories(set_id, category)
         candidate_feature_ids = await self._feature_store.query_feature_ids(
             set_id=set_id,
@@ -108,6 +110,8 @@ class SemanticService:
         if not hit_ids:
             return SemanticSearchResult(features=[])
 
+        # Rehydrate only the ranked ids to keep response ordering stable while
+        # still honoring category visibility rules.
         features = await self._feature_store.query_features(
             set_id=set_id,
             category=category,

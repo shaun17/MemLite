@@ -78,6 +78,8 @@ class DerivativePipeline:
         episode: EpisodeRecord,
     ) -> list[DerivativeRecord]:
         """Create and persist derivatives for a single episode."""
+        # SQLite episode rows remain the source of truth. This pipeline only
+        # materializes search-friendly projections into Kùzu and sqlite-vec.
         chunks = self.chunk_text(episode.content)
         derivative_records: list[DerivativeRecord] = []
         await self._graph_store.add_nodes(
@@ -95,6 +97,8 @@ class DerivativePipeline:
         )
 
         for index, chunk in enumerate(chunks, start=1):
+            # Every derivative keeps enough lineage metadata to trace a vector
+            # hit back to the original episode without another SQL join table.
             metadata = self.build_derivative_metadata(
                 episode=episode,
                 chunk_index=index,
@@ -144,6 +148,8 @@ class DerivativePipeline:
                 for record in derivative_records
             ],
         )
+        # The vector index stores the same derivative uid through a stable
+        # integer mapping, so graph hits and vector hits can be merged.
         await self._derivative_index.initialize()
         await self._derivative_index.batch_upsert(
             [(vector_item_id(record.uid), record.embedding) for record in derivative_records]

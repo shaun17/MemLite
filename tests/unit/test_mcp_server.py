@@ -164,3 +164,84 @@ async def test_mcp_tool_call_initializes_resources_on_demand(tmp_path: Path):
 
     await resources.close()
     assert resources._initialized is False
+
+
+@pytest.mark.anyio
+async def test_mcp_context_tools_persist_defaults_between_calls(tmp_path: Path):
+    resources = ResourceManager.create(
+        Settings(
+            sqlite_path=tmp_path / "memlite.sqlite3",
+            kuzu_path=tmp_path / "graph.kuzu",
+        )
+    )
+    await resources.initialize()
+    await resources.orchestrator.create_project(org_id="org-a", project_id="project-a")
+    await resources.orchestrator.create_session(
+        session_key="session-a",
+        org_id="org-a",
+        project_id="project-a",
+        session_id="session-a",
+        user_id="user-1",
+    )
+    server = create_mcp_server(resources)
+
+    set_result = await server.call_tool(
+        "set_context",
+        {
+            "session_key": "session-a",
+            "session_id": "session-a",
+            "semantic_set_id": "session-a",
+            "mode": "mixed",
+            "limit": 3,
+            "context_window": 2,
+        },
+    )
+    add = await server.call_tool(
+        "add_memory",
+        {
+            "episodes": [
+                {
+                    "uid": "ep-1",
+                    "session_key": "session-a",
+                    "session_id": "session-a",
+                    "producer_id": "user-1",
+                    "producer_role": "user",
+                    "sequence_num": 1,
+                    "content": "Ramen is my favorite food.",
+                }
+            ],
+        },
+    )
+    search = await server.call_tool("search_memory", {"query": "food ramen"})
+    listed = await server.call_tool("list_memory", {})
+    context = await server.call_tool("get_context", {})
+
+    assert set_result.structured_content["context"]["session_key"] == "session-a"
+    assert add.structured_content["uids"] == ["ep-1"]
+    assert search.structured_content["mode"] == "mixed"
+    assert listed.structured_content["episodes"][0]["uid"] == "ep-1"
+    assert context.structured_content["context"]["semantic_set_id"] == "session-a"
+
+    await resources.close()
+
+
+@pytest.mark.anyio
+async def test_mcp_auth_rejects_missing_api_key_when_configured(tmp_path: Path):
+    resources = ResourceManager.create(
+        Settings(
+            sqlite_path=tmp_path / "memlite.sqlite3",
+            kuzu_path=tmp_path / "graph.kuzu",
+            mcp_api_key="secret-key",
+        )
+    )
+    await resources.initialize()
+    server = create_mcp_server(resources)
+
+    with pytest.raises(ToolError, match="unauthorized"):
+        await server.call_tool("get_context", {})
+
+    authorized = await server.call_tool("get_context", {"api_key": "secret-key"})
+
+    assert authorized.structured_content["context"]["session_key"] is None
+
+    await resources.close()
