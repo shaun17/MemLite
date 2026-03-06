@@ -501,26 +501,26 @@
 
 ### TODO
 
-- [ ] stdio 模式实现
-- [ ] http 模式实现
-- [ ] 生命周期管理
-- [ ] tool 注册
+- [x] stdio 模式实现
+- [x] http 模式实现
+- [x] 生命周期管理
+- [x] tool 注册
 - [ ] context/auth 注入
-- [ ] tool schema 校验
+- [x] tool schema 校验
 - [ ] tool 错误处理
 
 ### 必须支持的 tool
 
-- [ ] add memory
-- [ ] search memory
-- [ ] delete memory
-- [ ] list memory（如纳入范围）
-- [ ] get memory（如纳入范围）
+- [x] add memory
+- [x] search memory
+- [x] delete memory
+- [x] list memory（如纳入范围）
+- [x] get memory（如纳入范围）
 
 ### 测试 TODO
 
-- [ ] stdio tool 调用测试
-- [ ] http tool 调用测试
+- [x] stdio tool 调用测试
+- [x] http tool 调用测试
 - [ ] tool 参数校验测试
 - [ ] tool 错误路径测试
 - [ ] 生命周期初始化/释放测试
@@ -529,6 +529,7 @@
 
 - MCP stdio/http 均可用
 - 所有 tool 均有测试覆盖
+- 当前进展：`76` 个测试通过
 
 ## 13. Phase 9：Python SDK
 
@@ -965,4 +966,3 @@ MemLite 的完整交付不是单一“存储替换”任务，而是一次：
 - 发布能力补齐
 
 本 TODO 文档已将功能、测试、迁移、发布全部纳入，适合作为项目总计划和迭代拆解基线。
-

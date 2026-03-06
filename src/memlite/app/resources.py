@@ -1,6 +1,6 @@
 """Application resource manager bootstrap."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from memlite.common.config import Settings
 from memlite.episodic.delete import EpisodicDeleteService
@@ -56,6 +56,7 @@ class ResourceManager:
     semantic_service: SemanticService
     semantic_session_manager: SemanticSessionManager
     orchestrator: MemoryOrchestrator
+    _initialized: bool = field(default=False, init=False, repr=False)
 
     @classmethod
     def create(cls, settings: Settings) -> "ResourceManager":
@@ -124,12 +125,18 @@ class ResourceManager:
 
     async def initialize(self) -> None:
         """Initialize backing stores and schemas."""
+        if self._initialized:
+            return
         await self.sqlite.initialize_schema()
         await self.semantic_feature_store.initialize()
         await self.derivative_index.initialize()
         await self.kuzu.initialize_schema()
+        self._initialized = True
 
     async def close(self) -> None:
         """Close backing resources."""
+        if not self._initialized:
+            return
         await self.kuzu.close()
         await self.sqlite.dispose()
+        self._initialized = False

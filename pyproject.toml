@@ -10,6 +10,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "aiosqlite>=0.21.0",
+    "fastmcp>=3.1.0",
     "fastapi>=0.116.1",
     "kuzu>=0.11.3",
     "pydantic>=2.11.7",
@@ -28,6 +29,8 @@ dev = [
 
 [project.scripts]
 memlite-server = "memlite.app.main:main"
+memlite-mcp-stdio = "memlite.mcp.__main__:run_stdio_main"
+memlite-mcp-http = "memlite.mcp.__main__:run_http_main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
