@@ -572,29 +572,30 @@
 
 ### TODO
 
-- [ ] client 实现
-- [ ] project 实现
-- [ ] memory 实现
-- [ ] types 定义
-- [ ] error handler
-- [ ] retry 逻辑
-- [ ] build 配置
-- [ ] docs 生成
-- [ ] 使用示例
+- [x] client 实现
+- [x] project 实现
+- [x] memory 实现
+- [x] types 定义
+- [x] error handler
+- [x] retry 逻辑
+- [x] build 配置
+- [x] docs 生成
+- [x] 使用示例
 
 ### 测试 TODO
 
-- [ ] client 测试
-- [ ] project 测试
-- [ ] memory 测试
-- [ ] error handler 测试
-- [ ] type surface 稳定性测试
-- [ ] build/test 脚本 CI 测试
+- [x] client 测试
+- [x] project 测试
+- [x] memory 测试
+- [x] error handler 测试
+- [x] type surface 稳定性测试
+- [x] build/test 脚本 CI 测试
 
 ### 验收标准
 
 - TypeScript SDK build/test 全通过
 - npm 包可交付
+- 当前进展：`86` 个 Python 测试通过，`5` 个 TypeScript 测试通过
 
 ## 15. Phase 11：OpenClaw 插件
 
