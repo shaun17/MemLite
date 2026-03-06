@@ -2,14 +2,20 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Awaitable, Callable, Sequence
+from typing import Annotated, Literal, TypeVar
 
 from fastmcp import FastMCP
+from fastmcp.exceptions import ToolError
+from pydantic import Field
+from sqlalchemy.exc import IntegrityError
 
 from memlite.api.schemas import dump_episode_payload
 from memlite.api.schemas import EpisodeInput
 from memlite.app.resources import ResourceManager
 from memlite.common.config import Settings, get_settings
+
+T = TypeVar("T")
 
 
 def create_mcp_server(resources: ResourceManager | None = None) -> FastMCP:
@@ -25,6 +31,23 @@ def create_mcp_server(resources: ResourceManager | None = None) -> FastMCP:
     async def ensure_initialized() -> None:
         await runtime.initialize()
 
+    async def require_session(session_key: str) -> None:
+        session = await runtime.session_store.get_session(session_key)
+        if session is None:
+            raise ToolError(f"session not found: {session_key}")
+
+    async def call_tool(operation: str, callback: Callable[[], Awaitable[T]]) -> T:
+        try:
+            return await callback()
+        except ToolError:
+            raise
+        except IntegrityError as err:
+            raise ToolError(f"{operation} failed: integrity constraint violated") from err
+        except ValueError as err:
+            raise ToolError(f"{operation} failed: {err}") from err
+        except Exception as err:
+            raise ToolError(f"{operation} failed") from err
+
     @mcp.tool(
         name="add_memory",
         description="Add episodic memories into a session and optional semantic set.",
@@ -35,11 +58,19 @@ def create_mcp_server(resources: ResourceManager | None = None) -> FastMCP:
         semantic_set_id: str | None = None,
     ) -> dict[str, object]:
         await ensure_initialized()
-        persisted = await runtime.orchestrator.add_episodes(
-            session_key=session_key,
-            semantic_set_id=semantic_set_id,
-            episodes=[dump_episode_payload(EpisodeInput.model_validate(item)) for item in episodes],
-        )
+        await require_session(session_key)
+
+        async def run() -> list:
+            return await runtime.orchestrator.add_episodes(
+                session_key=session_key,
+                semantic_set_id=semantic_set_id,
+                episodes=[
+                    dump_episode_payload(EpisodeInput.model_validate(item))
+                    for item in episodes
+                ],
+            )
+
+        persisted = await call_tool("add_memory", run)
         return {"uids": [episode.uid for episode in persisted]}
 
     @mcp.tool(
@@ -51,17 +82,20 @@ def create_mcp_server(resources: ResourceManager | None = None) -> FastMCP:
         session_key: str | None = None,
         session_id: str | None = None,
         semantic_set_id: str | None = None,
-        mode: str = "auto",
-        limit: int = 5,
+        mode: Literal["auto", "episodic", "semantic", "mixed"] = "auto",
+        limit: Annotated[int, Field(ge=1, le=100)] = 5,
     ) -> dict[str, object]:
         await ensure_initialized()
-        result = await runtime.orchestrator.search_memories(
-            query=query,
-            session_key=session_key,
-            session_id=session_id,
-            semantic_set_id=semantic_set_id,
-            mode=mode,  # type: ignore[arg-type]
-            limit=limit,
+        result = await call_tool(
+            "search_memory",
+            lambda: runtime.orchestrator.search_memories(
+                query=query,
+                session_key=session_key,
+                session_id=session_id,
+                semantic_set_id=semantic_set_id,
+                mode=mode,
+                limit=limit,
+            ),
         )
         return {
             "mode": result.mode,
@@ -86,9 +120,12 @@ def create_mcp_server(resources: ResourceManager | None = None) -> FastMCP:
         semantic_set_id: str | None = None,
     ) -> dict[str, str]:
         await ensure_initialized()
-        await runtime.orchestrator.delete_episodes(
-            episode_uids=list(episode_uids),
-            semantic_set_id=semantic_set_id,
+        await call_tool(
+            "delete_memory",
+            lambda: runtime.orchestrator.delete_episodes(
+                episode_uids=list(episode_uids),
+                semantic_set_id=semantic_set_id,
+            ),
         )
         return {"status": "ok"}
 
@@ -98,7 +135,10 @@ def create_mcp_server(resources: ResourceManager | None = None) -> FastMCP:
     )
     async def list_memory(session_key: str) -> dict[str, object]:
         await ensure_initialized()
-        episodes = await runtime.episode_store.list_episodes(session_key=session_key)
+        episodes = await call_tool(
+            "list_memory",
+            lambda: runtime.episode_store.list_episodes(session_key=session_key),
+        )
         return {
             "episodes": [
                 {
@@ -123,7 +163,10 @@ def create_mcp_server(resources: ResourceManager | None = None) -> FastMCP:
     )
     async def get_memory(uid: str) -> dict[str, object | None]:
         await ensure_initialized()
-        episodes = await runtime.episode_store.get_episodes([uid])
+        episodes = await call_tool(
+            "get_memory",
+            lambda: runtime.episode_store.get_episodes([uid]),
+        )
         if not episodes:
             return {"memory": None}
         episode = episodes[0]
@@ -149,16 +192,22 @@ async def run_stdio(settings: Settings | None = None) -> None:
     """Run the MemLite MCP server over stdio."""
     runtime = ResourceManager.create(settings or get_settings())
     server = create_mcp_server(runtime)
-    await server.run_stdio_async(show_banner=False)
+    try:
+        await server.run_stdio_async(show_banner=False)
+    finally:
+        await runtime.close()
 
 
 async def run_http(settings: Settings | None = None) -> None:
     """Run the MemLite MCP server over HTTP."""
     runtime = ResourceManager.create(settings or get_settings())
     server = create_mcp_server(runtime)
-    await server.run_http_async(
-        show_banner=False,
-        host=runtime.settings.host,
-        port=runtime.settings.port,
-        path="/mcp",
-    )
+    try:
+        await server.run_http_async(
+            show_banner=False,
+            host=runtime.settings.host,
+            port=runtime.settings.port,
+            path="/mcp",
+        )
+    finally:
+        await runtime.close()

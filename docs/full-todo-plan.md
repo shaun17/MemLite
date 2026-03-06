@@ -507,7 +507,7 @@
 - [x] tool 注册
 - [ ] context/auth 注入
 - [x] tool schema 校验
-- [ ] tool 错误处理
+- [x] tool 错误处理
 
 ### 必须支持的 tool
 
@@ -521,15 +521,15 @@
 
 - [x] stdio tool 调用测试
 - [x] http tool 调用测试
-- [ ] tool 参数校验测试
-- [ ] tool 错误路径测试
-- [ ] 生命周期初始化/释放测试
+- [x] tool 参数校验测试
+- [x] tool 错误路径测试
+- [x] 生命周期初始化/释放测试
 
 ### 验收标准
 
 - MCP stdio/http 均可用
 - 所有 tool 均有测试覆盖
-- 当前进展：`76` 个测试通过
+- 当前进展：`79` 个测试通过
 
 ## 13. Phase 9：Python SDK
 
