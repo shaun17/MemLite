@@ -62,12 +62,15 @@ class ResourceManager:
     def create(cls, settings: Settings) -> "ResourceManager":
         sqlite = SqliteEngineFactory(settings)
         kuzu = KuzuEngineFactory(settings)
+        metrics = MetricsService()
+        kuzu.bind_metrics(metrics)
         project_store = SqliteProjectStore(sqlite)
         session_store = SqliteSessionStore(sqlite)
         episode_store = SqliteEpisodeStore(sqlite)
         semantic_config_store = SqliteSemanticConfigStore(sqlite)
         semantic_feature_store = SqliteSemanticFeatureStore(sqlite)
         derivative_index = SqliteVecIndex(sqlite, "derivative_feature_vectors")
+        derivative_index.bind_metrics(metrics)
         graph_store = KuzuGraphStore(kuzu)
         derivative_pipeline = DerivativePipeline(
             graph_store=graph_store,
@@ -79,6 +82,7 @@ class ResourceManager:
             graph_store=graph_store,
             derivative_index=derivative_index,
             embedder=default_embedder,
+            metrics=metrics,
         )
         episodic_delete = EpisodicDeleteService(
             episode_store=episode_store,
@@ -104,7 +108,7 @@ class ResourceManager:
         )
         return cls(
             settings=settings,
-            metrics=MetricsService(),
+            metrics=metrics,
             memory_config=MemoryConfigService(),
             sqlite=sqlite,
             kuzu=kuzu,

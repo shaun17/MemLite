@@ -6,6 +6,7 @@ import json
 import math
 from dataclasses import dataclass
 from pathlib import Path
+from time import perf_counter
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -47,6 +48,10 @@ class SqliteVecIndex:
     def __init__(self, engine_factory: SqliteEngineFactory, table_name: str) -> None:
         self._engine_factory = engine_factory
         self._table_name = table_name
+        self._metrics = None
+
+    def bind_metrics(self, metrics) -> None:  # type: ignore[no-untyped-def]
+        self._metrics = metrics
 
     async def initialize(self) -> None:
         """Ensure the vector table exists."""
@@ -92,6 +97,7 @@ class SqliteVecIndex:
         self, query_embedding: list[float], limit: int = 10
     ) -> list[VectorSearchResult]:
         """Return top-k vectors ranked by cosine similarity."""
+        started = perf_counter()
         engine = self._engine_factory.create_engine()
         async with engine.connect() as conn:
             rows = (
@@ -108,6 +114,12 @@ class SqliteVecIndex:
             score = _cosine_similarity(query_embedding, embedding)
             results.append(VectorSearchResult(item_id=int(feature_id), score=score))
         results.sort(key=lambda item: item.score, reverse=True)
+        if self._metrics is not None:
+            self._metrics.increment("vec_queries_total")
+            self._metrics.observe_timing(
+                "vec_query_latency_ms",
+                (perf_counter() - started) * 1000,
+            )
         return results[:limit]
 
     async def delete(self, item_id: int) -> None:

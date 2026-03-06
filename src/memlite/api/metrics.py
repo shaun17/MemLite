@@ -13,5 +13,5 @@ def metrics(request: Request) -> dict[str, object]:
     resources: ResourceManager = request.app.state.resources
     return {
         "service": resources.settings.app_name,
-        "counters": resources.metrics.snapshot(),
+        **resources.metrics.snapshot(),
     }

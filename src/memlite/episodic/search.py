@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
+from time import perf_counter
 
 from memlite.episodic.derivative_pipeline import vector_item_id
 from memlite.storage.episode_store import EpisodeRecord, SqliteEpisodeStore
@@ -42,12 +43,14 @@ class EpisodicSearchService:
         derivative_index: SqliteVecIndex,
         embedder: EmbedderFn,
         reranker: RerankerFn | None = None,
+        metrics=None,
     ) -> None:
         self._episode_store = episode_store
         self._graph_store = graph_store
         self._derivative_index = derivative_index
         self._embedder = embedder
         self._reranker = reranker
+        self._metrics = metrics
 
     async def search(
         self,
@@ -60,6 +63,7 @@ class EpisodicSearchService:
         min_score: float = 0.0001,
         context_window: int = 1,
     ) -> EpisodicSearchResult:
+        started = perf_counter()
         query_vector = await self._embedder(query)
         derivative_nodes = await self._graph_store.search_matching_nodes(
             node_table="Derivative",
@@ -99,6 +103,12 @@ class EpisodicSearchService:
         matches = matches[:limit]
 
         expanded_context = await self._expand_context(matches, context_window=context_window)
+        if self._metrics is not None:
+            self._metrics.increment("episodic_search_total")
+            self._metrics.observe_timing(
+                "search_latency_ms",
+                (perf_counter() - started) * 1000,
+            )
         return EpisodicSearchResult(matches=matches, expanded_context=expanded_context)
 
     def _build_matches(

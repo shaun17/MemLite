@@ -8,8 +8,10 @@ def test_metrics_endpoint_returns_snapshot():
     reset_settings_cache()
     app = create_app()
     app.state.resources.metrics.increment("requests", 2)
+    app.state.resources.metrics.observe_timing("search_latency_ms", 12.5)
     with TestClient(app) as client:
         response = client.get("/metrics")
 
     assert response.status_code == 200
     assert response.json()["counters"]["requests"] == 2
+    assert response.json()["timings_ms"]["search_latency_ms"]["last"] == 12.5

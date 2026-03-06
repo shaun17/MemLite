@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import asyncio
 from pathlib import Path
+from time import perf_counter
 
 import kuzu
 
 from memlite.common.config import Settings
+from memlite.common.retry import retry_async
 
 KUZU_BOOTSTRAP_STATEMENTS = (
     """
@@ -49,6 +51,10 @@ class KuzuEngineFactory:
         self._settings = settings
         self._database: kuzu.Database | None = None
         self._connection: kuzu.Connection | None = None
+        self._metrics = None
+
+    def bind_metrics(self, metrics) -> None:  # type: ignore[no-untyped-def]
+        self._metrics = metrics
 
     @property
     def database_path(self) -> Path:
@@ -87,15 +93,22 @@ class KuzuEngineFactory:
     async def execute(self, query: str) -> None:
         """Execute a mutating Kùzu query."""
         connection = await self.create_connection()
-        await asyncio.to_thread(connection.execute, query)
+        await retry_async(lambda: asyncio.to_thread(connection.execute, query))
 
     async def query(self, query: str) -> list[list[object]]:
         """Run a read query and return all rows."""
+        started = perf_counter()
         connection = await self.create_connection()
-        result = await asyncio.to_thread(connection.execute, query)
+        result = await retry_async(lambda: asyncio.to_thread(connection.execute, query))
         rows: list[list[object]] = []
         while result.has_next():
             rows.append(await asyncio.to_thread(result.get_next))
+        if self._metrics is not None:
+            self._metrics.increment("graph_queries_total")
+            self._metrics.observe_timing(
+                "graph_query_latency_ms",
+                (perf_counter() - started) * 1000,
+            )
         return rows
 
     async def close(self) -> None:

@@ -15,7 +15,7 @@ from memlite.api.semantic_features import router as semantic_features_router
 from memlite.api.sessions import router as sessions_router
 from memlite.app.resources import ResourceManager
 from memlite.common.config import get_settings
-from memlite.common.logging import configure_logging
+from memlite.common.logging import RequestLoggingMiddleware, configure_logging
 
 
 @asynccontextmanager
@@ -34,6 +34,7 @@ def create_app() -> FastAPI:
 
     app = FastAPI(title=settings.app_name, description="MemLite API", lifespan=lifespan)
     app.state.resources = ResourceManager.create(settings)
+    app.add_middleware(RequestLoggingMiddleware)
     app.include_router(health_router)
     app.include_router(metrics_router)
     app.include_router(projects_router)
