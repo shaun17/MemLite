@@ -106,9 +106,9 @@ pip install -e .[dev]
 ### 方式 B：PyPI 安装（发布后）
 
 ```bash
-pipx install memlite
+pipx install memlite-agent
 # 或
-pip install memlite
+pip install memlite-agent
 ```
 
 ## 2. 初始化配置与本地数据
