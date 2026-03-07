@@ -116,6 +116,91 @@ async def test_sdk_memory_add_search_list_delete(tmp_path: Path):
 
 
 @pytest.mark.anyio
+async def test_sdk_response_schema_is_stable(tmp_path: Path):
+    client, resources = await _build_sdk_client(tmp_path)
+    await resources.orchestrator.create_project(org_id="org-a", project_id="project-a")
+    await resources.orchestrator.create_session(
+        session_key="session-a",
+        org_id="org-a",
+        project_id="project-a",
+        session_id="session-a",
+    )
+    await client.memory.add(
+        session_key="session-a",
+        semantic_set_id="session-a",
+        episodes=[
+            {
+                "uid": "ep-1",
+                "session_key": "session-a",
+                "session_id": "session-a",
+                "producer_id": "user-1",
+                "producer_role": "user",
+                "sequence_num": 1,
+                "content": "Ramen is my favorite food.",
+            }
+        ],
+    )
+
+    search = await client.memory.search(
+        query="favorite food",
+        session_key="session-a",
+        session_id="session-a",
+        semantic_set_id="session-a",
+        mode="mixed",
+    )
+    agent = await client.memory.agent(
+        query="favorite food",
+        session_key="session-a",
+        session_id="session-a",
+        semantic_set_id="session-a",
+        mode="mixed",
+    )
+    listed = await client.memory.list(session_key="session-a")
+
+    assert set(search.model_dump().keys()) == {
+        "mode",
+        "rewritten_query",
+        "subqueries",
+        "episodic_matches",
+        "semantic_features",
+        "combined",
+        "expanded_context",
+        "short_term_context",
+    }
+    assert set(search.episodic_matches[0].model_dump().keys()) == {
+        "episode",
+        "derivative_uid",
+        "score",
+    }
+    assert set(search.combined[0].model_dump().keys()) == {
+        "source",
+        "content",
+        "identifier",
+        "score",
+    }
+    assert set(agent.model_dump().keys()) == {"search", "context_text"}
+    assert set(listed[0].model_dump().keys()) == {
+        "uid",
+        "session_key",
+        "session_id",
+        "producer_id",
+        "producer_role",
+        "produced_for_id",
+        "sequence_num",
+        "content",
+        "content_type",
+        "episode_type",
+        "created_at",
+        "metadata_json",
+        "filterable_metadata_json",
+        "deleted",
+    }
+
+    await client.close()
+    await resources.close()
+
+
+@pytest.mark.anyio
 async def test_sdk_config_roundtrip(tmp_path: Path):
     client, resources = await _build_sdk_client(tmp_path)
 

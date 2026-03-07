@@ -530,7 +530,7 @@
 
 - MCP stdio/http 均可用
 - 所有 tool 均有测试覆盖
-- 当前进展：`119` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`5` 个 OpenClaw 插件测试通过
+- 当前进展：`121` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`6` 个 OpenClaw 插件测试通过
 
 ## 13. Phase 9：Python SDK
 
@@ -631,7 +631,7 @@
 
 - OpenClaw 本地安装可用
 - autoRecall/autoCapture 生效
-- 当前进展：`94` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`5` 个 OpenClaw 插件测试通过
+- 当前进展：`121` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`6` 个 OpenClaw 插件测试通过
 
 ## 16. Phase 12：CLI、安装与初始化
 
@@ -755,7 +755,7 @@
 - 有性能数据
 - 有稳定性测试
 - 有观测能力
-- 当前进展：`119` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`5` 个 OpenClaw 插件测试通过
+- 当前进展：`121` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`6` 个 OpenClaw 插件测试通过
 - 已记录问题：测试环境下 `aiosqlite` 关闭阶段存在 event loop closed 警告，需在后续稳定性阶段收口
 - 后续优化项已迁移到：`docs/optimization-backlog.md`
 
@@ -768,14 +768,14 @@
 ### TODO
 
 #### 测试总收口
-- [ ] 运行全部单元测试
-- [ ] 运行全部集成测试
-- [ ] 运行全部 e2e 测试
-- [ ] 运行回归测试
-- [ ] 运行 OpenClaw 集成测试
+- [x] 运行全部单元测试
+- [x] 运行全部集成测试
+- [x] 运行全部 e2e 测试
+- [x] 运行回归测试
+- [x] 运行 OpenClaw 集成测试
 - [ ] 运行 MCP 集成测试
-- [ ] 运行 SDK 集成测试
-- [ ] 运行迁移与修复测试
+- [x] 运行 SDK 集成测试
+- [x] 运行迁移与修复测试
 - [ ] 运行性能基准测试
 
 #### 文档
@@ -891,33 +891,33 @@
 - [ ] 生命周期管理
 
 ### I. Python SDK
-- [ ] client
-- [ ] project
-- [ ] memory
-- [ ] retries
-- [ ] error handling
+- [x] client
+- [x] project
+- [x] memory
+- [x] retries
+- [x] error handling
 
 ### J. TypeScript SDK
-- [ ] client
-- [ ] project
-- [ ] memory
-- [ ] types
-- [ ] error handling
+- [x] client
+- [x] project
+- [x] memory
+- [x] types
+- [x] error handling
 
 ### K. OpenClaw
-- [ ] local install
-- [ ] config schema
-- [ ] autoCapture
-- [ ] autoRecall
-- [ ] search/store/forget/get/list
+- [x] local install
+- [x] config schema
+- [x] autoCapture
+- [x] autoRecall
+- [x] search/store/forget/get/list
 
 ### L. CLI / Tooling
-- [ ] server CLI
-- [ ] mcp CLI
-- [ ] configure CLI
-- [ ] bootstrap tools
-- [ ] migration tools
-- [ ] repair tools
+- [x] server CLI
+- [x] mcp CLI
+- [x] configure CLI
+- [x] bootstrap tools
+- [x] migration tools
+- [x] repair tools
 
 ## 21. 测试全覆盖验收清单
 
@@ -940,17 +940,17 @@
 - [ ] semantic ingest/search/delete
 - [ ] mixed retrieval
 - [ ] MCP tools
-- [ ] OpenClaw plugin
+- [x] OpenClaw plugin
 
 ### E2E 测试
 - [x] create project -> add memory -> search -> delete
 - [x] add memory -> semantic ingestion -> recall
 - [x] session close/reopen -> summary restore
-- [ ] plugin autoCapture -> autoRecall
+- [x] plugin autoCapture -> autoRecall
 
 ### 回归测试
-- [ ] API response schema
-- [ ] SDK response schema
+- [x] API response schema
+- [x] SDK response schema
 - [ ] 搜索排序稳定性
 - [ ] 过滤语义稳定性
 - [ ] 删除后无残留

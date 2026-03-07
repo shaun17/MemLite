@@ -188,6 +188,61 @@ describe("openclaw memlite plugin", () => {
     expect(logger.info).toHaveBeenCalledWith("openclaw-memlite: auto-capture completed");
   });
 
+  it("captures first and recalls on the next hook cycle", async () => {
+    global.fetch = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ detail: "missing" }), { status: 404 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ status: "ok" }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ detail: "missing" }), { status: 404 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ status: "ok" }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify([]), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify([{ uid: "session-a-1" }]), { status: 200 }))
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            episodic_matches: [
+              {
+                episode: {
+                  uid: "session-a-1",
+                  session_key: "session-a",
+                  session_id: "session-a",
+                  content: "Remember I like ramen.",
+                  producer_role: "user",
+                  sequence_num: 1,
+                },
+                score: 0.95,
+              },
+            ],
+            semantic_features: [],
+          }),
+          { status: 200 },
+        ),
+      );
+
+    const { hooks } = createApi({
+      baseUrl: "http://memlite.local",
+      orgId: "org-a",
+      projectId: "project-a",
+      userId: "user-1",
+      autoRecall: true,
+      autoCapture: true,
+    });
+
+    await hooks.get("agent_end")?.(
+      {
+        success: true,
+        messages: [{ role: "user", content: "Remember I like ramen." }],
+      },
+      { sessionKey: "session-a" },
+    );
+    const recall = await hooks.get("before_agent_start")?.(
+      { prompt: "What do I like to eat?" },
+      { sessionKey: "session-a" },
+    );
+
+    expect((recall as any).prependContext).toContain("Remember I like ramen.");
+  });
+
   it("returns readable errors for tool failures", async () => {
     global.fetch = vi.fn<typeof fetch>().mockResolvedValue(
       new Response(JSON.stringify({ detail: "boom" }), { status: 500 }),
