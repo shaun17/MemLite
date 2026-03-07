@@ -109,17 +109,66 @@ memlite-configure detect-sqlite-vec --extension-path /path/to/sqlite-vec.dylib
 ## 3. 启动服务
 
 ```bash
-memlite-server
+# 前台模式（开发调试）
+MEMLITE_PORT=18731 memlite-server
 ```
 
-默认地址：`http://127.0.0.1:8080`
+默认建议地址：`http://127.0.0.1:18731`（避免与常见 8080 冲突）
 
-## 4. 最小调用流程（REST）
+## 4. 服务托管与开机自启（推荐）
+
+> 语义约定：
+>
+> - `memlite-server`：前台运行，适合开发调试（可惰性 init）
+> - `memlite service ...`：后台托管命令（start/stop/restart/status）
+> - 开机自启只在 `install --enable` / `enable` 中显式设置
+>
+> 当前仓库提供脚本实现（macOS LaunchAgent）：
+>
+> ```bash
+> # 安装服务定义（不自动开机自启）
+> ./scripts/memlite_service.sh install
+>
+> # 启用开机自启并立即启动
+> ./scripts/memlite_service.sh enable
+>
+> # 或一步完成
+> ./scripts/memlite_service.sh install --enable
+>
+> # 生命周期管理
+> ./scripts/memlite_service.sh start
+> ./scripts/memlite_service.sh stop
+> ./scripts/memlite_service.sh restart
+> ./scripts/memlite_service.sh status
+> ```
+
+## 5. OpenClaw 一键接入（A 方案脚本）
+
+```bash
+./scripts/setup_openclaw_memlite.sh
+```
+
+该脚本会自动执行：
+
+1. `openclaw plugins install <plugin-path>`
+2. 写入 `~/.openclaw/openclaw.json` 的 memlite 配置
+3. 安装并启用 memlite 后台服务（默认端口 18731）
+4. 重启 OpenClaw gateway
+5. 健康检查与插件加载检查
+
+可覆盖参数（环境变量）：
+
+- `BASE_URL`（默认 `http://127.0.0.1:18731`）
+- `ORG_ID` / `PROJECT_ID` / `USER_ID`
+- `AUTO_CAPTURE` / `AUTO_RECALL`
+- `SEARCH_THRESHOLD` / `TOP_K`
+
+## 6. 最小调用流程（REST）
 
 ### 4.1 创建项目
 
 ```bash
-curl -X POST http://127.0.0.1:8080/projects \
+curl -X POST http://127.0.0.1:18731/projects \
   -H 'content-type: application/json' \
   -d '{
     "org_id": "demo-org",
@@ -131,7 +180,7 @@ curl -X POST http://127.0.0.1:8080/projects \
 ### 4.2 创建会话
 
 ```bash
-curl -X POST http://127.0.0.1:8080/sessions \
+curl -X POST http://127.0.0.1:18731/sessions \
   -H 'content-type: application/json' \
   -d '{
     "session_key": "demo-session",
@@ -145,7 +194,7 @@ curl -X POST http://127.0.0.1:8080/sessions \
 ### 4.3 写入记忆
 
 ```bash
-curl -X POST http://127.0.0.1:8080/memories \
+curl -X POST http://127.0.0.1:18731/memories \
   -H 'content-type: application/json' \
   -d '{
     "session_key": "demo-session",
@@ -167,7 +216,7 @@ curl -X POST http://127.0.0.1:8080/memories \
 ### 4.4 检索记忆
 
 ```bash
-curl -X POST http://127.0.0.1:8080/memories/search \
+curl -X POST http://127.0.0.1:18731/memories/search \
   -H 'content-type: application/json' \
   -d '{
     "query": "favorite food",
@@ -196,7 +245,7 @@ from memlite.client import MemLiteClient
 
 
 async def main() -> None:
-    async with MemLiteClient(base_url="http://127.0.0.1:8080") as client:
+    async with MemLiteClient(base_url="http://127.0.0.1:18731") as client:
         await client.projects.create(org_id="demo-org", project_id="demo-project")
         await client.memory.add(
             session_key="demo-session",
@@ -263,7 +312,7 @@ memlite-configure repair --output repair.json --data-dir ~/.memlite
 
 # 搜索基准/压测
 memlite-configure benchmark-search --output benchmark.json --data-dir ~/.memlite
-memlite-configure load-test --base-url http://127.0.0.1:8080 --total-requests 200 --concurrency 20
+memlite-configure load-test --base-url http://127.0.0.1:18731 --total-requests 200 --concurrency 20
 ```
 
 ---

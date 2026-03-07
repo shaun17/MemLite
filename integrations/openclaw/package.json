@@ -8,6 +8,11 @@
     "dist",
     "openclaw.plugin.json"
   ],
+  "openclaw": {
+    "extensions": [
+      "./dist/index.mjs"
+    ]
+  },
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
