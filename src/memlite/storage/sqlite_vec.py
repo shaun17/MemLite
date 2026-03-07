@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import heapq
 import json
 import math
 from dataclasses import dataclass
@@ -139,19 +140,27 @@ class SqliteVecIndex:
                     )
                 ).all()
 
-        results = []
+        top_k: list[tuple[float, int]] = []
         for feature_id, embedding_json in rows:
-            embedding = json.loads(embedding_json)
+            try:
+                embedding = json.loads(embedding_json)
+            except json.JSONDecodeError:
+                continue
             score = _cosine_similarity(query_embedding, embedding)
-            results.append(VectorSearchResult(item_id=int(feature_id), score=score))
-        results.sort(key=lambda item: item.score, reverse=True)
+            item = (score, int(feature_id))
+            if len(top_k) < max(limit, 1):
+                heapq.heappush(top_k, item)
+            else:
+                heapq.heappushpop(top_k, item)
+
+        ranked = sorted(top_k, key=lambda item: item[0], reverse=True)
         if self._metrics is not None:
             self._metrics.increment("vec_queries_total")
             self._metrics.observe_timing(
                 "vec_query_latency_ms",
                 (perf_counter() - started) * 1000,
             )
-        return results[:limit]
+        return [VectorSearchResult(item_id=item_id, score=score) for score, item_id in ranked]
 
     async def delete(self, item_id: int) -> None:
         """Delete a single embedding by item id."""

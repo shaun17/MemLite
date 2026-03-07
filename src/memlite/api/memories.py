@@ -1,5 +1,7 @@
 """Memory API routes."""
 
+from typing import Literal
+
 from fastapi import APIRouter, Depends
 
 from memlite.api.deps import get_resources
@@ -20,6 +22,37 @@ from memlite.app.resources import ResourceManager
 router = APIRouter(prefix="/memories", tags=["memory"])
 
 
+def _resolve_mode_with_config(
+    *,
+    requested: Literal["auto", "episodic", "semantic", "mixed"],
+    episodic_enabled: bool,
+    semantic_enabled: bool,
+) -> Literal["auto", "episodic", "semantic", "mixed"]:
+    if requested == "auto":
+        if episodic_enabled and semantic_enabled:
+            return "auto"
+        if episodic_enabled:
+            return "episodic"
+        if semantic_enabled:
+            return "semantic"
+        return "episodic"
+
+    if requested == "mixed":
+        if episodic_enabled and semantic_enabled:
+            return "mixed"
+        if episodic_enabled:
+            return "episodic"
+        if semantic_enabled:
+            return "semantic"
+        return "episodic"
+
+    if requested == "episodic" and not episodic_enabled:
+        return "semantic" if semantic_enabled else "episodic"
+    if requested == "semantic" and not semantic_enabled:
+        return "episodic" if episodic_enabled else "semantic"
+    return requested
+
+
 @router.post("", response_model=list[dict[str, str]])
 async def add_memories(
     payload: MemoryAddRequest,
@@ -38,15 +71,30 @@ async def search_memories(
     payload: MemorySearchRequest,
     resources: ResourceManager = Depends(get_resources),
 ) -> MemorySearchResponse:
+    episodic_config = resources.memory_config.get_episodic()
+    long_term_config = resources.memory_config.get_long_term()
+    resolved_mode = _resolve_mode_with_config(
+        requested=payload.mode,
+        episodic_enabled=long_term_config.episodic_enabled,
+        semantic_enabled=long_term_config.semantic_enabled,
+    )
     result = await resources.orchestrator.search_memories(
         query=payload.query,
         session_key=payload.session_key,
         session_id=payload.session_id,
         semantic_set_id=payload.semantic_set_id,
-        mode=payload.mode,
-        limit=payload.limit,
-        context_window=payload.context_window,
-        min_score=payload.min_score,
+        mode=resolved_mode,
+        limit=payload.limit if payload.limit is not None else episodic_config.top_k,
+        context_window=(
+            payload.context_window
+            if payload.context_window is not None
+            else episodic_config.context_window
+        ),
+        min_score=(
+            payload.min_score
+            if payload.min_score is not None
+            else episodic_config.min_score
+        ),
         producer_role=payload.producer_role,
         episode_type=payload.episode_type,
     )
@@ -88,14 +136,25 @@ async def agent_mode(
     payload: AgentModeRequest,
     resources: ResourceManager = Depends(get_resources),
 ) -> AgentModeResponse:
+    episodic_config = resources.memory_config.get_episodic()
+    long_term_config = resources.memory_config.get_long_term()
+    resolved_mode = _resolve_mode_with_config(
+        requested=payload.mode,
+        episodic_enabled=long_term_config.episodic_enabled,
+        semantic_enabled=long_term_config.semantic_enabled,
+    )
     result = await resources.orchestrator.agent_mode(
         query=payload.query,
         session_key=payload.session_key,
         session_id=payload.session_id,
         semantic_set_id=payload.semantic_set_id,
-        mode=payload.mode,
-        limit=payload.limit,
-        context_window=payload.context_window,
+        mode=resolved_mode,
+        limit=payload.limit if payload.limit is not None else episodic_config.top_k,
+        context_window=(
+            payload.context_window
+            if payload.context_window is not None
+            else episodic_config.context_window
+        ),
     )
     search = MemorySearchResponse(
         mode=result.search.mode,

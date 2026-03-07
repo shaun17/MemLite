@@ -87,9 +87,9 @@ class MemorySearchRequest(BaseModel):
     session_id: str | None = None
     semantic_set_id: str | None = None
     mode: Literal["auto", "episodic", "semantic", "mixed"] = "auto"
-    limit: int = 5
-    context_window: int = 1
-    min_score: float = 0.0001
+    limit: int | None = None
+    context_window: int | None = None
+    min_score: float | None = None
     producer_role: str | None = None
     episode_type: str | None = None
 
@@ -290,8 +290,8 @@ class AgentModeRequest(BaseModel):
     session_id: str | None = None
     semantic_set_id: str | None = None
     mode: Literal["auto", "episodic", "semantic", "mixed"] = "auto"
-    limit: int = 5
-    context_window: int = 1
+    limit: int | None = None
+    context_window: int | None = None
 
 
 class AgentModeResponse(BaseModel):
