@@ -5,8 +5,14 @@ set -euo pipefail
 # Default runtime: 127.0.0.1:18731
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-PYTHON_BIN="${PYTHON_BIN:-$ROOT_DIR/.venv/bin/python}"
-MEMLITE_BIN="${MEMLITE_BIN:-$ROOT_DIR/.venv/bin/memolite-server}"
+DEFAULT_MEMOLITE_BIN="$(command -v memolite-server || true)"
+if [[ -z "$DEFAULT_MEMOLITE_BIN" && -x "$HOME/.local/bin/memolite-server" ]]; then
+  DEFAULT_MEMOLITE_BIN="$HOME/.local/bin/memolite-server"
+fi
+if [[ -z "$DEFAULT_MEMOLITE_BIN" && -x "$ROOT_DIR/.venv/bin/memolite-server" ]]; then
+  DEFAULT_MEMOLITE_BIN="$ROOT_DIR/.venv/bin/memolite-server"
+fi
+MEMLITE_BIN="${MEMLITE_BIN:-$DEFAULT_MEMOLITE_BIN}"
 HOST="${MEMLITE_HOST:-127.0.0.1}"
 PORT="${MEMLITE_PORT:-18731}"
 SQLITE_PATH="${MEMLITE_SQLITE_PATH:-$HOME/.memolite/memolite.sqlite3}"
@@ -50,9 +56,10 @@ ensure_dirs() {
 }
 
 ensure_bins() {
-  [[ -x "$MEMLITE_BIN" ]] || {
-    echo "[ERROR] memolite-server not found: $MEMLITE_BIN"
-    echo "Hint: cd $ROOT_DIR && python3 -m venv .venv && source .venv/bin/activate && pip install -e .[dev]"
+  [[ -n "$MEMLITE_BIN" && -x "$MEMLITE_BIN" ]] || {
+    echo "[ERROR] memolite-server not found."
+    echo "Checked: ${MEMLITE_BIN:-<empty>}"
+    echo "Hint: ensure memolite is installed (pipx install memolite), or set MEMLITE_BIN explicitly."
     exit 1
   }
 }
