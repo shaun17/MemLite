@@ -66,11 +66,14 @@ class KuzuGraphStore:
     ) -> None:
         for node in nodes:
             uid = node.get("uid")
-            if uid is not None:
-                await self.delete_nodes(node_table=node_table, uids=[str(uid)])
-            await self._engine.execute(
-                f"CREATE (:{node_table} {{{_render_properties(node)}}})"
-            )
+            if uid is None:
+                continue
+            assignments = _render_set_assignments("n", node)
+            query = f"""
+            MERGE (n:{node_table} {{uid: {_quote(uid)}}})
+            {f"SET {assignments}" if assignments else ""}
+            """
+            await self._engine.execute(query)
 
     async def add_edges(
         self,
@@ -84,7 +87,8 @@ class KuzuGraphStore:
             query = f"""
             MATCH (src:{from_table}), (dst:{to_table})
             WHERE src.uid = {_quote(edge.from_uid)} AND dst.uid = {_quote(edge.to_uid)}
-            CREATE (src)-[:{relation_table} {{relation_type: {_quote(edge.relation_type)}}}]->(dst)
+            MERGE (src)-[r:{relation_table}]->(dst)
+            SET r.relation_type = {_quote(edge.relation_type)}
             """
             await self._engine.execute(query)
 
@@ -203,6 +207,15 @@ def _render_properties(properties: dict[str, object | None]) -> str:
         for key, value in properties.items()
         if value is not None
     )
+
+
+def _render_set_assignments(alias: str, properties: dict[str, object | None]) -> str:
+    assignments = [
+        f"{alias}.{key} = {_quote(value)}"
+        for key, value in properties.items()
+        if key != "uid" and value is not None
+    ]
+    return ", ".join(assignments)
 
 
 def _quote(value: object | None) -> str:
