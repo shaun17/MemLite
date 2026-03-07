@@ -13,6 +13,7 @@ import argparse
 import os
 import subprocess
 import sys
+from importlib import resources
 from pathlib import Path
 
 from memlite.app.main import main as run_server
@@ -23,11 +24,19 @@ def _repo_root() -> Path:
     return Path(__file__).resolve().parents[3]
 
 
+def _resolve_script_path(script: str) -> Path:
+    bundled = resources.files("memlite").joinpath("scripts", script)
+    if bundled.is_file():
+        return Path(str(bundled))
+    fallback = _repo_root() / "scripts" / script
+    if fallback.exists():
+        return fallback
+    raise FileNotFoundError(f"script not found: {script}")
+
+
 def _run_script(script: str, args: list[str], env: dict[str, str] | None = None) -> int:
-    script_path = _repo_root() / "scripts" / script
-    if not script_path.exists():
-        raise FileNotFoundError(f"script not found: {script_path}")
-    cmd = [str(script_path), *args]
+    script_path = _resolve_script_path(script)
+    cmd = ["bash", str(script_path), *args]
     merged_env = os.environ.copy()
     if env:
         merged_env.update(env)

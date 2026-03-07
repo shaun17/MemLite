@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "memolite"
-version = "0.1.1"
+version = "0.1.2"
 description = "Lightweight long-term memory infrastructure for AI agents"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -36,6 +36,9 @@ memolite-configure = "memlite.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+memlite = ["scripts/*.sh"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
