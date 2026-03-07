@@ -32,11 +32,12 @@ async def load_test_memory_search(
                 response = await client.post(
                     "/memories/search",
                     json={
-                        "org_id": org_id,
-                        "project_id": project_id,
                         "query": query,
-                        "memory_scope": "all",
-                        "top_k": 5,
+                        "session_id": f"{org_id}:{project_id}:load-test",
+                        "session_key": f"{org_id}:{project_id}:load-test",
+                        "semantic_set_id": f"{org_id}:{project_id}:load-test",
+                        "mode": "mixed",
+                        "limit": 5,
                         "context_window": 1,
                     },
                 )

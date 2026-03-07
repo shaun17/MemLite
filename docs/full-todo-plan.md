@@ -530,7 +530,7 @@
 
 - MCP stdio/http 均可用
 - 所有 tool 均有测试覆盖
-- 当前进展：`121` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`6` 个 OpenClaw 插件测试通过
+- 当前进展：`125` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`6` 个 OpenClaw 插件测试通过
 
 ## 13. Phase 9：Python SDK
 
@@ -631,7 +631,7 @@
 
 - OpenClaw 本地安装可用
 - autoRecall/autoCapture 生效
-- 当前进展：`121` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`6` 个 OpenClaw 插件测试通过
+- 当前进展：`125` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`6` 个 OpenClaw 插件测试通过
 
 ## 16. Phase 12：CLI、安装与初始化
 
@@ -755,9 +755,10 @@
 - 有性能数据
 - 有稳定性测试
 - 有观测能力
-- 当前进展：`121` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`6` 个 OpenClaw 插件测试通过
+- 当前进展：`125` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`6` 个 OpenClaw 插件测试通过
 - 已记录问题：测试环境下 `aiosqlite` 关闭阶段存在 event loop closed 警告，需在后续稳定性阶段收口
 - 后续优化项已迁移到：`docs/optimization-backlog.md`
+- 已生成性能报告：`reports/benchmark-search.json`、`reports/load-test.json`
 
 ## 19. Phase 15：最终测试、文档与发布
 
@@ -773,10 +774,10 @@
 - [x] 运行全部 e2e 测试
 - [x] 运行回归测试
 - [x] 运行 OpenClaw 集成测试
-- [ ] 运行 MCP 集成测试
+- [x] 运行 MCP 集成测试
 - [x] 运行 SDK 集成测试
 - [x] 运行迁移与修复测试
-- [ ] 运行性能基准测试
+- [x] 运行性能基准测试
 
 #### 文档
 - [ ] Quickstart
@@ -951,13 +952,13 @@
 ### 回归测试
 - [x] API response schema
 - [x] SDK response schema
-- [ ] 搜索排序稳定性
-- [ ] 过滤语义稳定性
-- [ ] 删除后无残留
+- [x] 搜索排序稳定性
+- [x] 过滤语义稳定性
+- [x] 删除后无残留
 
 ### 非功能测试
-- [ ] 性能基准
-- [ ] 压测
+- [x] 性能基准
+- [x] 压测
 - [x] 幂等性
 - [x] 补偿机制
 - [x] 崩溃恢复

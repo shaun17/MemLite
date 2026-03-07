@@ -1,0 +1,8 @@
+{
+  "episode_count": 20,
+  "query_iterations": 10,
+  "episodic_avg_latency_ms": 16.658,
+  "episodic_p95_latency_ms": 18.413,
+  "semantic_avg_latency_ms": 2.052,
+  "semantic_p95_latency_ms": 2.198
+}
