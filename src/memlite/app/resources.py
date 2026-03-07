@@ -1,5 +1,8 @@
 """Application resource manager bootstrap."""
 
+import hashlib
+import math
+import re
 from dataclasses import dataclass, field
 
 from memlite.app.background import BackgroundTaskRunner
@@ -23,16 +26,33 @@ from memlite.storage.sqlite_engine import SqliteEngineFactory
 from memlite.storage.sqlite_vec import SqliteVecIndex
 
 
+_TOKEN_PATTERN = re.compile(r"[\w\-']+")
+
+
 async def default_embedder(text: str) -> list[float]:
-    """Return a deterministic lightweight embedding."""
+    """Return a deterministic lightweight embedding.
+
+    This is still a local fallback embedder, but unlike the previous keyword
+    bucket implementation it supports open-vocabulary text via hashed token
+    projections.
+    """
+    dimensions = 64
+    vector = [0.0] * dimensions
     lowered = text.lower()
-    keywords = (
-        ("food", "ramen", "meal", "taste"),
-        ("travel", "seat", "flight", "trip"),
-        ("work", "project", "task", "deadline"),
-        ("profile", "name", "preference", "like"),
-    )
-    return [1.0 if any(word in lowered for word in bucket) else 0.0 for bucket in keywords]
+    tokens = _TOKEN_PATTERN.findall(lowered)
+    if not tokens:
+        return vector
+
+    for token in tokens:
+        digest = hashlib.blake2b(token.encode("utf-8"), digest_size=8).digest()
+        bucket = int.from_bytes(digest[:4], "big") % dimensions
+        sign = 1.0 if (digest[4] & 1) == 0 else -1.0
+        vector[bucket] += sign
+
+    norm = math.sqrt(sum(value * value for value in vector))
+    if norm == 0:
+        return vector
+    return [value / norm for value in vector]
 
 
 @dataclass

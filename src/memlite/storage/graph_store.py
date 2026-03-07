@@ -65,6 +65,9 @@ class KuzuGraphStore:
         nodes: list[dict[str, object | None]],
     ) -> None:
         for node in nodes:
+            uid = node.get("uid")
+            if uid is not None:
+                await self.delete_nodes(node_table=node_table, uids=[str(uid)])
             await self._engine.execute(
                 f"CREATE (:{node_table} {{{_render_properties(node)}}})"
             )
