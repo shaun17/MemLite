@@ -80,18 +80,38 @@ src/memlite/
 
 ## 使用方法
 
-## 1. 环境准备
+## 1. 安装方式
+
+### 方式 A：源码安装（当前可直接使用）
 
 - Python `3.12+`
 - 在仓库根目录执行
 
-安装依赖（示例）：
-
 ```bash
+git clone https://github.com/shaun17/MemLite.git
+cd MemLite
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e .[dev]
 ```
+
+安装后可用命令：
+
+- `memlite`
+- `memlite-server`
+- `memlite-configure`
+- `memlite-mcp-stdio`
+- `memlite-mcp-http`
+
+### 方式 B：PyPI 安装（发布后）
+
+```bash
+pipx install memlite
+# 或
+pip install memlite
+```
+
+## 2. 初始化配置与本地数据
 
 ## 2. 初始化配置与本地数据
 
