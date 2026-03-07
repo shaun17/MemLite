@@ -6,8 +6,8 @@ from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-DEFAULT_DATA_DIR = Path.home() / ".memlite"
-DEFAULT_SQLITE_PATH = DEFAULT_DATA_DIR / "memlite.sqlite3"
+DEFAULT_DATA_DIR = Path.home() / ".memolite"
+DEFAULT_SQLITE_PATH = DEFAULT_DATA_DIR / "memolite.sqlite3"
 DEFAULT_KUZU_PATH = DEFAULT_DATA_DIR / "kuzu"
 
 

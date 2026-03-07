@@ -123,7 +123,7 @@ const MemoryForgetSchema = {
   required: [],
 } as const;
 
-class MemLiteApiClient {
+class memoLiteApiClient {
   constructor(private readonly baseUrl: string) {}
 
   async get<T>(path: string, query?: Record<string, string | number | undefined>): Promise<T> {
@@ -235,7 +235,7 @@ function toMetadata(
   return merged;
 }
 
-async function ensureProject(client: MemLiteApiClient, cfg: PluginConfig): Promise<void> {
+async function ensureProject(client: memoLiteApiClient, cfg: PluginConfig): Promise<void> {
   const { orgId, projectId } = requireProjectConfig(cfg);
   try {
     await client.get(`/projects/${orgId}/${projectId}`);
@@ -248,7 +248,7 @@ async function ensureProject(client: MemLiteApiClient, cfg: PluginConfig): Promi
 }
 
 async function ensureSession(
-  client: MemLiteApiClient,
+  client: memoLiteApiClient,
   cfg: PluginConfig,
   sessionKey: string,
 ): Promise<void> {
@@ -266,7 +266,7 @@ async function ensureSession(
   }
 }
 
-async function nextSequenceNum(client: MemLiteApiClient, sessionKey: string): Promise<number> {
+async function nextSequenceNum(client: memoLiteApiClient, sessionKey: string): Promise<number> {
   const episodes = await client.get<Array<{ sequence_num: number }>>("/memories", {
     session_key: sessionKey,
   });
@@ -278,7 +278,7 @@ async function nextSequenceNum(client: MemLiteApiClient, sessionKey: string): Pr
 }
 
 async function searchMemories(params: {
-  client: MemLiteApiClient;
+  client: memoLiteApiClient;
   query: string;
   scope: MemoryScope;
   sessionKey?: string;
@@ -299,7 +299,7 @@ async function searchMemories(params: {
 }
 
 async function listMemories(params: {
-  client: MemLiteApiClient;
+  client: memoLiteApiClient;
   scope: MemoryScope;
   sessionKey?: string;
   cfg: PluginConfig;
@@ -371,7 +371,7 @@ function formatRecallContext(result: MemorySearchResponse, limit: number): strin
 
 async function autoCaptureMessages(params: {
   api: OpenClawPluginApi;
-  client: MemLiteApiClient;
+  client: memoLiteApiClient;
   cfg: PluginConfig;
   sessionKey?: string;
   messages: unknown[];
@@ -417,7 +417,7 @@ async function autoCaptureMessages(params: {
       sequence += 1;
     }
   }
-  api.logger.info("openclaw-memlite: auto-capture completed");
+  api.logger.info("openclaw-memolite: auto-capture completed");
 }
 
 async function executeSafely<T>(
@@ -429,22 +429,22 @@ async function executeSafely<T>(
     return await callback();
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    api.logger.warn(`openclaw-memlite: ${operation} failed: ${message}`);
+    api.logger.warn(`openclaw-memolite: ${operation} failed: ${message}`);
     return { error: message };
   }
 }
 
 const memlitePlugin = {
-  id: "openclaw-memlite",
-  name: "MemLite",
-  description: "MemLite-backed memory tools with auto recall/capture",
+  id: "openclaw-memolite",
+  name: "memoLite",
+  description: "memoLite-backed memory tools with auto recall/capture",
   kind: "memory" as const,
   configSchema: {
     jsonSchema: PluginConfigJsonSchema,
   },
   register(api: OpenClawPluginApi) {
     const cfg = resolvePluginConfig(api);
-    const client = new MemLiteApiClient(cfg.baseUrl ?? DEFAULT_BASE_URL);
+    const client = new memoLiteApiClient(cfg.baseUrl ?? DEFAULT_BASE_URL);
 
     api.registerTool(
       (ctx) => ({
@@ -654,7 +654,7 @@ const memlitePlugin = {
               `</relevant-memories>`,
           };
         } catch (error) {
-          api.logger.warn(`openclaw-memlite: recall failed: ${String(error)}`);
+          api.logger.warn(`openclaw-memolite: recall failed: ${String(error)}`);
           return undefined;
         }
       });
@@ -674,15 +674,15 @@ const memlitePlugin = {
             messages: event.messages,
           });
         } catch (error) {
-          api.logger.warn(`openclaw-memlite: capture failed: ${String(error)}`);
+          api.logger.warn(`openclaw-memolite: capture failed: ${String(error)}`);
         }
       });
     }
 
     api.registerService({
-      id: "openclaw-memlite",
-      start: () => api.logger.info("openclaw-memlite: initialized"),
-      stop: () => api.logger.info("openclaw-memlite: stopped"),
+      id: "openclaw-memolite",
+      start: () => api.logger.info("openclaw-memolite: initialized"),
+      stop: () => api.logger.info("openclaw-memolite: stopped"),
     });
   },
 };

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-KUZU_PATH="${KUZU_PATH:-$HOME/.memlite/kuzu}"
+KUZU_PATH="${KUZU_PATH:-$HOME/.memolite/kuzu}"
 PYTHON_BIN="${PYTHON_BIN:-$(pwd)/.venv/bin/python}"
 
 if [[ ! -x "$PYTHON_BIN" ]]; then
@@ -30,7 +30,7 @@ except Exception as e:
     print(f"[ERROR] import kuzu failed: {e}")
     sys.exit(1)
 
-kuzu_path = Path(os.environ.get("KUZU_PATH", str(Path.home()/".memlite"/"kuzu")))
+kuzu_path = Path(os.environ.get("KUZU_PATH", str(Path.home()/".memolite"/"kuzu")))
 
 try:
     db = kuzu.Database(str(kuzu_path))

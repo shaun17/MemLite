@@ -2,9 +2,9 @@
 set -euo pipefail
 
 # One-shot setup:
-# 1) install OpenClaw memlite plugin
+# 1) install OpenClaw memolite plugin
 # 2) configure plugin entry in ~/.openclaw/openclaw.json
-# 3) install/start memlite service (LaunchAgent)
+# 3) install/start memolite service (LaunchAgent)
 # 4) restart openclaw gateway
 # 5) health checks
 
@@ -40,9 +40,9 @@ import json, pathlib
 p=pathlib.Path("$OPENCLAW_CONFIG")
 obj=json.loads(p.read_text())
 plugins=obj.setdefault('plugins',{})
-plugins.setdefault('slots',{})['memory']='openclaw-memlite'
+plugins.setdefault('slots',{})['memory']='openclaw-memolite'
 entries=plugins.setdefault('entries',{})
-entry=entries.setdefault('openclaw-memlite',{})
+entry=entries.setdefault('openclaw-memolite',{})
 entry['enabled']=True
 entry['config']={
   'baseUrl':'$BASE_URL',
@@ -58,16 +58,16 @@ p.write_text(json.dumps(obj,ensure_ascii=False,indent=2)+"\n")
 print('updated', p)
 PY
 
-echo "[3/5] Install and enable memlite service"
-MEMLITE_PORT="${BASE_URL##*:}" "$ROOT_DIR/scripts/memlite_service.sh" install --enable
+echo "[3/5] Install and enable memolite service"
+MEMLITE_PORT="${BASE_URL##*:}" "$ROOT_DIR/scripts/memolite_service.sh" install --enable
 
 echo "[4/5] Restart OpenClaw gateway"
 openclaw gateway restart
 
 echo "[5/5] Health checks"
-echo "- memlite health: $BASE_URL/health"
+echo "- memolite health: $BASE_URL/health"
 curl -sS "$BASE_URL/health" && echo
-openclaw plugins list | rg -n "openclaw-memlite|memory-core|memory-lancedb|Plugins" -n
+openclaw plugins list | rg -n "openclaw-memolite|memory-core|memory-lancedb|Plugins" -n
 
 echo
 echo "[OK] setup completed"

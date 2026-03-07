@@ -1,5 +1,5 @@
 {
-  "name": "@memlite/openclaw-memlite",
+  "name": "@memolite/openclaw-memolite",
   "version": "0.1.0",
   "description": "OpenClaw plugin for memoLite",
   "type": "module",

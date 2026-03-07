@@ -39,13 +39,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="memolite")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    sub.add_parser("serve", help="Run MemLite API server in foreground")
+    sub.add_parser("serve", help="Run memoLite API server in foreground")
 
     # Keep compatibility for existing configure workflow.
     config = sub.add_parser("configure", help="Run memolite-configure subcommands")
     config.add_argument("args", nargs=argparse.REMAINDER)
 
-    service = sub.add_parser("service", help="Manage managed MemLite service")
+    service = sub.add_parser("service", help="Manage managed memoLite service")
     service_sub = service.add_subparsers(dest="action", required=True)
     install = service_sub.add_parser("install", help="Install service definition")
     install.add_argument("--enable", action="store_true", help="Enable auto-start after install")
@@ -59,7 +59,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     openclaw = sub.add_parser("openclaw", help="OpenClaw integration commands")
     oc_sub = openclaw.add_subparsers(dest="action", required=True)
-    setup = oc_sub.add_parser("setup", help="One-shot OpenClaw+MemLite setup")
+    setup = oc_sub.add_parser("setup", help="One-shot OpenClaw+memoLite setup")
     setup.add_argument("--base-url", default="http://127.0.0.1:18731")
     setup.add_argument("--org-id", default="openclaw")
     setup.add_argument("--project-id", default="openclaw")
@@ -89,7 +89,7 @@ def main(argv: list[str] | None = None) -> int:
         cmd_args: list[str] = [args.action]
         if args.action == "install" and args.enable:
             cmd_args.append("--enable")
-        return _run_script("memlite_service.sh", cmd_args)
+        return _run_script("memolite_service.sh", cmd_args)
 
     if args.command == "openclaw" and args.action == "setup":
         env = {
@@ -102,7 +102,7 @@ def main(argv: list[str] | None = None) -> int:
             "SEARCH_THRESHOLD": str(args.search_threshold),
             "TOP_K": str(args.top_k),
         }
-        return _run_script("setup_openclaw_memlite.sh", [], env=env)
+        return _run_script("setup_openclaw_memolite.sh", [], env=env)
 
     return 1
 

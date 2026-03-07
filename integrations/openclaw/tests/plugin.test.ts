@@ -30,7 +30,7 @@ function createApi(config: Record<string, unknown> = {}) {
   return { api, tools, hooks, logger };
 }
 
-describe("openclaw memlite plugin", () => {
+describe("openclaw memolite plugin", () => {
   it("registers all memory tools", () => {
     const { tools } = createApi({
       baseUrl: "http://memlite.local",
@@ -185,7 +185,7 @@ describe("openclaw memlite plugin", () => {
     );
 
     expect((recall as any).prependContext).toContain("User likes ramen.");
-    expect(logger.info).toHaveBeenCalledWith("openclaw-memlite: auto-capture completed");
+    expect(logger.info).toHaveBeenCalledWith("openclaw-memolite: auto-capture completed");
   });
 
   it("captures first and recalls on the next hook cycle", async () => {

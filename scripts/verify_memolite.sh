@@ -13,7 +13,7 @@ USER_ID="${USER_ID:-demo-user}"
 KEEP_DATA="${KEEP_DATA:-1}"
 
 # 若数据库路径可用，脚本末尾会输出各表计数
-SQLITE_PATH="${SQLITE_PATH:-$HOME/.memlite/memlite.sqlite3}"
+SQLITE_PATH="${SQLITE_PATH:-$HOME/.memolite/memolite.sqlite3}"
 SHOW_COUNTS="${SHOW_COUNTS:-1}"
 
 # RUN_INTERNAL_VERIFY=1: 在 E2E 后串行跑内在存储/查询测试（pytest）

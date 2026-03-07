@@ -88,8 +88,8 @@ src/memlite/
 - 在仓库根目录执行
 
 ```bash
-git clone https://github.com/shaun17/MemLite.git
-cd MemLite
+git clone https://github.com/shaun17/memoLite.git
+cd memoLite
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e .[dev]
@@ -116,8 +116,8 @@ pip install memolite
 ## 2. 初始化配置与本地数据
 
 ```bash
-memolite-configure configure --output .env --data-dir ~/.memlite
-memolite-configure init --data-dir ~/.memlite
+memolite-configure configure --output .env --data-dir ~/.memolite
+memolite-configure init --data-dir ~/.memolite
 ```
 
 可选：检测 sqlite-vec 扩展
@@ -162,7 +162,7 @@ MEMLITE_PORT=18731 memolite-server
 > memolite service status
 > ```
 >
-> （兼容：也可以直接调用 `./scripts/memlite_service.sh ...`）
+> （兼容：也可以直接调用 `./scripts/memolite_service.sh ...`）
 
 ## 5. OpenClaw 一键接入（A 方案脚本）
 
@@ -173,7 +173,7 @@ memolite openclaw setup
 该脚本会自动执行：
 
 1. `openclaw plugins install <plugin-path>`
-2. 写入 `~/.openclaw/openclaw.json` 的 memlite 配置
+2. 写入 `~/.openclaw/openclaw.json` 的 memolite 配置
 3. 安装并启用 memolite 后台服务（默认端口 18731）
 4. 重启 OpenClaw gateway
 5. 健康检查与插件加载检查
@@ -332,15 +332,15 @@ memolite-mcp-http
 
 ```bash
 # 导出/导入
-memolite-configure export --output snapshot.json --data-dir ~/.memlite
-memolite-configure import --input snapshot.json --data-dir ~/.memlite
+memolite-configure export --output snapshot.json --data-dir ~/.memolite
+memolite-configure import --input snapshot.json --data-dir ~/.memolite
 
 # 对账/修复
-memolite-configure reconcile --output reconcile.json --data-dir ~/.memlite
-memolite-configure repair --output repair.json --data-dir ~/.memlite
+memolite-configure reconcile --output reconcile.json --data-dir ~/.memolite
+memolite-configure repair --output repair.json --data-dir ~/.memolite
 
 # 搜索基准/压测
-memolite-configure benchmark-search --output benchmark.json --data-dir ~/.memlite
+memolite-configure benchmark-search --output benchmark.json --data-dir ~/.memolite
 memolite-configure load-test --base-url http://127.0.0.1:18731 --total-requests 200 --concurrency 20
 ```
 

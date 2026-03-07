@@ -1,6 +1,6 @@
-# MemLite OpenClaw Plugin
+# memoLite OpenClaw Plugin
 
-MemLite 的 OpenClaw 本地记忆插件。
+memoLite 的 OpenClaw 本地记忆插件。
 
 ## 功能
 
@@ -15,8 +15,8 @@ MemLite 的 OpenClaw 本地记忆插件。
 ## 本地安装
 
 ```bash
-openclaw plugins install ./MemLite/integrations/openclaw
-cd ./MemLite/integrations/openclaw
+openclaw plugins install ./memoLite/integrations/openclaw
+cd ./memoLite/integrations/openclaw
 npm install
 npm run build
 ```
@@ -25,7 +25,7 @@ npm run build
 
 ```json
 {
-  "openclaw-memlite": {
+  "openclaw-memolite": {
     "enabled": true,
     "config": {
       "baseUrl": "http://127.0.0.1:8080",

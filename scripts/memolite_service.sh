@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# MemLite service manager (macOS LaunchAgent)
+# memoLite service manager (macOS LaunchAgent)
 # Default runtime: 127.0.0.1:18731
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -9,26 +9,26 @@ PYTHON_BIN="${PYTHON_BIN:-$ROOT_DIR/.venv/bin/python}"
 MEMLITE_BIN="${MEMLITE_BIN:-$ROOT_DIR/.venv/bin/memolite-server}"
 HOST="${MEMLITE_HOST:-127.0.0.1}"
 PORT="${MEMLITE_PORT:-18731}"
-SQLITE_PATH="${MEMLITE_SQLITE_PATH:-$HOME/.memlite/memlite.sqlite3}"
-KUZU_PATH="${MEMLITE_KUZU_PATH:-$HOME/.memlite/kuzu}"
+SQLITE_PATH="${MEMLITE_SQLITE_PATH:-$HOME/.memolite/memolite.sqlite3}"
+KUZU_PATH="${MEMLITE_KUZU_PATH:-$HOME/.memolite/kuzu}"
 
-LABEL="ai.memlite.server"
+LABEL="ai.memolite.server"
 PLIST_PATH="$HOME/Library/LaunchAgents/$LABEL.plist"
-LOG_DIR="/tmp/memlite"
-OUT_LOG="$LOG_DIR/memlite.out.log"
-ERR_LOG="$LOG_DIR/memlite.err.log"
+LOG_DIR="/tmp/memolite"
+OUT_LOG="$LOG_DIR/memolite.out.log"
+ERR_LOG="$LOG_DIR/memolite.err.log"
 
 usage() {
   cat <<'EOF'
 Usage:
-  scripts/memlite_service.sh install [--enable]
-  scripts/memlite_service.sh uninstall
-  scripts/memlite_service.sh enable
-  scripts/memlite_service.sh disable
-  scripts/memlite_service.sh start
-  scripts/memlite_service.sh stop
-  scripts/memlite_service.sh restart
-  scripts/memlite_service.sh status
+  scripts/memolite_service.sh install [--enable]
+  scripts/memolite_service.sh uninstall
+  scripts/memolite_service.sh enable
+  scripts/memolite_service.sh disable
+  scripts/memolite_service.sh start
+  scripts/memolite_service.sh stop
+  scripts/memolite_service.sh restart
+  scripts/memolite_service.sh status
 
 Notes:
 - install: create LaunchAgent plist; does NOT auto-enable unless --enable
@@ -154,7 +154,7 @@ cmd_start() {
   else
     echo "[WARN] Service not enabled. Running one-shot in background instead."
     MEMLITE_HOST="$HOST" MEMLITE_PORT="$PORT" MEMLITE_SQLITE_PATH="$SQLITE_PATH" MEMLITE_KUZU_PATH="$KUZU_PATH" \
-      nohup "$MEMLITE_BIN" >/tmp/memlite-oneshot.out 2>/tmp/memlite-oneshot.err &
+      nohup "$MEMLITE_BIN" >/tmp/memolite-oneshot.out 2>/tmp/memolite-oneshot.err &
     echo "[OK] Started one-shot memolite-server (not managed by launchctl)"
   fi
 }
@@ -176,7 +176,7 @@ cmd_restart() {
 }
 
 cmd_status() {
-  echo "=== MemLite Service Status ==="
+  echo "=== memoLite Service Status ==="
   echo "Label: $LABEL"
   echo "Plist: $PLIST_PATH"
   echo "Endpoint: http://$HOST:$PORT"
