@@ -123,29 +123,31 @@ MEMLITE_PORT=18731 memlite-server
 > - `memlite service ...`：后台托管命令（start/stop/restart/status）
 > - 开机自启只在 `install --enable` / `enable` 中显式设置
 >
-> 当前仓库提供脚本实现（macOS LaunchAgent）：
+> 推荐使用统一 CLI（底层调用 macOS LaunchAgent 脚本）：
 >
 > ```bash
 > # 安装服务定义（不自动开机自启）
-> ./scripts/memlite_service.sh install
+> memlite service install
 >
 > # 启用开机自启并立即启动
-> ./scripts/memlite_service.sh enable
+> memlite service enable
 >
 > # 或一步完成
-> ./scripts/memlite_service.sh install --enable
+> memlite service install --enable
 >
 > # 生命周期管理
-> ./scripts/memlite_service.sh start
-> ./scripts/memlite_service.sh stop
-> ./scripts/memlite_service.sh restart
-> ./scripts/memlite_service.sh status
+> memlite service start
+> memlite service stop
+> memlite service restart
+> memlite service status
 > ```
+>
+> （兼容：也可以直接调用 `./scripts/memlite_service.sh ...`）
 
 ## 5. OpenClaw 一键接入（A 方案脚本）
 
 ```bash
-./scripts/setup_openclaw_memlite.sh
+memlite openclaw setup
 ```
 
 该脚本会自动执行：
@@ -156,12 +158,19 @@ MEMLITE_PORT=18731 memlite-server
 4. 重启 OpenClaw gateway
 5. 健康检查与插件加载检查
 
-可覆盖参数（环境变量）：
+可覆盖参数（CLI）：
 
-- `BASE_URL`（默认 `http://127.0.0.1:18731`）
-- `ORG_ID` / `PROJECT_ID` / `USER_ID`
-- `AUTO_CAPTURE` / `AUTO_RECALL`
-- `SEARCH_THRESHOLD` / `TOP_K`
+```bash
+memlite openclaw setup \
+  --base-url http://127.0.0.1:18731 \
+  --org-id openclaw \
+  --project-id openclaw \
+  --user-id openclaw \
+  --auto-capture true \
+  --auto-recall true \
+  --search-threshold 0.5 \
+  --top-k 5
+```
 
 ## 6. 最小调用流程（REST）
 

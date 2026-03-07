@@ -28,6 +28,7 @@ dev = [
 ]
 
 [project.scripts]
+memlite = "memlite.command:main"
 memlite-server = "memlite.app.main:main"
 memlite-mcp-stdio = "memlite.mcp.__main__:run_stdio_main"
 memlite-mcp-http = "memlite.mcp.__main__:run_http_main"
