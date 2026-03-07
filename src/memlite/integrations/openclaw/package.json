@@ -1,0 +1,27 @@
+{
+  "name": "@memolite/openclaw-memolite",
+  "version": "0.1.0",
+  "description": "OpenClaw plugin for memoLite",
+  "type": "module",
+  "main": "dist/index.mjs",
+  "files": [
+    "dist",
+    "openclaw.plugin.json"
+  ],
+  "openclaw": {
+    "extensions": [
+      "./dist/index.mjs"
+    ]
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

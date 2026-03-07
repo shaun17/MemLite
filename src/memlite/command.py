@@ -111,6 +111,9 @@ def main(argv: list[str] | None = None) -> int:
             "SEARCH_THRESHOLD": str(args.search_threshold),
             "TOP_K": str(args.top_k),
         }
+        bundled_plugin = resources.files("memlite").joinpath("integrations", "openclaw")
+        if bundled_plugin.is_dir() and "PLUGIN_PATH" not in env and "PLUGIN_PATH" not in os.environ:
+            env["PLUGIN_PATH"] = str(bundled_plugin)
         return _run_script("setup_openclaw_memolite.sh", [], env=env)
 
     return 1

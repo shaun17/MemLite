@@ -1,0 +1,76 @@
+{
+  "id": "openclaw-memolite",
+  "kind": "memory",
+  "main": "./dist/index.mjs",
+  "uiHints": {
+    "baseUrl": {
+      "label": "memoLite Base URL",
+      "placeholder": "http://127.0.0.1:8080",
+      "help": "Base URL for the memoLite service"
+    },
+    "userId": {
+      "label": "Default User ID",
+      "placeholder": "default",
+      "help": "User ID for memory scoping and auto-capture"
+    },
+    "orgId": {
+      "label": "Organization ID",
+      "placeholder": "org-...",
+      "advanced": true
+    },
+    "projectId": {
+      "label": "Project ID",
+      "placeholder": "project-...",
+      "advanced": true
+    },
+    "autoCapture": {
+      "label": "Auto-Capture",
+      "help": "Automatically store recent conversation messages after each agent turn"
+    },
+    "autoRecall": {
+      "label": "Auto-Recall",
+      "help": "Automatically inject relevant memories before each agent turn"
+    },
+    "searchThreshold": {
+      "label": "Search Threshold",
+      "placeholder": "0.5",
+      "help": "Minimum score for memory search results"
+    },
+    "topK": {
+      "label": "Top K Results",
+      "placeholder": "5",
+      "help": "Maximum number of retrieved memories"
+    }
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "baseUrl": {
+        "type": "string"
+      },
+      "userId": {
+        "type": "string"
+      },
+      "orgId": {
+        "type": "string"
+      },
+      "projectId": {
+        "type": "string"
+      },
+      "autoCapture": {
+        "type": "boolean"
+      },
+      "autoRecall": {
+        "type": "boolean"
+      },
+      "searchThreshold": {
+        "type": "number"
+      },
+      "topK": {
+        "type": "number"
+      }
+    },
+    "required": []
+  }
+}
