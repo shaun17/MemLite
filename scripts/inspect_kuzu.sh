@@ -16,7 +16,7 @@ if [[ ! -e "$KUZU_PATH" ]]; then
 fi
 
 cat <<'MSG'
-[INFO] 如果出现文件锁错误（Could not set lock），请先停掉 memlite-server 再执行本脚本。
+[INFO] 如果出现文件锁错误（Could not set lock），请先停掉 memolite-server 再执行本脚本。
 MSG
 
 "$PYTHON_BIN" - <<'PY'

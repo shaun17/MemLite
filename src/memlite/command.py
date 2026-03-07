@@ -1,10 +1,10 @@
-"""Unified MemLite command entrypoint.
+"""Unified memoLite command entrypoint.
 
 This command wraps common workflows:
-- memlite serve
-- memlite init/configure/... (delegates to memlite-configure)
-- memlite service ...
-- memlite openclaw setup
+- memolite serve
+- memolite init/configure/... (delegates to memolite-configure)
+- memolite service ...
+- memolite openclaw setup
 """
 
 from __future__ import annotations
@@ -36,13 +36,13 @@ def _run_script(script: str, args: list[str], env: dict[str, str] | None = None)
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="memlite")
+    parser = argparse.ArgumentParser(prog="memolite")
     sub = parser.add_subparsers(dest="command", required=True)
 
     sub.add_parser("serve", help="Run MemLite API server in foreground")
 
     # Keep compatibility for existing configure workflow.
-    config = sub.add_parser("configure", help="Run memlite-configure subcommands")
+    config = sub.add_parser("configure", help="Run memolite-configure subcommands")
     config.add_argument("args", nargs=argparse.REMAINDER)
 
     service = sub.add_parser("service", help="Manage managed MemLite service")

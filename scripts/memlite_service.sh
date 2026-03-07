@@ -6,7 +6,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 PYTHON_BIN="${PYTHON_BIN:-$ROOT_DIR/.venv/bin/python}"
-MEMLITE_BIN="${MEMLITE_BIN:-$ROOT_DIR/.venv/bin/memlite-server}"
+MEMLITE_BIN="${MEMLITE_BIN:-$ROOT_DIR/.venv/bin/memolite-server}"
 HOST="${MEMLITE_HOST:-127.0.0.1}"
 PORT="${MEMLITE_PORT:-18731}"
 SQLITE_PATH="${MEMLITE_SQLITE_PATH:-$HOME/.memlite/memlite.sqlite3}"
@@ -51,7 +51,7 @@ ensure_dirs() {
 
 ensure_bins() {
   [[ -x "$MEMLITE_BIN" ]] || {
-    echo "[ERROR] memlite-server not found: $MEMLITE_BIN"
+    echo "[ERROR] memolite-server not found: $MEMLITE_BIN"
     echo "Hint: cd $ROOT_DIR && python3 -m venv .venv && source .venv/bin/activate && pip install -e .[dev]"
     exit 1
   }
@@ -155,7 +155,7 @@ cmd_start() {
     echo "[WARN] Service not enabled. Running one-shot in background instead."
     MEMLITE_HOST="$HOST" MEMLITE_PORT="$PORT" MEMLITE_SQLITE_PATH="$SQLITE_PATH" MEMLITE_KUZU_PATH="$KUZU_PATH" \
       nohup "$MEMLITE_BIN" >/tmp/memlite-oneshot.out 2>/tmp/memlite-oneshot.err &
-    echo "[OK] Started one-shot memlite-server (not managed by launchctl)"
+    echo "[OK] Started one-shot memolite-server (not managed by launchctl)"
   fi
 }
 
@@ -164,8 +164,8 @@ cmd_stop() {
     launchctl kill SIGTERM "gui/$UID/$LABEL" || true
     echo "[OK] Stop signal sent: $LABEL"
   else
-    pkill -f "memlite-server" >/dev/null 2>&1 || true
-    echo "[INFO] launchctl service not loaded; tried pkill memlite-server"
+    pkill -f "memolite-server" >/dev/null 2>&1 || true
+    echo "[INFO] launchctl service not loaded; tried pkill memolite-server"
   fi
 }
 

@@ -44,7 +44,7 @@ memoLite 是一个面向 AI Agent/LLM 应用的轻量级记忆基础设施。
 
 ### 5) 运维工具
 
-- 配置与初始化：`memlite-configure`
+- 配置与初始化：`memolite-configure`
 - 对账/修复：`reconcile` / `repair`
 - 搜索基准：`benchmark-search`
 - 接口压测：`load-test`
@@ -97,11 +97,11 @@ pip install -e .[dev]
 
 安装后可用命令：
 
-- `memlite`
-- `memlite-server`
-- `memlite-configure`
-- `memlite-mcp-stdio`
-- `memlite-mcp-http`
+- `memolite`
+- `memolite-server`
+- `memolite-configure`
+- `memolite-mcp-stdio`
+- `memolite-mcp-http`
 
 ### 方式 B：PyPI 安装（发布后）
 
@@ -116,21 +116,21 @@ pip install memolite
 ## 2. 初始化配置与本地数据
 
 ```bash
-memlite-configure configure --output .env --data-dir ~/.memlite
-memlite-configure init --data-dir ~/.memlite
+memolite-configure configure --output .env --data-dir ~/.memlite
+memolite-configure init --data-dir ~/.memlite
 ```
 
 可选：检测 sqlite-vec 扩展
 
 ```bash
-memlite-configure detect-sqlite-vec --extension-path /path/to/sqlite-vec.dylib
+memolite-configure detect-sqlite-vec --extension-path /path/to/sqlite-vec.dylib
 ```
 
 ## 3. 启动服务
 
 ```bash
 # 前台模式（开发调试）
-MEMLITE_PORT=18731 memlite-server
+MEMLITE_PORT=18731 memolite-server
 ```
 
 默认建议地址：`http://127.0.0.1:18731`（避免与常见 8080 冲突）
@@ -139,27 +139,27 @@ MEMLITE_PORT=18731 memlite-server
 
 > 语义约定：
 >
-> - `memlite-server`：前台运行，适合开发调试（可惰性 init）
-> - `memlite service ...`：后台托管命令（start/stop/restart/status）
+> - `memolite-server`：前台运行，适合开发调试（可惰性 init）
+> - `memolite service ...`：后台托管命令（start/stop/restart/status）
 > - 开机自启只在 `install --enable` / `enable` 中显式设置
 >
 > 推荐使用统一 CLI（底层调用 macOS LaunchAgent 脚本）：
 >
 > ```bash
 > # 安装服务定义（不自动开机自启）
-> memlite service install
+> memolite service install
 >
 > # 启用开机自启并立即启动
-> memlite service enable
+> memolite service enable
 >
 > # 或一步完成
-> memlite service install --enable
+> memolite service install --enable
 >
 > # 生命周期管理
-> memlite service start
-> memlite service stop
-> memlite service restart
-> memlite service status
+> memolite service start
+> memolite service stop
+> memolite service restart
+> memolite service status
 > ```
 >
 > （兼容：也可以直接调用 `./scripts/memlite_service.sh ...`）
@@ -167,21 +167,21 @@ MEMLITE_PORT=18731 memlite-server
 ## 5. OpenClaw 一键接入（A 方案脚本）
 
 ```bash
-memlite openclaw setup
+memolite openclaw setup
 ```
 
 该脚本会自动执行：
 
 1. `openclaw plugins install <plugin-path>`
 2. 写入 `~/.openclaw/openclaw.json` 的 memlite 配置
-3. 安装并启用 memlite 后台服务（默认端口 18731）
+3. 安装并启用 memolite 后台服务（默认端口 18731）
 4. 重启 OpenClaw gateway
 5. 健康检查与插件加载检查
 
 可覆盖参数（CLI）：
 
 ```bash
-memlite openclaw setup \
+memolite openclaw setup \
   --base-url http://127.0.0.1:18731 \
   --org-id openclaw \
   --project-id openclaw \
@@ -310,9 +310,9 @@ asyncio.run(main())
 ### 启动
 
 ```bash
-memlite-mcp-stdio
+memolite-mcp-stdio
 # 或
-memlite-mcp-http
+memolite-mcp-http
 ```
 
 ### 常用 tools
@@ -332,16 +332,16 @@ memlite-mcp-http
 
 ```bash
 # 导出/导入
-memlite-configure export --output snapshot.json --data-dir ~/.memlite
-memlite-configure import --input snapshot.json --data-dir ~/.memlite
+memolite-configure export --output snapshot.json --data-dir ~/.memlite
+memolite-configure import --input snapshot.json --data-dir ~/.memlite
 
 # 对账/修复
-memlite-configure reconcile --output reconcile.json --data-dir ~/.memlite
-memlite-configure repair --output repair.json --data-dir ~/.memlite
+memolite-configure reconcile --output reconcile.json --data-dir ~/.memlite
+memolite-configure repair --output repair.json --data-dir ~/.memlite
 
 # 搜索基准/压测
-memlite-configure benchmark-search --output benchmark.json --data-dir ~/.memlite
-memlite-configure load-test --base-url http://127.0.0.1:18731 --total-requests 200 --concurrency 20
+memolite-configure benchmark-search --output benchmark.json --data-dir ~/.memlite
+memolite-configure load-test --base-url http://127.0.0.1:18731 --total-requests 200 --concurrency 20
 ```
 
 ---
