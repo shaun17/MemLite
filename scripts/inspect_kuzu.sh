@@ -75,4 +75,16 @@ try:
         print(f"uid={row[0]} | episode_uid={row[1]} | content={row[2]}")
 except Exception as e:
     print(f"ERROR: {e}")
+
+print("\n=== DERIVED_FROM 关系样本(前20) ===")
+try:
+    res = conn.execute(
+        "MATCH (d:Derivative)-[r:DERIVED_FROM]->(e:Episode) "
+        "RETURN d.uid, e.uid, r.relation_type ORDER BY d.uid LIMIT 20"
+    )
+    while res.has_next():
+        row = res.get_next()
+        print(f"derivative={row[0]} -> episode={row[1]} | relation_type={row[2]}")
+except Exception as e:
+    print(f"ERROR: {e}")
 PY
