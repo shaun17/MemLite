@@ -1,4 +1,4 @@
-"""Configuration loading for MemLite."""
+"""Configuration loading for memoLite."""
 
 from functools import lru_cache
 from pathlib import Path
@@ -21,7 +21,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    app_name: str = Field(default="MemLite")
+    app_name: str = Field(default="memoLite")
     environment: str = Field(default="development")
     host: str = Field(default="127.0.0.1")
     port: int = Field(default=8080)

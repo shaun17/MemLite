@@ -1,6 +1,6 @@
-# MemLite
+# memoLite
 
-MemLite 是一个面向 AI Agent/LLM 应用的轻量级记忆基础设施。
+memoLite 是一个面向 AI Agent/LLM 应用的轻量级记忆基础设施。
 
 它把常见的“多数据库重部署”记忆架构，收敛为本地优先的组合：
 
@@ -362,7 +362,7 @@ memlite-configure load-test --base-url http://127.0.0.1:18731 --total-requests 2
 
 ## 当前状态说明
 
-MemLite 已具备可运行的端到端原型能力（写入、检索、删除、MCP、SDK、修复工具）。
+memoLite 已具备可运行的端到端原型能力（写入、检索、删除、MCP、SDK、修复工具）。
 在生产化前，建议结合你的业务继续增强：
 
 - 更强 embedding/provider 接入
