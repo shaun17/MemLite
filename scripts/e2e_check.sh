@@ -16,6 +16,10 @@ KEEP_DATA="${KEEP_DATA:-1}"
 SQLITE_PATH="${SQLITE_PATH:-$HOME/.memlite/memlite.sqlite3}"
 SHOW_COUNTS="${SHOW_COUNTS:-1}"
 
+# RUN_INTERNAL_VERIFY=1: 在 E2E 后串行跑内在存储/查询测试（pytest）
+RUN_INTERNAL_VERIFY="${RUN_INTERNAL_VERIFY:-1}"
+INTERNAL_TEST_TARGETS="${INTERNAL_TEST_TARGETS:-tests/unit/test_episode_store.py tests/unit/test_graph_store.py tests/unit/test_sqlite_vec.py tests/unit/test_semantic_feature_store.py tests/unit/test_semantic_service.py tests/unit/test_memory_orchestrator.py tests/integration/test_episode_store_integration.py tests/integration/test_episodic_search_integration.py tests/integration/test_semantic_feature_store_integration.py tests/integration/test_semantic_service_integration.py tests/integration/test_memory_orchestrator_integration.py tests/integration/test_api_routes.py}"
+
 RUN_ID="$(date +%s)"
 EP1_UID="ep-${RUN_ID}-1"
 EP2_UID="ep-${RUN_ID}-2"
@@ -51,6 +55,23 @@ http_json() {
   else
     curl -sS -X "$method" "$BASE_URL$path"
   fi
+}
+
+run_internal_verify() {
+  [[ "$RUN_INTERNAL_VERIFY" == "1" ]] || {
+    log "跳过内在验证（RUN_INTERNAL_VERIFY=0）"
+    return 0
+  }
+
+  local pytest_bin="$(pwd)/.venv/bin/pytest"
+  if [[ ! -x "$pytest_bin" ]]; then
+    fail "未找到 pytest: $pytest_bin"
+  fi
+
+  log "10) 内在存储/查询验证（pytest）"
+  # shellcheck disable=SC2086
+  "$pytest_bin" -q $INTERNAL_TEST_TARGETS || fail "内在验证失败"
+  pass "内在存储/查询验证通过"
 }
 
 print_sqlite_counts() {
@@ -184,8 +205,9 @@ else
   log "9) 跳过删除（KEEP_DATA=1），保留数据供检查"
 fi
 
+run_internal_verify
 print_sqlite_counts
 
 echo
-pass "E2E 验证完成"
+pass "E2E+内在验证完成"
 pass "run_id=$RUN_ID, episode_uids=[$EP1_UID,$EP2_UID]"
