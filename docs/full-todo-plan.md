@@ -530,7 +530,7 @@
 
 - MCP stdio/http 均可用
 - 所有 tool 均有测试覆盖
-- 当前进展：`116` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`5` 个 OpenClaw 插件测试通过
+- 当前进展：`119` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`5` 个 OpenClaw 插件测试通过
 
 ## 13. Phase 9：Python SDK
 
@@ -755,7 +755,7 @@
 - 有性能数据
 - 有稳定性测试
 - 有观测能力
-- 当前进展：`116` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`5` 个 OpenClaw 插件测试通过
+- 当前进展：`119` 个 Python 测试通过，`5` 个 TypeScript SDK 测试通过，`5` 个 OpenClaw 插件测试通过
 - 已记录问题：测试环境下 `aiosqlite` 关闭阶段存在 event loop closed 警告，需在后续稳定性阶段收口
 - 后续优化项已迁移到：`docs/optimization-backlog.md`
 
@@ -944,8 +944,8 @@
 
 ### E2E 测试
 - [x] create project -> add memory -> search -> delete
-- [ ] add memory -> semantic ingestion -> recall
-- [ ] session close/reopen -> summary restore
+- [x] add memory -> semantic ingestion -> recall
+- [x] session close/reopen -> summary restore
 - [ ] plugin autoCapture -> autoRecall
 
 ### 回归测试
@@ -961,7 +961,7 @@
 - [x] 幂等性
 - [x] 补偿机制
 - [x] 崩溃恢复
-- [ ] 迁移一致性
+- [x] 迁移一致性
 
 ## 22. 最终结论
 

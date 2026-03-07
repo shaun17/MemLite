@@ -179,3 +179,47 @@ async def test_repair_cleans_orphans_and_is_idempotent(tmp_path: Path):
     assert after["orphan_derivative_vector_ids"] == []
     assert after["orphan_episode_graph_nodes"] == []
     assert after["orphan_derivative_nodes"] == []
+
+
+@pytest.mark.anyio
+async def test_migration_roundtrip_preserves_search_consistency(tmp_path: Path):
+    source_settings = Settings(
+        sqlite_path=tmp_path / "source" / "memlite.sqlite3",
+        kuzu_path=tmp_path / "source" / "kuzu",
+    )
+    resources = await _seed_dataset(source_settings)
+    before = await resources.orchestrator.search_memories(
+        query="food ramen",
+        session_key="session-a",
+        session_id="session-a",
+        semantic_set_id="session-a",
+    )
+    await resources.close()
+
+    snapshot_path = tmp_path / "snapshot.json"
+    await export_snapshot(source_settings, snapshot_path)
+
+    target_settings = Settings(
+        sqlite_path=tmp_path / "target" / "memlite.sqlite3",
+        kuzu_path=tmp_path / "target" / "kuzu",
+    )
+    await import_snapshot(target_settings, snapshot_path)
+
+    imported = ResourceManager.create(target_settings)
+    await imported.initialize()
+    try:
+        after = await imported.orchestrator.search_memories(
+            query="food ramen",
+            session_key="session-a",
+            session_id="session-a",
+            semantic_set_id="session-a",
+        )
+    finally:
+        await imported.close()
+
+    assert [item.source for item in before.combined] == [
+        item.source for item in after.combined
+    ]
+    assert [item.identifier for item in before.combined] == [
+        item.identifier for item in after.combined
+    ]
