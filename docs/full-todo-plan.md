@@ -780,16 +780,16 @@
 - [x] 运行性能基准测试
 
 #### 文档
-- [ ] Quickstart
-- [ ] Deployment Guide
-- [ ] Config Reference
-- [ ] API Reference
-- [ ] SDK Usage Guide
-- [ ] MCP Guide
-- [ ] OpenClaw Plugin Guide
-- [ ] Migration Guide
-- [ ] Troubleshooting
-- [ ] FAQ
+- [x] Quickstart
+- [x] Deployment Guide
+- [x] Config Reference
+- [x] API Reference
+- [x] SDK Usage Guide
+- [x] MCP Guide
+- [x] OpenClaw Plugin Guide
+- [x] Migration Guide
+- [x] Troubleshooting
+- [x] FAQ
 
 #### 发布
 - [ ] changelog

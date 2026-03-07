@@ -18,6 +18,16 @@ MemLite 是一个面向 AI Agent 与 LLM 应用的轻量级长期记忆系统方
 - `docs/architecture.md`：系统架构文档
 - `docs/technical-solution.md`：技术方案与实施计划
 - `docs/full-todo-plan.md`：开发任务与状态跟踪
+- `docs/quickstart.md`：快速上手
+- `docs/deployment-guide.md`：部署说明
+- `docs/config-reference.md`：配置参考
+- `docs/api-reference.md`：REST API 参考
+- `docs/sdk-usage-guide.md`：SDK 使用说明
+- `docs/mcp-guide.md`：MCP 使用说明
+- `docs/openclaw-plugin-guide.md`：OpenClaw 插件说明
+- `docs/migration-guide.md`：迁移说明
+- `docs/troubleshooting.md`：故障排查
+- `docs/faq.md`：常见问题
 
 ## Python SDK Quickstart
 
