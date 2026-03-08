@@ -27,3 +27,11 @@
 - 验证命令及输出
 - `git diff --stat`
 - 风险与后续项
+
+## 待办（延后）
+- [ ] Linux 实机回归（当前无 Linux 机器）
+  - [ ] `memolite service install --enable`
+  - [ ] `memolite service status`
+  - [ ] `systemctl --user is-enabled ai.memolite.server.service`
+  - [ ] `memolite service restart` 后确认 enabled 状态不变
+  - [ ] `memolite service disable && memolite service uninstall`
