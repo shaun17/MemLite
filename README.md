@@ -82,7 +82,17 @@ src/memlite/
 
 ## 1. 安装方式
 
-### 方式 A：源码安装（当前可直接使用）
+### 方式 A（推荐）：PyPI 安装
+
+```bash
+pipx install memolite
+# 或
+pip install memolite
+```
+
+适用：普通用户、生产环境、快速上手。
+
+### 方式 B：源码安装（开发者）
 
 - Python `3.12+`
 - 在仓库根目录执行
@@ -95,25 +105,23 @@ source .venv/bin/activate
 pip install -e .[dev]
 ```
 
+适用：二次开发、调试、修改源码。
+
 安装后可用命令：
 
-- `memolite`
-- `memolite-server`
-- `memolite-configure`
+- `memolite`（统一入口）
+- `memolite-server`（前台启动服务）
+- `memolite-configure`（配置/迁移/修复工具）
 - `memolite-mcp-stdio`
 - `memolite-mcp-http`
 
-### 方式 B：PyPI 安装（发布后）
-
-```bash
-pipx install memolite
-# 或
-pip install memolite
-```
-
 ## 2. 初始化配置与本地数据
 
-## 2. 初始化配置与本地数据
+`memolite-configure` 用于“服务外”的配置与数据管理，主要做三件事：
+
+1. `configure`：生成 `.env`（写入服务运行所需配置）
+2. `init`：初始化本地数据目录与数据库结构（SQLite/Kùzu）
+3. `detect-sqlite-vec`：检测 sqlite-vec 扩展可用性（可选）
 
 ```bash
 memolite-configure configure --output .env --data-dir ~/.memolite
@@ -125,6 +133,13 @@ memolite-configure init --data-dir ~/.memolite
 ```bash
 memolite-configure detect-sqlite-vec --extension-path /path/to/sqlite-vec.dylib
 ```
+
+> 为什么是 `memolite-configure`，不是 `memolite configure`？
+>
+> 两者都可用：
+>
+> - 兼容命令：`memolite-configure ...`（历史命令，脚本中常见）
+> - 统一入口：`memolite configure ...`（内部转发到同一逻辑）
 
 ## 3. 启动服务
 
