@@ -110,7 +110,6 @@ pip install -e .[dev]
 安装后可用命令：
 
 - `memolite`（统一入口，推荐）
-- `memolite-server`（前台启动服务）
 - `memolite-mcp-stdio`
 - `memolite-mcp-http`
 
@@ -137,10 +136,10 @@ memolite configure detect-sqlite-vec --extension-path /path/to/sqlite-vec.dylib
 
 ```bash
 # 前台模式（开发调试）
-MEMLITE_PORT=18731 memolite-server
+MEMLITE_PORT=18731 memolite serve
 ```
 
-默认建议地址：`http://127.0.0.1:18731`（避免与常见 8080 冲突）
+默认地址：`http://127.0.0.1:18731`
 
 > 说明：如果你使用 `memolite openclaw setup`，它会自动安装并启动后台服务，因此第 2、3 步可跳过。
 
@@ -171,7 +170,6 @@ MEMLITE_PORT=18731 memolite-server
 > memolite service status
 > ```
 >
-> （兼容：也可以直接调用 `./scripts/memolite_service.sh ...`）
 
 ## 5. OpenClaw 一键接入（A 方案脚本）
 
