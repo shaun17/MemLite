@@ -51,6 +51,11 @@ const DEFAULT_TOP_K = 5;
 const DEFAULT_SEARCH_THRESHOLD = 0.5;
 const DEFAULT_FORGET_THRESHOLD = 0.85;
 const DEFAULT_PAGE_SIZE = 10;
+const MAX_CAPTURE_CHARS = 4000;
+const MAX_RECALL_LINE_CHARS = 500;
+const MAX_RECALL_TOTAL_CHARS = 4000;
+const MAX_TOOL_RESULT_MATCHES = 20;
+const MAX_TOOL_RESULT_CONTENT_CHARS = 1000;
 
 const PluginConfigJsonSchema = {
   type: "object",
@@ -382,18 +387,57 @@ function extractMessageTextBlocks(message: Record<string, unknown>): string[] {
   return [];
 }
 
+function clipText(text: string, maxChars: number): string {
+  if (text.length <= maxChars) {
+    return text;
+  }
+  return `${text.slice(0, maxChars)} …[truncated ${text.length - maxChars} chars]`;
+}
+
 function formatRecallContext(result: MemorySearchResponse, limit: number): string {
   const lines: string[] = [];
+  let budget = MAX_RECALL_TOTAL_CHARS;
+
   for (const match of result.episodic_matches.slice(0, limit)) {
-    lines.push(`- [episodic] ${match.episode.content} (${match.score.toFixed(2)})`);
+    const content = clipText(match.episode.content, MAX_RECALL_LINE_CHARS);
+    const line = `- [episodic] ${content} (${match.score.toFixed(2)})`;
+    if (line.length > budget) {
+      break;
+    }
+    lines.push(line);
+    budget -= line.length;
   }
+
   for (const feature of result.semantic_features ?? []) {
     if (lines.length >= limit) {
       break;
     }
-    lines.push(`- [semantic] ${feature.feature_name}: ${feature.value}`);
+    const line = `- [semantic] ${feature.feature_name}: ${clipText(feature.value, MAX_RECALL_LINE_CHARS)}`;
+    if (line.length > budget) {
+      break;
+    }
+    lines.push(line);
+    budget -= line.length;
   }
+
   return lines.join("\n");
+}
+
+function compactSearchResult(result: MemorySearchResponse): MemorySearchResponse {
+  return {
+    ...result,
+    episodic_matches: (result.episodic_matches ?? []).slice(0, MAX_TOOL_RESULT_MATCHES).map((m) => ({
+      ...m,
+      episode: {
+        ...m.episode,
+        content: clipText(m.episode.content, MAX_TOOL_RESULT_CONTENT_CHARS),
+      },
+    })),
+    semantic_features: (result.semantic_features ?? []).slice(0, MAX_TOOL_RESULT_MATCHES).map((f) => ({
+      ...f,
+      value: clipText(f.value, MAX_TOOL_RESULT_CONTENT_CHARS),
+    })),
+  };
 }
 
 async function autoCaptureMessages(params: {
@@ -421,6 +465,7 @@ async function autoCaptureMessages(params: {
       if (text.trim().length < 5 || text.includes("relevant-memories")) {
         continue;
       }
+      const normalizedText = clipText(text, MAX_CAPTURE_CHARS);
       await client.post("/memories", {
         session_key: sessionKey,
         episodes: [
@@ -431,7 +476,7 @@ async function autoCaptureMessages(params: {
             producer_id: cfg.userId ?? role,
             producer_role: role,
             sequence_num: sequence,
-            content: text,
+            content: normalizedText,
             filterable_metadata_json: JSON.stringify(
               toMetadata(undefined, {
                 run_id: sessionKey,
@@ -463,7 +508,7 @@ async function executeSafely<T>(
 
 const memlitePlugin = {
   id: "openclaw-memolite",
-  name: "memoLite",
+  name: "MemoLite",
   description: "memoLite-backed memory tools with auto recall/capture",
   kind: "memory" as const,
   configSchema: {
@@ -502,7 +547,7 @@ const memlitePlugin = {
               limit,
               minScore,
             });
-            return { scope, result };
+            return { scope, result: compactSearchResult(result) };
           });
         },
       }),
@@ -518,6 +563,7 @@ const memlitePlugin = {
         async execute(_toolCallId: string, params: Record<string, unknown>) {
           return executeSafely(api, "memory_store", async () => {
             const text = readStringParam(params, "text", { required: true })!;
+            const normalizedText = clipText(text, MAX_CAPTURE_CHARS);
             if (!ctx.sessionKey) {
               return { error: "No active session for memory_store" };
             }
@@ -538,7 +584,7 @@ const memlitePlugin = {
                   producer_id: cfg.userId ?? role,
                   producer_role: role,
                   sequence_num: sequence,
-                  content: text,
+                  content: normalizedText,
                   filterable_metadata_json: JSON.stringify(
                     toMetadata(metadata, {
                       run_id: ctx.sessionKey,
