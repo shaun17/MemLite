@@ -285,6 +285,32 @@ describe("openclaw memolite plugin", () => {
     expect(body.session_id).toBeNull();
   });
 
+  it("auto-recall uses all scope when prompt asks all memories", async () => {
+    global.fetch = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(JSON.stringify({ episodic_matches: [], semantic_features: [] }), {
+        status: 200,
+      }),
+    );
+
+    const { hooks } = createApi({
+      baseUrl: "http://memlite.local",
+      orgId: "org-a",
+      projectId: "project-a",
+      userId: "user-1",
+      autoRecall: true,
+      autoCapture: false,
+    });
+
+    await hooks.get("before_agent_start")?.(
+      { prompt: "查询全部信息：我喜欢什么" },
+      { sessionKey: "session-a" },
+    );
+
+    const call = (global.fetch as any).mock.calls[0];
+    const body = JSON.parse(call[1].body);
+    expect(body.session_id).toBeNull();
+  });
+
   it("returns readable errors for tool failures", async () => {
     global.fetch = vi.fn<typeof fetch>().mockResolvedValue(
       new Response(JSON.stringify({ detail: "boom" }), { status: 500 }),
