@@ -1,30 +1,6 @@
 # memoLite
 
-## English Overview
-
-memoLite is a lightweight memory infrastructure for AI agents and LLM applications.
-
-It provides a local-first long-term memory stack with:
-
-- **SQLite** for transactional data (`projects/sessions/episodes/semantic`)
-- **Kùzu** for graph relationships and traceability (`Episode/Derivative`)
-- **sqlite-vec compatible layer** for vector retrieval (currently SQLite + Python fallback)
-
-### Key Capabilities
-
-- **Episodic Memory**: event storage, derivative generation, semantic retrieval, context window expansion
-- **Semantic Memory**: structured facts (`set/category/tag/feature`), vector + attribute filtering, citations
-- **Short-term Memory**: in-session cache with auto-summarization when history grows
-- **Interfaces**: REST API (FastAPI), MCP (stdio/http), Python SDK, OpenClaw plugin
-
-### CLI Highlights
-
-- `memolite serve` — run API server in foreground
-- `memolite service ...` — managed service lifecycle (macOS LaunchAgent / Linux systemd)
-- `memolite openclaw setup` — one-shot OpenClaw integration setup
-- `memolite openclaw status|doctor|configure|uninstall` — integration operations
-
----
+> English version: [README.en.md](./README.en.md)
 
 memoLite 是一个面向 AI Agent/LLM 应用的轻量级记忆基础设施。
 
