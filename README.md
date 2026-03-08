@@ -44,7 +44,7 @@ memoLite 是一个面向 AI Agent/LLM 应用的轻量级记忆基础设施。
 
 ### 5) 运维工具
 
-- 配置与初始化：`memolite-configure`
+- 配置与初始化：`memolite configure ...`
 - 对账/修复：`reconcile` / `repair`
 - 搜索基准：`benchmark-search`
 - 接口压测：`load-test`
@@ -109,39 +109,31 @@ pip install -e .[dev]
 
 安装后可用命令：
 
-- `memolite`（统一入口）
+- `memolite`（统一入口，推荐）
 - `memolite-server`（前台启动服务）
-- `memolite-configure`（配置/迁移/修复工具）
 - `memolite-mcp-stdio`
 - `memolite-mcp-http`
 
-## 2. 初始化配置与本地数据
+## 2. 初始化配置与本地数据（可选）
 
-`memolite-configure` 用于“服务外”的配置与数据管理，主要做三件事：
+`memolite configure ...` 用于“服务外”的配置与数据管理，主要做三件事：
 
 1. `configure`：生成 `.env`（写入服务运行所需配置）
 2. `init`：初始化本地数据目录与数据库结构（SQLite/Kùzu）
 3. `detect-sqlite-vec`：检测 sqlite-vec 扩展可用性（可选）
 
 ```bash
-memolite-configure configure --output .env --data-dir ~/.memolite
-memolite-configure init --data-dir ~/.memolite
+memolite configure configure --output .env --data-dir ~/.memolite
+memolite configure init --data-dir ~/.memolite
 ```
 
 可选：检测 sqlite-vec 扩展
 
 ```bash
-memolite-configure detect-sqlite-vec --extension-path /path/to/sqlite-vec.dylib
+memolite configure detect-sqlite-vec --extension-path /path/to/sqlite-vec.dylib
 ```
 
-> 为什么是 `memolite-configure`，不是 `memolite configure`？
->
-> 两者都可用：
->
-> - 兼容命令：`memolite-configure ...`（历史命令，脚本中常见）
-> - 统一入口：`memolite configure ...`（内部转发到同一逻辑）
-
-## 3. 启动服务
+## 3. 启动服务（可选）
 
 ```bash
 # 前台模式（开发调试）
@@ -149,6 +141,8 @@ MEMLITE_PORT=18731 memolite-server
 ```
 
 默认建议地址：`http://127.0.0.1:18731`（避免与常见 8080 冲突）
+
+> 说明：如果你使用 `memolite openclaw setup`，它会自动安装并启动后台服务，因此第 2、3 步可跳过。
 
 ## 4. 服务托管与开机自启（推荐）
 
@@ -347,16 +341,16 @@ memolite-mcp-http
 
 ```bash
 # 导出/导入
-memolite-configure export --output snapshot.json --data-dir ~/.memolite
-memolite-configure import --input snapshot.json --data-dir ~/.memolite
+memolite configure export --output snapshot.json --data-dir ~/.memolite
+memolite configure import --input snapshot.json --data-dir ~/.memolite
 
 # 对账/修复
-memolite-configure reconcile --output reconcile.json --data-dir ~/.memolite
-memolite-configure repair --output repair.json --data-dir ~/.memolite
+memolite configure reconcile --output reconcile.json --data-dir ~/.memolite
+memolite configure repair --output repair.json --data-dir ~/.memolite
 
 # 搜索基准/压测
-memolite-configure benchmark-search --output benchmark.json --data-dir ~/.memolite
-memolite-configure load-test --base-url http://127.0.0.1:18731 --total-requests 200 --concurrency 20
+memolite configure benchmark-search --output benchmark.json --data-dir ~/.memolite
+memolite configure load-test --base-url http://127.0.0.1:18731 --total-requests 200 --concurrency 20
 ```
 
 ---
