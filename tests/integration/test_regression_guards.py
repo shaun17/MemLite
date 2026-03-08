@@ -103,7 +103,7 @@ async def test_filter_semantics_remain_stable(tmp_path: Path):
                 "producer_id": "assistant-1",
                 "producer_role": "assistant",
                 "sequence_num": 2,
-                "content": "I will remember your food preference.",
+                "content": "I will remember your ramen food preference.",
                 "episode_type": "message",
             },
         ],
