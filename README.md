@@ -214,6 +214,17 @@ memolite openclaw setup \
   --top-k 5
 ```
 
+参数说明：
+
+- `--base-url`：memolite 服务地址，默认 `http://127.0.0.1:18731`
+- `--org-id`：组织标识，用于项目隔离（默认 `openclaw`）
+- `--project-id`：项目标识，用于项目级隔离（默认 `openclaw`）
+- `--user-id`：用户标识，用于用户级归属（默认 `openclaw`）
+- `--auto-capture`：是否自动写入会话记忆（`true/false`）
+- `--auto-recall`：是否自动召回相关记忆（`true/false`）
+- `--search-threshold`：检索阈值（0~1，越高越严格）
+- `--top-k`：每次检索返回的最大候选条数
+
 额外运维子命令：
 
 ```bash
