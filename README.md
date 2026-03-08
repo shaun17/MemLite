@@ -148,10 +148,11 @@ MEMLITE_PORT=18731 memolite serve
 > 语义约定：
 >
 > - `memolite-server`：前台运行，适合开发调试（可惰性 init）
-> - `memolite service ...`：后台托管命令（start/stop/restart/status）
+> - `memolite service ...`：后台托管命令（install/enable/disable/start/stop/restart/status/uninstall）
 > - 开机自启只在 `install --enable` / `enable` 中显式设置
+> - `start/restart` 只影响运行态，不改变自启策略
 >
-> 推荐使用统一 CLI（底层调用 macOS LaunchAgent 脚本）：
+> 统一 CLI：
 >
 > ```bash
 > # 安装服务定义（不自动开机自启）
@@ -168,8 +169,22 @@ MEMLITE_PORT=18731 memolite serve
 > memolite service stop
 > memolite service restart
 > memolite service status
+>
+> # 关闭开机自启 / 卸载服务定义
+> memolite service disable
+> memolite service uninstall
 > ```
 >
+> 平台说明：
+>
+> - macOS: LaunchAgent (`~/Library/LaunchAgents/ai.memolite.server.plist`)
+> - Linux: systemd user service (`~/.config/systemd/user/ai.memolite.server.service`)
+>
+> Linux 如需用户级服务在离线后继续运行，可按需启用 linger：
+>
+> ```bash
+> loginctl enable-linger "$USER"
+> ```
 
 ## 5. OpenClaw 一键接入（A 方案脚本）
 
@@ -197,6 +212,23 @@ memolite openclaw setup \
   --auto-recall true \
   --search-threshold 0.5 \
   --top-k 5
+```
+
+额外运维子命令：
+
+```bash
+# 状态与诊断
+memolite openclaw status
+memolite openclaw doctor
+
+# 配置查看 / 更新 / 重置
+memolite openclaw configure show
+memolite openclaw configure set --base-url http://127.0.0.1:18731
+memolite openclaw configure reset
+
+# 卸载集成（仅移除 memolite 相关项）
+memolite openclaw uninstall --dry-run
+memolite openclaw uninstall
 ```
 
 ## 6. 最小调用流程（REST）
