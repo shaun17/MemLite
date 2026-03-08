@@ -202,6 +202,33 @@ function normalizeScope(value: unknown, fallback: MemoryScope): MemoryScope {
   return value === "session" || value === "all" ? value : fallback;
 }
 
+function resolveQueryScope(
+  rawQuery: string,
+  explicitScope: MemoryScope | undefined,
+  fallback: MemoryScope,
+): { scope: MemoryScope; query: string } {
+  const query = rawQuery.trim();
+  const allPrefix = /^@all\s*[:：]?\s*/i;
+  const sessionPrefix = /^@session\s*[:：]?\s*/i;
+
+  if (allPrefix.test(query)) {
+    return { scope: "all", query: query.replace(allPrefix, "").trim() };
+  }
+  if (sessionPrefix.test(query)) {
+    return { scope: "session", query: query.replace(sessionPrefix, "").trim() };
+  }
+  if (explicitScope) {
+    return { scope: explicitScope, query };
+  }
+
+  const globalPattern =
+    /(查询全部|全部信息|所有信息|所有记忆|全部记忆|全局|跨会话|scope\s*=\s*all|all\s+memories|all\s+sessions)/i;
+  if (globalPattern.test(query)) {
+    return { scope: "all", query };
+  }
+  return { scope: fallback, query };
+}
+
 function readStringParam(
   params: Record<string, unknown>,
   name: string,
@@ -454,8 +481,12 @@ const memlitePlugin = {
         parameters: MemorySearchSchema,
         async execute(_toolCallId: string, params: Record<string, unknown>) {
           return executeSafely(api, "memory_search", async () => {
-            const query = readStringParam(params, "query", { required: true })!;
-            const scope = normalizeScope(params.scope, "all");
+            const rawQuery = readStringParam(params, "query", { required: true })!;
+            const explicitScope =
+              params.scope === "session" || params.scope === "all"
+                ? (params.scope as MemoryScope)
+                : undefined;
+            const { scope, query } = resolveQueryScope(rawQuery, explicitScope, "session");
             const limit = readNumberParam(params, "limit") ?? cfg.topK ?? DEFAULT_TOP_K;
             const minScore =
               readNumberParam(params, "minScore") ??
@@ -551,7 +582,7 @@ const memlitePlugin = {
         parameters: MemoryListSchema,
         async execute(_toolCallId: string, params: Record<string, unknown>) {
           return executeSafely(api, "memory_list", async () => {
-            const scope = normalizeScope(params.scope, "all");
+            const scope = normalizeScope(params.scope, "session");
             const pageSize = readNumberParam(params, "pageSize") ?? DEFAULT_PAGE_SIZE;
             const pageNum = readNumberParam(params, "pageNum") ?? 0;
             const result = await listMemories({
@@ -578,8 +609,11 @@ const memlitePlugin = {
         async execute(_toolCallId: string, params: Record<string, unknown>) {
           return executeSafely(api, "memory_forget", async () => {
             const memoryId = readStringParam(params, "memoryId");
-            const query = readStringParam(params, "query");
-            const scope = normalizeScope(params.scope, "all");
+            const rawQuery = readStringParam(params, "query");
+            const explicitScope =
+              params.scope === "session" || params.scope === "all"
+                ? (params.scope as MemoryScope)
+                : undefined;
             const minScore =
               readNumberParam(params, "minScore") ?? DEFAULT_FORGET_THRESHOLD;
 
@@ -587,10 +621,11 @@ const memlitePlugin = {
               await client.delete("/memories/episodes", { episode_uids: [memoryId] });
               return { action: "forget", memoryId };
             }
-            if (!query) {
+            if (!rawQuery) {
               return { error: "Provide memoryId or query" };
             }
 
+            const { scope, query } = resolveQueryScope(rawQuery, explicitScope, "session");
             const result = await searchMemories({
               client,
               query,
@@ -634,10 +669,11 @@ const memlitePlugin = {
           return undefined;
         }
         try {
+          const { scope, query } = resolveQueryScope(event.prompt, undefined, "session");
           const result = await searchMemories({
             client,
-            query: event.prompt,
-            scope: "all",
+            query,
+            scope,
             sessionKey: ctx.sessionKey,
             cfg,
             limit: cfg.topK ?? DEFAULT_TOP_K,

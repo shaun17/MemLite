@@ -243,6 +243,48 @@ describe("openclaw memolite plugin", () => {
     expect((recall as any).prependContext).toContain("Remember I like ramen.");
   });
 
+  it("defaults memory_search scope to session", async () => {
+    global.fetch = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(JSON.stringify({ episodic_matches: [], semantic_features: [] }), {
+        status: 200,
+      }),
+    );
+
+    const { tools } = createApi({
+      baseUrl: "http://memlite.local",
+      orgId: "org-a",
+      projectId: "project-a",
+      userId: "user-1",
+    });
+
+    await tools[0].execute("tool-1", { query: "我喜欢什么" });
+
+    const call = (global.fetch as any).mock.calls[0];
+    const body = JSON.parse(call[1].body);
+    expect(body.session_id).toBe("session-a");
+  });
+
+  it("switches to scope=all when query asks for all memories", async () => {
+    global.fetch = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(JSON.stringify({ episodic_matches: [], semantic_features: [] }), {
+        status: 200,
+      }),
+    );
+
+    const { tools } = createApi({
+      baseUrl: "http://memlite.local",
+      orgId: "org-a",
+      projectId: "project-a",
+      userId: "user-1",
+    });
+
+    await tools[0].execute("tool-1", { query: "查询全部信息：我喜欢什么" });
+
+    const call = (global.fetch as any).mock.calls[0];
+    const body = JSON.parse(call[1].body);
+    expect(body.session_id).toBeNull();
+  });
+
   it("returns readable errors for tool failures", async () => {
     global.fetch = vi.fn<typeof fetch>().mockResolvedValue(
       new Response(JSON.stringify({ detail: "boom" }), { status: 500 }),
