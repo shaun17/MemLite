@@ -227,6 +227,31 @@ memolite openclaw setup \
 - `--search-threshold`：检索阈值（0~1，越高越严格）
 - `--top-k`：每次检索返回的最大候选条数
 
+插件更新（推荐做法）：
+
+```bash
+# 升级包（获取最新内置插件）
+pipx upgrade memolite
+
+# 重新安装插件并刷新 OpenClaw 配置
+memolite openclaw setup
+
+# 重启 gateway 使插件生效
+openclaw gateway restart
+
+# 验证插件名称/版本
+openclaw plugins list | rg "openclaw-memolite|MemoLite"
+```
+
+如果发现版本仍未更新，可强制清理后重装：
+
+```bash
+memolite openclaw uninstall
+rm -rf ~/.openclaw/extensions/openclaw-memolite
+memolite openclaw setup
+openclaw gateway restart
+```
+
 额外运维子命令：
 
 ```bash

@@ -227,6 +227,31 @@ Parameter descriptions:
 - `--search-threshold`: retrieval threshold (0~1, higher = stricter)
 - `--top-k`: max candidates returned per retrieval
 
+Plugin update (recommended flow):
+
+```bash
+# Upgrade package (gets latest bundled plugin)
+pipx upgrade memolite
+
+# Reinstall plugin and refresh OpenClaw config
+memolite openclaw setup
+
+# Restart gateway so new plugin is loaded
+openclaw gateway restart
+
+# Verify plugin name/version
+openclaw plugins list | rg "openclaw-memolite|MemoLite"
+```
+
+If the plugin version still looks stale, force-clean and reinstall:
+
+```bash
+memolite openclaw uninstall
+rm -rf ~/.openclaw/extensions/openclaw-memolite
+memolite openclaw setup
+openclaw gateway restart
+```
+
 Additional ops subcommands:
 
 ```bash
