@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "memolite"
-version = "0.1.10"
+version = "0.1.11"
 description = "Lightweight long-term memory infrastructure for AI agents"
 readme = "README.md"
 license = { text = "MIT" }
