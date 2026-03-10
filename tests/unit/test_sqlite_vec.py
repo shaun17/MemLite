@@ -20,7 +20,7 @@ async def test_extension_loader_detects_missing_or_present_extension(tmp_path: P
 
 @pytest.mark.anyio
 async def test_sqlite_vec_index_supports_init_batch_and_search(tmp_path: Path):
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     index = SqliteVecIndex(factory, "test_feature_vectors")
     await index.initialize()
@@ -41,7 +41,7 @@ async def test_sqlite_vec_index_supports_init_batch_and_search(tmp_path: Path):
 
 @pytest.mark.anyio
 async def test_sqlite_vec_top_k_order_is_stable_for_same_query(tmp_path: Path):
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     index = SqliteVecIndex(factory, "stable_feature_vectors")
     await index.initialize()
@@ -64,7 +64,7 @@ async def test_sqlite_vec_top_k_order_is_stable_for_same_query(tmp_path: Path):
 
 @pytest.mark.anyio
 async def test_sqlite_vec_search_honors_allowed_item_ids(tmp_path: Path):
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     index = SqliteVecIndex(factory, "filtered_feature_vectors")
     await index.initialize()

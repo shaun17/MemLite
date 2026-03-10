@@ -10,7 +10,7 @@ from memlite.common.config import Settings
 async def test_delete_episodes_is_idempotent(tmp_path: Path):
     resources = ResourceManager.create(
         Settings(
-            sqlite_path=tmp_path / "memlite.sqlite3",
+            sqlite_path=tmp_path / "memolite.sqlite3",
             kuzu_path=tmp_path / "graph.kuzu",
         )
     )
@@ -57,7 +57,7 @@ async def test_delete_episodes_is_idempotent(tmp_path: Path):
 @pytest.mark.anyio
 async def test_add_episode_is_idempotent(tmp_path: Path):
     settings = Settings(
-        sqlite_path=tmp_path / "memlite.sqlite3",
+        sqlite_path=tmp_path / "memolite.sqlite3",
         kuzu_path=tmp_path / "kuzu",
     )
     resources = ResourceManager.create(settings)

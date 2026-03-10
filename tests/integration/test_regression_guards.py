@@ -10,7 +10,7 @@ from memlite.common.config import Settings
 async def test_search_ordering_remains_stable(tmp_path: Path):
     resources = ResourceManager.create(
         Settings(
-            sqlite_path=tmp_path / "memlite.sqlite3",
+            sqlite_path=tmp_path / "memolite.sqlite3",
             kuzu_path=tmp_path / "graph.kuzu",
         )
     )
@@ -70,7 +70,7 @@ async def test_search_ordering_remains_stable(tmp_path: Path):
 async def test_filter_semantics_remain_stable(tmp_path: Path):
     resources = ResourceManager.create(
         Settings(
-            sqlite_path=tmp_path / "memlite.sqlite3",
+            sqlite_path=tmp_path / "memolite.sqlite3",
             kuzu_path=tmp_path / "graph.kuzu",
         )
     )
@@ -127,7 +127,7 @@ async def test_filter_semantics_remain_stable(tmp_path: Path):
 async def test_delete_leaves_no_residue(tmp_path: Path):
     resources = ResourceManager.create(
         Settings(
-            sqlite_path=tmp_path / "memlite.sqlite3",
+            sqlite_path=tmp_path / "memolite.sqlite3",
             kuzu_path=tmp_path / "graph.kuzu",
         )
     )

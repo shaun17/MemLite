@@ -23,7 +23,7 @@ async def fake_embedder(text: str) -> list[float]:
 @pytest.mark.anyio
 async def test_delete_episode_leaves_no_search_residue(tmp_path: Path):
     sqlite_factory = SqliteEngineFactory(
-        Settings(sqlite_path=tmp_path / "memlite.sqlite3")
+        Settings(sqlite_path=tmp_path / "memolite.sqlite3")
     )
     await sqlite_factory.initialize_schema()
     session_store = SqliteSessionStore(sqlite_factory)

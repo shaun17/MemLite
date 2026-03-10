@@ -10,7 +10,7 @@ from memlite.tools.benchmark import benchmark_search_workload
 async def test_benchmark_search_workload_returns_latency_report(tmp_path: Path):
     report = await benchmark_search_workload(
         settings=Settings(
-            sqlite_path=tmp_path / "memlite.sqlite3",
+            sqlite_path=tmp_path / "memolite.sqlite3",
             kuzu_path=tmp_path / "kuzu",
         ),
         episode_count=3,

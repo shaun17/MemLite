@@ -447,7 +447,7 @@ resources:
 ```text
 memlite/
   data/
-    memlite.sqlite3
+    memolite.sqlite3
     kuzu/
   extensions/
     sqlite-vec.*

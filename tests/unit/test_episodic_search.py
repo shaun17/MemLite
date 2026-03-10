@@ -21,7 +21,7 @@ async def fake_embedder(text: str) -> list[float]:
 
 async def prepare_search_fixture(tmp_path: Path) -> EpisodicSearchService:
     sqlite_factory = SqliteEngineFactory(
-        Settings(sqlite_path=tmp_path / "memlite.sqlite3")
+        Settings(sqlite_path=tmp_path / "memolite.sqlite3")
     )
     await sqlite_factory.initialize_schema()
     session_store = SqliteSessionStore(sqlite_factory)

@@ -10,7 +10,7 @@ from memlite.storage.sqlite_engine import SqliteEngineFactory
 
 @pytest.mark.anyio
 async def test_episode_store_crud_and_count(tmp_path: Path):
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     await SqliteSessionStore(factory).create_session(
         session_key="org/proj/s1",
@@ -80,7 +80,7 @@ async def test_episode_store_crud_and_count(tmp_path: Path):
 
 @pytest.mark.anyio
 async def test_episode_store_filters_matching_records(tmp_path: Path):
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     await SqliteSessionStore(factory).create_session(
         session_key="org/proj/s1",

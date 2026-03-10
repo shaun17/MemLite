@@ -10,7 +10,7 @@ from memlite.storage.sqlite_engine import SqliteEngineFactory
 
 @pytest.mark.anyio
 async def test_episode_store_supports_pagination_and_reload(tmp_path: Path):
-    sqlite_path = tmp_path / "memlite.sqlite3"
+    sqlite_path = tmp_path / "memolite.sqlite3"
     factory = SqliteEngineFactory(Settings(sqlite_path=sqlite_path))
     await factory.initialize_schema()
     await SqliteSessionStore(factory).create_session(

@@ -10,7 +10,7 @@ from memlite.storage.transactions import run_in_transaction
 
 @pytest.mark.anyio
 async def test_sqlite_engine_healthcheck_and_pragmas(tmp_path: Path):
-    sqlite_path = tmp_path / "memlite.sqlite3"
+    sqlite_path = tmp_path / "memolite.sqlite3"
     settings = Settings(sqlite_path=sqlite_path)
     factory = SqliteEngineFactory(settings)
 
@@ -33,7 +33,7 @@ async def test_sqlite_engine_healthcheck_and_pragmas(tmp_path: Path):
 
 @pytest.mark.anyio
 async def test_sqlite_engine_can_initialize_schema(tmp_path: Path):
-    sqlite_path = tmp_path / "memlite.sqlite3"
+    sqlite_path = tmp_path / "memolite.sqlite3"
     settings = Settings(sqlite_path=sqlite_path)
     factory = SqliteEngineFactory(settings)
 
@@ -57,7 +57,7 @@ async def test_sqlite_engine_can_initialize_schema(tmp_path: Path):
 
 @pytest.mark.anyio
 async def test_run_in_transaction_commits_changes(tmp_path: Path):
-    sqlite_path = tmp_path / "memlite.sqlite3"
+    sqlite_path = tmp_path / "memolite.sqlite3"
     settings = Settings(sqlite_path=sqlite_path)
     factory = SqliteEngineFactory(settings)
     await factory.initialize_schema()

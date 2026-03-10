@@ -32,7 +32,7 @@ async def identity_reranker(_query, matches):
 
 async def prepare_orchestrator(tmp_path: Path) -> tuple[MemoryOrchestrator, SqliteSemanticFeatureStore]:
     sqlite_factory = SqliteEngineFactory(
-        Settings(sqlite_path=tmp_path / "memlite.sqlite3")
+        Settings(sqlite_path=tmp_path / "memolite.sqlite3")
     )
     await sqlite_factory.initialize_schema()
     project_store = SqliteProjectStore(sqlite_factory)

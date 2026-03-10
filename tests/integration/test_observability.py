@@ -8,7 +8,7 @@ from memlite.common.config import reset_settings_cache
 
 
 def test_search_path_emits_latency_metrics(tmp_path: Path, monkeypatch):
-    monkeypatch.setenv("MEMLITE_SQLITE_PATH", str(tmp_path / "memlite.sqlite3"))
+    monkeypatch.setenv("MEMLITE_SQLITE_PATH", str(tmp_path / "memolite.sqlite3"))
     monkeypatch.setenv("MEMLITE_KUZU_PATH", str(tmp_path / "graph.kuzu"))
     reset_settings_cache()
 

@@ -8,7 +8,7 @@ from memlite.common.config import reset_settings_cache
 
 
 def test_project_routes_crud_and_episode_count(tmp_path: Path, monkeypatch):
-    monkeypatch.setenv("MEMLITE_SQLITE_PATH", str(tmp_path / "memlite.sqlite3"))
+    monkeypatch.setenv("MEMLITE_SQLITE_PATH", str(tmp_path / "memolite.sqlite3"))
     monkeypatch.setenv("MEMLITE_KUZU_PATH", str(tmp_path / "graph.kuzu"))
     reset_settings_cache()
 
@@ -31,7 +31,7 @@ def test_project_routes_crud_and_episode_count(tmp_path: Path, monkeypatch):
 
 
 def test_memory_routes_add_search_list_and_delete(tmp_path: Path, monkeypatch):
-    monkeypatch.setenv("MEMLITE_SQLITE_PATH", str(tmp_path / "memlite.sqlite3"))
+    monkeypatch.setenv("MEMLITE_SQLITE_PATH", str(tmp_path / "memolite.sqlite3"))
     monkeypatch.setenv("MEMLITE_KUZU_PATH", str(tmp_path / "graph.kuzu"))
     reset_settings_cache()
 
@@ -99,7 +99,7 @@ def test_memory_routes_add_search_list_and_delete(tmp_path: Path, monkeypatch):
 
 
 def test_memory_search_respects_runtime_memory_config(tmp_path: Path, monkeypatch):
-    monkeypatch.setenv("MEMLITE_SQLITE_PATH", str(tmp_path / "memlite.sqlite3"))
+    monkeypatch.setenv("MEMLITE_SQLITE_PATH", str(tmp_path / "memolite.sqlite3"))
     monkeypatch.setenv("MEMLITE_KUZU_PATH", str(tmp_path / "graph.kuzu"))
     reset_settings_cache()
 
@@ -164,7 +164,7 @@ def test_memory_search_respects_runtime_memory_config(tmp_path: Path, monkeypatc
 
 
 def test_api_response_schema_for_memory_search_is_stable(tmp_path: Path, monkeypatch):
-    monkeypatch.setenv("MEMLITE_SQLITE_PATH", str(tmp_path / "memlite.sqlite3"))
+    monkeypatch.setenv("MEMLITE_SQLITE_PATH", str(tmp_path / "memolite.sqlite3"))
     monkeypatch.setenv("MEMLITE_KUZU_PATH", str(tmp_path / "graph.kuzu"))
     reset_settings_cache()
 
@@ -252,7 +252,7 @@ def test_api_response_schema_for_memory_search_is_stable(tmp_path: Path, monkeyp
 
 
 def test_session_routes_and_memory_get(tmp_path: Path, monkeypatch):
-    monkeypatch.setenv("MEMLITE_SQLITE_PATH", str(tmp_path / "memlite.sqlite3"))
+    monkeypatch.setenv("MEMLITE_SQLITE_PATH", str(tmp_path / "memolite.sqlite3"))
     monkeypatch.setenv("MEMLITE_KUZU_PATH", str(tmp_path / "graph.kuzu"))
     reset_settings_cache()
 
@@ -304,7 +304,7 @@ def test_session_routes_and_memory_get(tmp_path: Path, monkeypatch):
 
 
 def test_semantic_feature_routes_crud(tmp_path: Path, monkeypatch):
-    monkeypatch.setenv("MEMLITE_SQLITE_PATH", str(tmp_path / "memlite.sqlite3"))
+    monkeypatch.setenv("MEMLITE_SQLITE_PATH", str(tmp_path / "memolite.sqlite3"))
     monkeypatch.setenv("MEMLITE_KUZU_PATH", str(tmp_path / "graph.kuzu"))
     reset_settings_cache()
 
@@ -336,7 +336,7 @@ def test_semantic_feature_routes_crud(tmp_path: Path, monkeypatch):
 
 
 def test_semantic_config_routes_and_version(tmp_path: Path, monkeypatch):
-    monkeypatch.setenv("MEMLITE_SQLITE_PATH", str(tmp_path / "memlite.sqlite3"))
+    monkeypatch.setenv("MEMLITE_SQLITE_PATH", str(tmp_path / "memolite.sqlite3"))
     monkeypatch.setenv("MEMLITE_KUZU_PATH", str(tmp_path / "graph.kuzu"))
     reset_settings_cache()
 
@@ -420,7 +420,7 @@ def test_semantic_config_routes_and_version(tmp_path: Path, monkeypatch):
 
 
 def test_memory_config_routes_and_error_paths_and_openapi(tmp_path: Path, monkeypatch):
-    monkeypatch.setenv("MEMLITE_SQLITE_PATH", str(tmp_path / "memlite.sqlite3"))
+    monkeypatch.setenv("MEMLITE_SQLITE_PATH", str(tmp_path / "memolite.sqlite3"))
     monkeypatch.setenv("MEMLITE_KUZU_PATH", str(tmp_path / "graph.kuzu"))
     reset_settings_cache()
 

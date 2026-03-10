@@ -9,7 +9,7 @@ from memlite.storage.sqlite_engine import SqliteEngineFactory
 
 @pytest.mark.anyio
 async def test_session_store_persists_summary_for_reloads(tmp_path: Path):
-    sqlite_path = tmp_path / "memlite.sqlite3"
+    sqlite_path = tmp_path / "memolite.sqlite3"
     factory = SqliteEngineFactory(Settings(sqlite_path=sqlite_path))
     await factory.initialize_schema()
 

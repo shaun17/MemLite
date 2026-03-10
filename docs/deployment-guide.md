@@ -16,7 +16,7 @@
 
 ```text
 ~/.memlite/
-├── memlite.sqlite3
+├── memolite.sqlite3
 └── kuzu/
 ```
 
@@ -27,7 +27,7 @@
 ```bash
 MEMLITE_HOST=127.0.0.1
 MEMLITE_PORT=8080
-MEMLITE_SQLITE_PATH=/absolute/path/memlite.sqlite3
+MEMLITE_SQLITE_PATH=/absolute/path/memolite.sqlite3
 MEMLITE_KUZU_PATH=/absolute/path/kuzu
 ```
 

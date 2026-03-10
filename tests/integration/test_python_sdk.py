@@ -13,7 +13,7 @@ async def _build_sdk_client(tmp_path: Path) -> tuple[MemLiteClient, ResourceMana
     app = create_app()
     resources = ResourceManager.create(
         Settings(
-            sqlite_path=tmp_path / "memlite.sqlite3",
+            sqlite_path=tmp_path / "memolite.sqlite3",
             kuzu_path=tmp_path / "graph.kuzu",
         )
     )

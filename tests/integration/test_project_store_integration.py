@@ -9,7 +9,7 @@ from memlite.storage.sqlite_engine import SqliteEngineFactory
 
 @pytest.mark.anyio
 async def test_project_store_supports_cross_operation_flow(tmp_path: Path):
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     store = SqliteProjectStore(factory)
 

@@ -12,7 +12,7 @@ from memlite.mcp.server import create_mcp_server
 async def test_mcp_tools_add_search_list_get_delete_memory(tmp_path: Path):
     resources = ResourceManager.create(
         Settings(
-            sqlite_path=tmp_path / "memlite.sqlite3",
+            sqlite_path=tmp_path / "memolite.sqlite3",
             kuzu_path=tmp_path / "graph.kuzu",
         )
     )
@@ -79,7 +79,7 @@ async def test_mcp_tools_add_search_list_get_delete_memory(tmp_path: Path):
 async def test_mcp_http_app_can_be_created(tmp_path: Path):
     resources = ResourceManager.create(
         Settings(
-            sqlite_path=tmp_path / "memlite.sqlite3",
+            sqlite_path=tmp_path / "memolite.sqlite3",
             kuzu_path=tmp_path / "graph.kuzu",
         )
     )
@@ -100,7 +100,7 @@ async def test_mcp_http_app_can_be_created(tmp_path: Path):
 async def test_mcp_tool_parameter_validation(tmp_path: Path):
     resources = ResourceManager.create(
         Settings(
-            sqlite_path=tmp_path / "memlite.sqlite3",
+            sqlite_path=tmp_path / "memolite.sqlite3",
             kuzu_path=tmp_path / "graph.kuzu",
         )
     )
@@ -120,7 +120,7 @@ async def test_mcp_tool_parameter_validation(tmp_path: Path):
 async def test_mcp_tool_error_path_uses_readable_message(tmp_path: Path):
     resources = ResourceManager.create(
         Settings(
-            sqlite_path=tmp_path / "memlite.sqlite3",
+            sqlite_path=tmp_path / "memolite.sqlite3",
             kuzu_path=tmp_path / "graph.kuzu",
         )
     )
@@ -150,7 +150,7 @@ async def test_mcp_tool_error_path_uses_readable_message(tmp_path: Path):
 async def test_mcp_tool_call_initializes_resources_on_demand(tmp_path: Path):
     resources = ResourceManager.create(
         Settings(
-            sqlite_path=tmp_path / "memlite.sqlite3",
+            sqlite_path=tmp_path / "memolite.sqlite3",
             kuzu_path=tmp_path / "graph.kuzu",
         )
     )
@@ -170,7 +170,7 @@ async def test_mcp_tool_call_initializes_resources_on_demand(tmp_path: Path):
 async def test_mcp_context_tools_persist_defaults_between_calls(tmp_path: Path):
     resources = ResourceManager.create(
         Settings(
-            sqlite_path=tmp_path / "memlite.sqlite3",
+            sqlite_path=tmp_path / "memolite.sqlite3",
             kuzu_path=tmp_path / "graph.kuzu",
         )
     )
@@ -229,7 +229,7 @@ async def test_mcp_context_tools_persist_defaults_between_calls(tmp_path: Path):
 async def test_mcp_auth_rejects_missing_api_key_when_configured(tmp_path: Path):
     resources = ResourceManager.create(
         Settings(
-            sqlite_path=tmp_path / "memlite.sqlite3",
+            sqlite_path=tmp_path / "memolite.sqlite3",
             kuzu_path=tmp_path / "graph.kuzu",
             mcp_api_key="secret-key",
         )

@@ -55,7 +55,7 @@ async def _seed_dataset(settings: Settings) -> ResourceManager:
 @pytest.mark.anyio
 async def test_export_and_import_snapshot_roundtrip(tmp_path: Path):
     source_settings = Settings(
-        sqlite_path=tmp_path / "source" / "memlite.sqlite3",
+        sqlite_path=tmp_path / "source" / "memolite.sqlite3",
         kuzu_path=tmp_path / "source" / "kuzu",
     )
     resources = await _seed_dataset(source_settings)
@@ -70,7 +70,7 @@ async def test_export_and_import_snapshot_roundtrip(tmp_path: Path):
     assert exported["tables"]["semantic_features"][0]["feature_name"] == "favorite_food"
 
     target_settings = Settings(
-        sqlite_path=tmp_path / "target" / "memlite.sqlite3",
+        sqlite_path=tmp_path / "target" / "memolite.sqlite3",
         kuzu_path=tmp_path / "target" / "kuzu",
     )
     await import_snapshot(target_settings, snapshot_path)
@@ -94,7 +94,7 @@ async def test_export_and_import_snapshot_roundtrip(tmp_path: Path):
 @pytest.mark.anyio
 async def test_reconcile_and_repair_tools(tmp_path: Path):
     settings = Settings(
-        sqlite_path=tmp_path / "memlite.sqlite3",
+        sqlite_path=tmp_path / "memolite.sqlite3",
         kuzu_path=tmp_path / "kuzu",
     )
     resources = await _seed_dataset(settings)
@@ -126,7 +126,7 @@ async def test_reconcile_and_repair_tools(tmp_path: Path):
 @pytest.mark.anyio
 async def test_repair_cleans_orphans_and_is_idempotent(tmp_path: Path):
     settings = Settings(
-        sqlite_path=tmp_path / "memlite.sqlite3",
+        sqlite_path=tmp_path / "memolite.sqlite3",
         kuzu_path=tmp_path / "kuzu",
     )
     resources = await _seed_dataset(settings)
@@ -184,7 +184,7 @@ async def test_repair_cleans_orphans_and_is_idempotent(tmp_path: Path):
 @pytest.mark.anyio
 async def test_migration_roundtrip_preserves_search_consistency(tmp_path: Path):
     source_settings = Settings(
-        sqlite_path=tmp_path / "source" / "memlite.sqlite3",
+        sqlite_path=tmp_path / "source" / "memolite.sqlite3",
         kuzu_path=tmp_path / "source" / "kuzu",
     )
     resources = await _seed_dataset(source_settings)
@@ -200,7 +200,7 @@ async def test_migration_roundtrip_preserves_search_consistency(tmp_path: Path):
     await export_snapshot(source_settings, snapshot_path)
 
     target_settings = Settings(
-        sqlite_path=tmp_path / "target" / "memlite.sqlite3",
+        sqlite_path=tmp_path / "target" / "memolite.sqlite3",
         kuzu_path=tmp_path / "target" / "kuzu",
     )
     await import_snapshot(target_settings, snapshot_path)

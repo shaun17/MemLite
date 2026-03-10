@@ -9,7 +9,7 @@ from memlite.storage.sqlite_engine import SqliteEngineFactory
 
 @pytest.mark.anyio
 async def test_semantic_feature_store_add_get_update(tmp_path: Path):
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     store = SqliteSemanticFeatureStore(factory)
     await store.initialize()
@@ -43,7 +43,7 @@ async def test_semantic_feature_store_add_get_update(tmp_path: Path):
 
 @pytest.mark.anyio
 async def test_semantic_feature_store_query_delete_and_history(tmp_path: Path):
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     store = SqliteSemanticFeatureStore(factory)
     await store.initialize()
@@ -101,7 +101,7 @@ async def test_semantic_feature_store_query_delete_and_history(tmp_path: Path):
 
 @pytest.mark.anyio
 async def test_semantic_feature_store_add_is_idempotent_for_same_payload(tmp_path: Path):
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     store = SqliteSemanticFeatureStore(factory)
     await store.initialize()

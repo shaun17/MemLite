@@ -15,7 +15,7 @@ async def fake_embedder(text: str) -> list[float]:
 
 @pytest.mark.anyio
 async def test_semantic_service_respects_config_and_vector_search(tmp_path: Path):
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     config_store = SqliteSemanticConfigStore(factory)
     feature_store = SqliteSemanticFeatureStore(factory)
@@ -79,7 +79,7 @@ async def test_semantic_service_respects_config_and_vector_search(tmp_path: Path
 
 @pytest.mark.anyio
 async def test_add_history_ingest_and_search_flow(tmp_path: Path):
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     config_store = SqliteSemanticConfigStore(factory)
     feature_store = SqliteSemanticFeatureStore(factory)

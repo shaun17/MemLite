@@ -10,7 +10,7 @@ from memlite.common.config import Settings
 async def test_cli_init_bootstraps_sqlite_and_kuzu(tmp_path: Path):
     data_dir = tmp_path / "memlite-data"
     settings = Settings(
-        sqlite_path=data_dir / "memlite.sqlite3",
+        sqlite_path=data_dir / "memolite.sqlite3",
         kuzu_path=data_dir / "kuzu",
     )
 

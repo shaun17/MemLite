@@ -11,7 +11,7 @@ from memlite.mcp.server import create_mcp_server
 async def test_mcp_context_and_memory_flow_integration(tmp_path: Path):
     resources = ResourceManager.create(
         Settings(
-            sqlite_path=tmp_path / "memlite.sqlite3",
+            sqlite_path=tmp_path / "memolite.sqlite3",
             kuzu_path=tmp_path / "graph.kuzu",
             mcp_api_key="secret-key",
         )

@@ -70,7 +70,7 @@ def test_derivative_metadata_mapping_preserves_source_fields():
 @pytest.mark.anyio
 async def test_derivative_pipeline_writes_vectors_and_graph(tmp_path: Path):
     sqlite_factory = SqliteEngineFactory(
-        Settings(sqlite_path=tmp_path / "memlite.sqlite3")
+        Settings(sqlite_path=tmp_path / "memolite.sqlite3")
     )
     await sqlite_factory.initialize_schema()
     derivative_index = SqliteVecIndex(sqlite_factory, "derivative_feature_vectors")

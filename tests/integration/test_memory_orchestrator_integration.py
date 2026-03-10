@@ -30,7 +30,7 @@ async def fake_embedder(text: str) -> list[float]:
 @pytest.mark.anyio
 async def test_memory_orchestrator_mixed_retrieval_e2e(tmp_path: Path):
     sqlite_factory = SqliteEngineFactory(
-        Settings(sqlite_path=tmp_path / "memlite.sqlite3")
+        Settings(sqlite_path=tmp_path / "memolite.sqlite3")
     )
     await sqlite_factory.initialize_schema()
     project_store = SqliteProjectStore(sqlite_factory)
@@ -136,7 +136,7 @@ async def test_memory_orchestrator_mixed_retrieval_e2e(tmp_path: Path):
 @pytest.mark.anyio
 async def test_add_memory_then_semantic_ingestion_then_recall(tmp_path: Path):
     sqlite_factory = SqliteEngineFactory(
-        Settings(sqlite_path=tmp_path / "memlite.sqlite3")
+        Settings(sqlite_path=tmp_path / "memolite.sqlite3")
     )
     await sqlite_factory.initialize_schema()
     project_store = SqliteProjectStore(sqlite_factory)

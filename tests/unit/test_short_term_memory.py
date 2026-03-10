@@ -9,7 +9,7 @@ from memlite.storage.sqlite_engine import SqliteEngineFactory
 
 
 async def build_memory(tmp_path: Path, *, capacity: int = 20) -> ShortTermMemory:
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     store = SqliteSessionStore(factory)
     await store.create_session(

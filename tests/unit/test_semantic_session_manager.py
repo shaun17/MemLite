@@ -12,7 +12,7 @@ from memlite.storage.sqlite_engine import SqliteEngineFactory
 async def test_semantic_session_manager_manages_sets_categories_tags_and_templates(
     tmp_path: Path,
 ):
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     config_store = SqliteSemanticConfigStore(factory)
     manager = SemanticSessionManager(config_store)

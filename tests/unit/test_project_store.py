@@ -10,7 +10,7 @@ from memlite.storage.sqlite_engine import SqliteEngineFactory
 
 @pytest.mark.anyio
 async def test_project_store_crud_and_listing(tmp_path: Path):
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     store = SqliteProjectStore(factory)
 
@@ -34,7 +34,7 @@ async def test_project_store_crud_and_listing(tmp_path: Path):
 
 @pytest.mark.anyio
 async def test_project_store_episode_count(tmp_path: Path):
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     store = SqliteProjectStore(factory)
     await store.create_project("org-a", "proj-a")

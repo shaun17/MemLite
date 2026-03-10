@@ -46,7 +46,7 @@
 ```env
 MEMLITE_HOST=127.0.0.1
 MEMLITE_PORT=8080
-MEMLITE_SQLITE_PATH=/Users/example/.memlite/memlite.sqlite3
+MEMLITE_SQLITE_PATH=/Users/example/.memlite/memolite.sqlite3
 MEMLITE_KUZU_PATH=/Users/example/.memlite/kuzu
 MEMLITE_LOG_LEVEL=INFO
 MEMLITE_MCP_API_KEY=replace-me

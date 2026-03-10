@@ -15,7 +15,7 @@ async def fake_embedder(text: str) -> list[float]:
 
 @pytest.mark.anyio
 async def test_structured_filters_keep_semantic_search_behavior_stable(tmp_path: Path):
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     config_store = SqliteSemanticConfigStore(factory)
     feature_store = SqliteSemanticFeatureStore(factory)

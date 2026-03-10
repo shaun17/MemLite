@@ -213,8 +213,8 @@ function resolveQueryScope(
   fallback: MemoryScope,
 ): { scope: MemoryScope; query: string } {
   const query = rawQuery.trim();
-  const allPrefix = /^@all\s*[:：]?\s*/i;
-  const sessionPrefix = /^@session\s*[:：]?\s*/i;
+  const allPrefix = /^(?:@all|all|scope\s*[:=]\s*all)\s*[:：]?\s*/i;
+  const sessionPrefix = /^(?:@session|session|scope\s*[:=]\s*session)\s*[:：]?\s*/i;
 
   if (allPrefix.test(query)) {
     return { scope: "all", query: query.replace(allPrefix, "").trim() };

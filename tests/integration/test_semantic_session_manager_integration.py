@@ -12,7 +12,7 @@ from memlite.storage.sqlite_engine import SqliteEngineFactory
 async def test_semantic_session_manager_reload_preserves_binding_and_templates(
     tmp_path: Path,
 ):
-    sqlite_path = tmp_path / "memlite.sqlite3"
+    sqlite_path = tmp_path / "memolite.sqlite3"
     factory = SqliteEngineFactory(Settings(sqlite_path=sqlite_path))
     await factory.initialize_schema()
     manager = SemanticSessionManager(SqliteSemanticConfigStore(factory))

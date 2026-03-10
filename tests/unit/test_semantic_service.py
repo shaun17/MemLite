@@ -17,7 +17,7 @@ async def fake_embedder(text: str) -> list[float]:
 
 @pytest.mark.anyio
 async def test_semantic_service_search_list_delete(tmp_path: Path):
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     config_store = SqliteSemanticConfigStore(factory)
     feature_store = SqliteSemanticFeatureStore(factory)
@@ -72,7 +72,7 @@ async def test_semantic_service_search_list_delete(tmp_path: Path):
 
 @pytest.mark.anyio
 async def test_semantic_service_applies_default_and_disabled_categories(tmp_path: Path):
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     config_store = SqliteSemanticConfigStore(factory)
     feature_store = SqliteSemanticFeatureStore(factory)
@@ -113,7 +113,7 @@ async def test_semantic_service_applies_default_and_disabled_categories(tmp_path
 
 @pytest.mark.anyio
 async def test_semantic_ingestion_worker_marks_history_ingested(tmp_path: Path):
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     feature_store = SqliteSemanticFeatureStore(factory)
     await feature_store.initialize()
@@ -139,7 +139,7 @@ async def test_semantic_ingestion_worker_marks_history_ingested(tmp_path: Path):
 
 @pytest.mark.anyio
 async def test_semantic_ingestion_worker_keeps_history_when_processor_skips(tmp_path: Path):
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     feature_store = SqliteSemanticFeatureStore(factory)
     await feature_store.initialize()

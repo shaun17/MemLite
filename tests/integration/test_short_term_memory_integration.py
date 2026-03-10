@@ -10,7 +10,7 @@ from memlite.storage.sqlite_engine import SqliteEngineFactory
 
 @pytest.mark.anyio
 async def test_short_term_memory_updates_session_summary(tmp_path: Path):
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     session_store = SqliteSessionStore(factory)
     await session_store.create_session(
@@ -42,7 +42,7 @@ async def test_short_term_memory_updates_session_summary(tmp_path: Path):
 
 @pytest.mark.anyio
 async def test_short_term_memory_delete_and_context_flow(tmp_path: Path):
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     session_store = SqliteSessionStore(factory)
     await session_store.create_session(
@@ -76,7 +76,7 @@ async def test_short_term_memory_delete_and_context_flow(tmp_path: Path):
 
 @pytest.mark.anyio
 async def test_session_close_and_reopen_restores_summary(tmp_path: Path):
-    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memlite.sqlite3"))
+    factory = SqliteEngineFactory(Settings(sqlite_path=tmp_path / "memolite.sqlite3"))
     await factory.initialize_schema()
     session_store = SqliteSessionStore(factory)
     await session_store.create_session(

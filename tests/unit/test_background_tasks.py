@@ -10,7 +10,7 @@ from memlite.common.config import Settings
 async def test_startup_recovery_sets_backlog_and_repair_queue(tmp_path: Path):
     resources = ResourceManager.create(
         Settings(
-            sqlite_path=tmp_path / "memlite.sqlite3",
+            sqlite_path=tmp_path / "memolite.sqlite3",
             kuzu_path=tmp_path / "graph.kuzu",
         )
     )
@@ -28,7 +28,7 @@ async def test_startup_recovery_sets_backlog_and_repair_queue(tmp_path: Path):
 async def test_compensation_pass_marks_pending_history_ingested(tmp_path: Path):
     resources = ResourceManager.create(
         Settings(
-            sqlite_path=tmp_path / "memlite.sqlite3",
+            sqlite_path=tmp_path / "memolite.sqlite3",
             kuzu_path=tmp_path / "graph.kuzu",
         )
     )
@@ -52,7 +52,7 @@ async def test_compensation_pass_marks_pending_history_ingested(tmp_path: Path):
 async def test_compensation_pass_extracts_basic_semantic_features(tmp_path: Path):
     resources = ResourceManager.create(
         Settings(
-            sqlite_path=tmp_path / "memlite.sqlite3",
+            sqlite_path=tmp_path / "memolite.sqlite3",
             kuzu_path=tmp_path / "graph.kuzu",
         )
     )

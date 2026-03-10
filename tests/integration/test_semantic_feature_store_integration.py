@@ -9,7 +9,7 @@ from memlite.storage.sqlite_engine import SqliteEngineFactory
 
 @pytest.mark.anyio
 async def test_semantic_feature_store_reloads_features_and_vectors(tmp_path: Path):
-    sqlite_path = tmp_path / "memlite.sqlite3"
+    sqlite_path = tmp_path / "memolite.sqlite3"
     factory = SqliteEngineFactory(Settings(sqlite_path=sqlite_path))
     await factory.initialize_schema()
     store = SqliteSemanticFeatureStore(factory)
@@ -39,7 +39,7 @@ async def test_semantic_feature_store_reloads_features_and_vectors(tmp_path: Pat
 
 @pytest.mark.anyio
 async def test_semantic_feature_store_history_and_pagination_reload(tmp_path: Path):
-    sqlite_path = tmp_path / "memlite.sqlite3"
+    sqlite_path = tmp_path / "memolite.sqlite3"
     factory = SqliteEngineFactory(Settings(sqlite_path=sqlite_path))
     await factory.initialize_schema()
     store = SqliteSemanticFeatureStore(factory)

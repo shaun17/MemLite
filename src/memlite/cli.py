@@ -269,7 +269,7 @@ def build_settings(
 
     resolved_data_dir = (data_dir or DEFAULT_DATA_DIR).expanduser()
     return Settings(
-        sqlite_path=resolved_data_dir / "memlite.sqlite3",
+        sqlite_path=resolved_data_dir / "memolite.sqlite3",
         kuzu_path=resolved_data_dir / "kuzu",
         sqlite_vec_extension_path=sqlite_vec_extension,
         host=host or "127.0.0.1",
