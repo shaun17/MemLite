@@ -5,12 +5,19 @@ memoLite 的 OpenClaw 本地记忆插件。
 ## 功能
 
 - `memory_search`
+- `memolite_search`
 - `memory_store`
+- `memolite_store`
 - `memory_forget`
+- `memolite_forget`
 - `memory_get`
+- `memolite_get`
 - `memory_list`
+- `memolite_list`
 - `autoCapture`
 - `autoRecall`
+
+`memory_*` 是通用入口，`memolite_*` 是显式绑定 MemoLite 的别名入口，便于上层代理在存在多个 memory provider 时直接点名调用。
 
 ## 本地安装
 

@@ -31,7 +31,7 @@ function createApi(config: Record<string, unknown> = {}) {
 }
 
 describe("openclaw memolite plugin", () => {
-  it("registers all memory tools", () => {
+  it("registers generic and MemoLite-prefixed tools", () => {
     const { tools } = createApi({
       baseUrl: "http://memolite.local",
       orgId: "org-a",
@@ -41,10 +41,16 @@ describe("openclaw memolite plugin", () => {
 
     expect(tools.map((tool) => tool.name)).toEqual([
       "memory_search",
+      "memolite_search",
       "memory_store",
+      "memolite_store",
       "memory_get",
+      "memolite_get",
       "memory_list",
+      "memolite_list",
       "memory_forget",
+      "memolite_forget",
+      "memolite_status",
     ]);
   });
 
@@ -85,12 +91,76 @@ describe("openclaw memolite plugin", () => {
       projectId: "project-a",
       userId: "user-1",
     });
+    const toolByName = new Map(tools.map((tool) => [tool.name, tool]));
 
-    const storeResult = await tools[1].execute("tool-1", { text: "Ramen is my favorite food." });
-    const searchResult = await tools[0].execute("tool-2", { query: "favorite food" });
+    const storeResult = await toolByName
+      .get("memory_store")!
+      .execute("tool-1", { text: "Ramen is my favorite food." });
+    const searchResult = await toolByName
+      .get("memory_search")!
+      .execute("tool-2", { query: "favorite food" });
 
-    expect(storeResult).toEqual({ result: [{ uid: "session-a-1" }] });
-    expect((searchResult as any).result.episodic_matches[0].episode.uid).toBe("session-a-1");
+    expect(storeResult).toEqual({
+      provider: "memolite",
+      pluginId: "openclaw-memolite",
+      tool: "memory_store",
+      executed: true,
+      sessionKey: "session-a",
+      data: { result: [{ uid: "session-a-1" }] },
+    });
+    expect((searchResult as any).provider).toBe("memolite");
+    expect((searchResult as any).data.result.episodic_matches[0].episode.uid).toBe("session-a-1");
+  });
+
+  it("supports MemoLite-prefixed aliases for explicit tool selection", async () => {
+    global.fetch = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ detail: "missing" }), { status: 404 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ status: "ok" }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ detail: "missing" }), { status: 404 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ status: "ok" }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify([]), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify([{ uid: "session-a-1" }]), { status: 200 }))
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            episodic_matches: [
+              {
+                episode: {
+                  uid: "session-a-1",
+                  session_key: "session-a",
+                  session_id: "session-a",
+                  content: "Ramen is my favorite food.",
+                  producer_role: "user",
+                  sequence_num: 1,
+                },
+                score: 0.91,
+              },
+            ],
+            semantic_features: [],
+          }),
+          { status: 200 },
+        ),
+      );
+
+    const { tools } = createApi({
+      baseUrl: "http://memolite.local",
+      orgId: "org-a",
+      projectId: "project-a",
+      userId: "user-1",
+    });
+    const toolByName = new Map(tools.map((tool) => [tool.name, tool]));
+
+    const storeResult = await toolByName
+      .get("memolite_store")!
+      .execute("tool-1", { text: "Ramen is my favorite food." });
+    const searchResult = await toolByName
+      .get("memolite_search")!
+      .execute("tool-2", { query: "favorite food" });
+
+    expect((storeResult as any).tool).toBe("memolite_store");
+    expect((searchResult as any).tool).toBe("memolite_search");
+    expect((searchResult as any).data.result.episodic_matches[0].episode.uid).toBe("session-a-1");
   });
 
   it("gets, lists and forgets memory", async () => {
@@ -122,14 +192,26 @@ describe("openclaw memolite plugin", () => {
       projectId: "project-a",
       userId: "user-1",
     });
+    const toolByName = new Map(tools.map((tool) => [tool.name, tool]));
 
-    const getResult = await tools[2].execute("tool-1", { id: "ep-1" });
-    const listResult = await tools[3].execute("tool-2", { scope: "all", pageSize: 10, pageNum: 0 });
-    const forgetResult = await tools[4].execute("tool-3", { memoryId: "ep-1" });
+    const getResult = await toolByName.get("memory_get")!.execute("tool-1", { id: "ep-1" });
+    const listResult = await toolByName
+      .get("memory_list")!
+      .execute("tool-2", { scope: "all", pageSize: 10, pageNum: 0 });
+    const forgetResult = await toolByName
+      .get("memory_forget")!
+      .execute("tool-3", { memoryId: "ep-1" });
 
-    expect((getResult as any).result.uid).toBe("ep-1");
-    expect((listResult as any).result).toHaveLength(2);
-    expect(forgetResult).toEqual({ action: "forget", memoryId: "ep-1" });
+    expect((getResult as any).data.result.uid).toBe("ep-1");
+    expect((listResult as any).data.result).toHaveLength(2);
+    expect(forgetResult).toEqual({
+      provider: "memolite",
+      pluginId: "openclaw-memolite",
+      tool: "memory_forget",
+      executed: true,
+      sessionKey: "session-a",
+      data: { action: "forget", memoryId: "ep-1" },
+    });
   });
 
   it("auto-recalls and auto-captures through hooks", async () => {
@@ -327,5 +409,57 @@ describe("openclaw memolite plugin", () => {
 
     expect(result).toEqual({ error: '500: {"detail":"boom"}' });
     expect(logger.warn).toHaveBeenCalled();
+  });
+
+  it("exposes a MemoLite status tool for runtime verification", async () => {
+    global.fetch = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(JSON.stringify({ status: "ok" }), { status: 200 }),
+    );
+
+    const { tools } = createApi({
+      baseUrl: "http://memolite.local",
+      orgId: "org-a",
+      projectId: "project-a",
+      userId: "user-1",
+      autoRecall: true,
+      autoCapture: true,
+    });
+    const toolByName = new Map(tools.map((tool) => [tool.name, tool]));
+
+    const result = await toolByName.get("memolite_status")!.execute("tool-1", {});
+
+    expect(result).toEqual({
+      provider: "memolite",
+      pluginId: "openclaw-memolite",
+      tool: "memolite_status",
+      executed: true,
+      sessionKey: "session-a",
+      data: {
+        health: { status: "ok" },
+        config: {
+          baseUrl: "http://memolite.local",
+          orgId: "org-a",
+          projectId: "project-a",
+          userId: "user-1",
+          autoCapture: true,
+          autoRecall: true,
+          searchThreshold: 0.5,
+          topK: 5,
+        },
+        toolAliases: [
+          "memory_search",
+          "memolite_search",
+          "memory_store",
+          "memolite_store",
+          "memory_get",
+          "memolite_get",
+          "memory_list",
+          "memolite_list",
+          "memory_forget",
+          "memolite_forget",
+          "memolite_status",
+        ],
+      },
+    });
   });
 });
