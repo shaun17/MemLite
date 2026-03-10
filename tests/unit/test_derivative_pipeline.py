@@ -3,13 +3,13 @@ from pathlib import Path
 
 import pytest
 
-from memlite.common.config import Settings
-from memlite.episodic.derivative_pipeline import DerivativePipeline
-from memlite.storage.episode_store import EpisodeRecord
-from memlite.storage.graph_store import KuzuGraphStore
-from memlite.storage.kuzu_engine import KuzuEngineFactory
-from memlite.storage.sqlite_engine import SqliteEngineFactory
-from memlite.storage.sqlite_vec import SqliteVecIndex
+from memolite.common.config import Settings
+from memolite.episodic.derivative_pipeline import DerivativePipeline
+from memolite.storage.episode_store import EpisodeRecord
+from memolite.storage.graph_store import KuzuGraphStore
+from memolite.storage.kuzu_engine import KuzuEngineFactory
+from memolite.storage.sqlite_engine import SqliteEngineFactory
+from memolite.storage.sqlite_vec import SqliteVecIndex
 
 
 async def fake_embedder(text: str) -> list[float]:

@@ -2,9 +2,9 @@ from pathlib import Path
 
 import pytest
 
-from memlite.common.config import Settings
-from memlite.storage.graph_store import GraphEdgeRecord, KuzuGraphStore
-from memlite.storage.kuzu_engine import KuzuEngineFactory
+from memolite.common.config import Settings
+from memolite.storage.graph_store import GraphEdgeRecord, KuzuGraphStore
+from memolite.storage.kuzu_engine import KuzuEngineFactory
 
 
 @pytest.mark.anyio

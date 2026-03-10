@@ -65,7 +65,7 @@ It consolidates the common “multi-database, heavy redeploy” memory architect
 ## Project Structure
 
 ```text
-src/memlite/
+src/memolite/
   app/              # app bootstrap, resource wiring, background recovery
   api/              # REST routes and schemas
   orchestrator/     # unified orchestration layer
@@ -138,7 +138,7 @@ memolite configure detect-sqlite-vec --extension-path /path/to/sqlite-vec.dylib
 
 ```bash
 # foreground mode (dev/debug)
-MEMLITE_PORT=18731 memolite serve
+MEMOLITE_PORT=18731 memolite serve
 ```
 
 Default address: `http://127.0.0.1:18731`
@@ -347,7 +347,7 @@ Important response fields:
 
 ```python
 import asyncio
-from memlite.client import MemLiteClient
+from memolite.client import MemLiteClient
 
 
 async def main() -> None:

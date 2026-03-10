@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from memlite.tools.loadtest import load_test_memory_search
+from memolite.tools.loadtest import load_test_memory_search
 
 
 @pytest.mark.anyio

@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
-from memlite.app.main import create_app
-from memlite.common.config import reset_settings_cache
+from memolite.app.main import create_app
+from memolite.common.config import reset_settings_cache
 
 
 def test_metrics_endpoint_returns_snapshot():

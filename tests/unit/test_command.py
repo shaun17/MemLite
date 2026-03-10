@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from memlite.command import build_parser, main
+from memolite.command import build_parser, main
 
 
 def _seed_openclaw_home(tmp_path: Path) -> Path:

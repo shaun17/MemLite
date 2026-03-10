@@ -5,9 +5,9 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from memlite.common.config import Settings
-from memlite.common.logging import RequestLoggingMiddleware, configure_logging
-from memlite.metrics.service import MetricsService
+from memolite.common.config import Settings
+from memolite.common.logging import RequestLoggingMiddleware, configure_logging
+from memolite.metrics.service import MetricsService
 
 
 def test_configure_logging_sets_root_level():
@@ -27,7 +27,7 @@ def test_request_logging_middleware_logs_access(caplog):
     def ok() -> dict[str, str]:
         return {"status": "ok"}
 
-    with caplog.at_level(logging.INFO, logger="memlite.http"):
+    with caplog.at_level(logging.INFO, logger="memolite.http"):
         with TestClient(app) as client:
             response = client.get("/ok")
 
@@ -44,7 +44,7 @@ def test_request_logging_middleware_logs_errors(caplog):
     def boom() -> dict[str, str]:
         raise RuntimeError("boom")
 
-    with caplog.at_level(logging.ERROR, logger="memlite.http"):
+    with caplog.at_level(logging.ERROR, logger="memolite.http"):
         with pytest.raises(RuntimeError, match="boom"):
             with TestClient(app) as client:
                 client.get("/boom")

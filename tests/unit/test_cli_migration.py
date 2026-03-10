@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from memlite.cli import build_parser
+from memolite.cli import build_parser
 
 
 def test_cli_supports_migration_commands():

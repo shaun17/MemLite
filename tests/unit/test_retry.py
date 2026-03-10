@@ -1,6 +1,6 @@
 import pytest
 
-from memlite.common.retry import retry_async
+from memolite.common.retry import retry_async
 
 
 @pytest.mark.anyio

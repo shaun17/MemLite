@@ -197,7 +197,7 @@ LIMIT 50;
 
 ## 5. 备注
 
-- 除 SQLite 外，MemLite 还会把 Episode/Derivative 关系写入 Kùzu（默认 `~/.memlite/kuzu`）。
+- 除 SQLite 外，MemLite 还会把 Episode/Derivative 关系写入 Kùzu（默认 `~/.memolite/kuzu`）。
 - 因此排查“为什么搜不到”时，建议同时看：
   - SQLite 数据是否存在
   - Kùzu 图关系是否完整

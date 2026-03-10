@@ -4,8 +4,8 @@
 
 检查：
 
-- `MEMLITE_SQLITE_PATH`
-- `MEMLITE_KUZU_PATH`
+- `MEMOLITE_SQLITE_PATH`
+- `MEMOLITE_KUZU_PATH`
 - 数据目录是否可写
 
 ## 检索无结果
@@ -21,7 +21,7 @@
 
 检查：
 
-- 服务端是否配置了 `MEMLITE_MCP_API_KEY`
+- 服务端是否配置了 `MEMOLITE_MCP_API_KEY`
 - tool 调用是否带了 `api_key`
 
 ## OpenClaw 不回忆
@@ -38,8 +38,8 @@
 先执行：
 
 ```bash
-memlite-configure reconcile --output reconcile.json --data-dir ~/.memlite
-memlite-configure repair --output repair.json --data-dir ~/.memlite
+memolite-configure reconcile --output reconcile.json --data-dir ~/.memolite
+memolite-configure repair --output repair.json --data-dir ~/.memolite
 ```
 
 ## 测试 warning：`event loop is closed`

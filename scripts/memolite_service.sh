@@ -7,6 +7,15 @@ set -euo pipefail
 # Default runtime: 127.0.0.1:18731
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+ENV_FILE="${MEMOLITE_ENV_FILE:-${MEMLITE_ENV_FILE:-$ROOT_DIR/.env}}"
+
+if [[ -f "$ENV_FILE" ]]; then
+  set -a
+  # shellcheck disable=SC1090
+  source "$ENV_FILE"
+  set +a
+fi
+
 DEFAULT_MEMOLITE_BIN="$(command -v memolite-server || true)"
 if [[ -z "$DEFAULT_MEMOLITE_BIN" && -x "$HOME/.local/bin/memolite-server" ]]; then
   DEFAULT_MEMOLITE_BIN="$HOME/.local/bin/memolite-server"
@@ -15,11 +24,11 @@ if [[ -z "$DEFAULT_MEMOLITE_BIN" && -x "$ROOT_DIR/.venv/bin/memolite-server" ]];
   DEFAULT_MEMOLITE_BIN="$ROOT_DIR/.venv/bin/memolite-server"
 fi
 
-MEMLITE_BIN="${MEMLITE_BIN:-$DEFAULT_MEMOLITE_BIN}"
-HOST="${MEMLITE_HOST:-127.0.0.1}"
-PORT="${MEMLITE_PORT:-18731}"
-SQLITE_PATH="${MEMLITE_SQLITE_PATH:-$HOME/.memolite/memolite.sqlite3}"
-KUZU_PATH="${MEMLITE_KUZU_PATH:-$HOME/.memolite/kuzu}"
+MEMOLITE_BIN="${MEMOLITE_BIN:-${MEMLITE_BIN:-$DEFAULT_MEMOLITE_BIN}}"
+HOST="${MEMOLITE_HOST:-${MEMLITE_HOST:-127.0.0.1}}"
+PORT="${MEMOLITE_PORT:-${MEMLITE_PORT:-18731}}"
+SQLITE_PATH="${MEMOLITE_SQLITE_PATH:-${MEMLITE_SQLITE_PATH:-$HOME/.memolite/memolite.sqlite3}}"
+KUZU_PATH="${MEMOLITE_KUZU_PATH:-${MEMLITE_KUZU_PATH:-$HOME/.memolite/kuzu}}"
 
 LABEL="ai.memolite.server"
 OS="$(uname -s)"
@@ -65,10 +74,10 @@ ensure_dirs() {
 }
 
 ensure_bins() {
-  [[ -n "$MEMLITE_BIN" && -x "$MEMLITE_BIN" ]] || {
+  [[ -n "$MEMOLITE_BIN" && -x "$MEMOLITE_BIN" ]] || {
     echo "[ERROR] memolite-server not found."
-    echo "Checked: ${MEMLITE_BIN:-<empty>}"
-    echo "Hint: ensure memolite is installed (pipx install memolite), or set MEMLITE_BIN explicitly."
+    echo "Checked: ${MEMOLITE_BIN:-<empty>}"
+    echo "Hint: ensure memolite is installed (pipx install memolite), or set MEMOLITE_BIN explicitly."
     exit 1
   }
 }
@@ -92,18 +101,18 @@ macos_write_plist() {
 
   <key>ProgramArguments</key>
   <array>
-    <string>$MEMLITE_BIN</string>
+    <string>$MEMOLITE_BIN</string>
   </array>
 
   <key>EnvironmentVariables</key>
   <dict>
-    <key>MEMLITE_HOST</key>
+    <key>MEMOLITE_HOST</key>
     <string>$HOST</string>
-    <key>MEMLITE_PORT</key>
+    <key>MEMOLITE_PORT</key>
     <string>$PORT</string>
-    <key>MEMLITE_SQLITE_PATH</key>
+    <key>MEMOLITE_SQLITE_PATH</key>
     <string>$SQLITE_PATH</string>
-    <key>MEMLITE_KUZU_PATH</key>
+    <key>MEMOLITE_KUZU_PATH</key>
     <string>$KUZU_PATH</string>
   </dict>
 
@@ -168,8 +177,8 @@ macos_start() {
     echo "[OK] Started: $LABEL"
   else
     echo "[WARN] Service not enabled. Running one-shot in background instead."
-    MEMLITE_HOST="$HOST" MEMLITE_PORT="$PORT" MEMLITE_SQLITE_PATH="$SQLITE_PATH" MEMLITE_KUZU_PATH="$KUZU_PATH" \
-      nohup "$MEMLITE_BIN" >/tmp/memolite-oneshot.out 2>/tmp/memolite-oneshot.err &
+    MEMOLITE_HOST="$HOST" MEMOLITE_PORT="$PORT" MEMOLITE_SQLITE_PATH="$SQLITE_PATH" MEMOLITE_KUZU_PATH="$KUZU_PATH" \
+      nohup "$MEMOLITE_BIN" >/tmp/memolite-oneshot.out 2>/tmp/memolite-oneshot.err &
     echo "[OK] Started one-shot memolite-server (not managed by launchctl)"
   fi
 }
@@ -229,13 +238,13 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=$MEMLITE_BIN
+ExecStart=$MEMOLITE_BIN
 Restart=always
 RestartSec=2
-Environment=MEMLITE_HOST=$HOST
-Environment=MEMLITE_PORT=$PORT
-Environment=MEMLITE_SQLITE_PATH=$SQLITE_PATH
-Environment=MEMLITE_KUZU_PATH=$KUZU_PATH
+Environment=MEMOLITE_HOST=$HOST
+Environment=MEMOLITE_PORT=$PORT
+Environment=MEMOLITE_SQLITE_PATH=$SQLITE_PATH
+Environment=MEMOLITE_KUZU_PATH=$KUZU_PATH
 StandardOutput=append:$OUT_LOG
 StandardError=append:$ERR_LOG
 
@@ -290,8 +299,8 @@ linux_start() {
     echo "[OK] Started: $LABEL"
   else
     echo "[WARN] Service not installed. Running one-shot in background instead."
-    MEMLITE_HOST="$HOST" MEMLITE_PORT="$PORT" MEMLITE_SQLITE_PATH="$SQLITE_PATH" MEMLITE_KUZU_PATH="$KUZU_PATH" \
-      nohup "$MEMLITE_BIN" >/tmp/memolite-oneshot.out 2>/tmp/memolite-oneshot.err &
+    MEMOLITE_HOST="$HOST" MEMOLITE_PORT="$PORT" MEMOLITE_SQLITE_PATH="$SQLITE_PATH" MEMOLITE_KUZU_PATH="$KUZU_PATH" \
+      nohup "$MEMOLITE_BIN" >/tmp/memolite-oneshot.out 2>/tmp/memolite-oneshot.err &
     echo "[OK] Started one-shot memolite-server (not managed by systemd)"
   fi
 }

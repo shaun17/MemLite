@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from memlite.app.resources import ResourceManager
-from memlite.common.config import Settings
+from memolite.app.resources import ResourceManager
+from memolite.common.config import Settings
 
 
 @pytest.mark.anyio

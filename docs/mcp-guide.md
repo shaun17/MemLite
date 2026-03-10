@@ -5,13 +5,13 @@
 ### stdio
 
 ```bash
-memlite-mcp-stdio
+memolite-mcp-stdio
 ```
 
 ### HTTP
 
 ```bash
-memlite-mcp-http
+memolite-mcp-http
 ```
 
 默认 HTTP 路径：
@@ -45,7 +45,7 @@ memlite-mcp-http
 
 如果设置了：
 
-- `MEMLITE_MCP_API_KEY`
+- `MEMOLITE_MCP_API_KEY`
 
 则 MCP tool 调用需要传入：
 
@@ -65,5 +65,5 @@ memlite-mcp-http
 
 ## 建议
 
-- 对长期运行的 MCP HTTP 服务启用 `MEMLITE_MCP_API_KEY`
+- 对长期运行的 MCP HTTP 服务启用 `MEMOLITE_MCP_API_KEY`
 - 对同一会话的连续调用先执行 `set_context`

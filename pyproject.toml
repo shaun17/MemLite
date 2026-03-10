@@ -29,17 +29,17 @@ dev = [
 ]
 
 [project.scripts]
-memolite = "memlite.command:main"
-memolite-server = "memlite.app.main:main"
-memolite-mcp-stdio = "memlite.mcp.__main__:run_stdio_main"
-memolite-mcp-http = "memlite.mcp.__main__:run_http_main"
-memolite-configure = "memlite.cli:main"
+memolite = "memolite.command:main"
+memolite-server = "memolite.app.main:main"
+memolite-mcp-stdio = "memolite.mcp.__main__:run_stdio_main"
+memolite-mcp-http = "memolite.mcp.__main__:run_http_main"
+memolite-configure = "memolite.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-memlite = [
+memolite = [
   "scripts/*.sh",
   "integrations/openclaw/openclaw.plugin.json",
   "integrations/openclaw/package.json",

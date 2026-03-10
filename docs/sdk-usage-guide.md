@@ -5,7 +5,7 @@
 入口：
 
 ```python
-from memlite.client import MemLiteClient
+from memolite.client import MemLiteClient
 ```
 
 ### 项目
@@ -63,7 +63,7 @@ await client.config.add_category(name="profile", prompt="extract profile", set_i
 典型流程：
 
 ```ts
-import { MemLiteClient } from "@memlite/ts-client";
+import { MemLiteClient } from "@memolite/ts-client";
 
 const client = new MemLiteClient({ baseUrl: "http://127.0.0.1:8080" });
 await client.projects.create({ org_id: "org-a", project_id: "project-a" });

@@ -3,8 +3,8 @@ from pathlib import Path
 import pytest
 from sqlalchemy import text
 
-from memlite.common.config import Settings
-from memlite.storage.sqlite_engine import SqliteEngineFactory
+from memolite.common.config import Settings
+from memolite.storage.sqlite_engine import SqliteEngineFactory
 
 
 @pytest.mark.anyio

@@ -2,21 +2,21 @@ from pathlib import Path
 
 import pytest
 
-from memlite.common.config import Settings
-from memlite.episodic.delete import EpisodicDeleteService
-from memlite.episodic.derivative_pipeline import DerivativePipeline
-from memlite.episodic.search import EpisodicSearchService
-from memlite.orchestrator.memory_orchestrator import MemoryOrchestrator
-from memlite.semantic.service import SemanticService
-from memlite.storage.episode_store import SqliteEpisodeStore
-from memlite.storage.graph_store import KuzuGraphStore
-from memlite.storage.kuzu_engine import KuzuEngineFactory
-from memlite.storage.project_store import SqliteProjectStore
-from memlite.storage.semantic_config_store import SqliteSemanticConfigStore
-from memlite.storage.semantic_feature_store import SqliteSemanticFeatureStore
-from memlite.storage.session_store import SqliteSessionStore
-from memlite.storage.sqlite_engine import SqliteEngineFactory
-from memlite.storage.sqlite_vec import SqliteVecIndex
+from memolite.common.config import Settings
+from memolite.episodic.delete import EpisodicDeleteService
+from memolite.episodic.derivative_pipeline import DerivativePipeline
+from memolite.episodic.search import EpisodicSearchService
+from memolite.orchestrator.memory_orchestrator import MemoryOrchestrator
+from memolite.semantic.service import SemanticService
+from memolite.storage.episode_store import SqliteEpisodeStore
+from memolite.storage.graph_store import KuzuGraphStore
+from memolite.storage.kuzu_engine import KuzuEngineFactory
+from memolite.storage.project_store import SqliteProjectStore
+from memolite.storage.semantic_config_store import SqliteSemanticConfigStore
+from memolite.storage.semantic_feature_store import SqliteSemanticFeatureStore
+from memolite.storage.session_store import SqliteSessionStore
+from memolite.storage.sqlite_engine import SqliteEngineFactory
+from memolite.storage.sqlite_vec import SqliteVecIndex
 
 
 async def fake_embedder(text: str) -> list[float]:

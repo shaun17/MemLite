@@ -1,5 +1,5 @@
-from memlite.common.error_codes import ErrorCode
-from memlite.common.errors import ConfigurationError, ResourceNotReadyError
+from memolite.common.error_codes import ErrorCode
+from memolite.common.errors import ConfigurationError, ResourceNotReadyError
 
 
 def test_configuration_error_uses_stable_code():

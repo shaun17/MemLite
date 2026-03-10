@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from memlite.common.config import Settings
-from memlite.tools.benchmark import benchmark_search_workload
+from memolite.common.config import Settings
+from memolite.tools.benchmark import benchmark_search_workload
 
 
 @pytest.mark.anyio

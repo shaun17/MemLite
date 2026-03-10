@@ -2,9 +2,9 @@ from pathlib import Path
 
 import pytest
 
-from memlite.common.config import Settings
-from memlite.storage.project_store import SqliteProjectStore
-from memlite.storage.sqlite_engine import SqliteEngineFactory
+from memolite.common.config import Settings
+from memolite.storage.project_store import SqliteProjectStore
+from memolite.storage.sqlite_engine import SqliteEngineFactory
 
 
 @pytest.mark.anyio

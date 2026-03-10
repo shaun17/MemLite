@@ -641,10 +641,10 @@
 
 ### TODO
 
-- [x] `memlite-server`
-- [x] `memlite-mcp-stdio`
-- [x] `memlite-mcp-http`
-- [x] `memlite-configure`
+- [x] `memolite-server`
+- [x] `memolite-mcp-stdio`
+- [x] `memolite-mcp-http`
+- [x] `memolite-configure`
 - [x] 配置向导
 - [x] SQLite 初始化命令
 - [x] Kùzu 初始化命令

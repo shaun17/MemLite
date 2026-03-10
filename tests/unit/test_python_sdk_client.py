@@ -1,8 +1,8 @@
 import httpx
 import pytest
 
-from memlite.client import MemLiteClient
-from memlite.client.errors import MemLiteAPIError, MemLiteClientError
+from memolite.client import MemLiteClient
+from memolite.client.errors import MemLiteAPIError, MemLiteClientError
 
 
 @pytest.mark.anyio

@@ -15,7 +15,7 @@
 建议为数据准备独立目录：
 
 ```text
-~/.memlite/
+~/.memolite/
 ├── memolite.sqlite3
 └── kuzu/
 ```
@@ -25,34 +25,34 @@
 最小部署需要：
 
 ```bash
-MEMLITE_HOST=127.0.0.1
-MEMLITE_PORT=8080
-MEMLITE_SQLITE_PATH=/absolute/path/memolite.sqlite3
-MEMLITE_KUZU_PATH=/absolute/path/kuzu
+MEMOLITE_HOST=127.0.0.1
+MEMOLITE_PORT=8080
+MEMOLITE_SQLITE_PATH=/absolute/path/memolite.sqlite3
+MEMOLITE_KUZU_PATH=/absolute/path/kuzu
 ```
 
 可选：
 
 ```bash
-MEMLITE_SQLITE_VEC_EXTENSION_PATH=/path/to/sqlite-vec.dylib
-MEMLITE_MCP_API_KEY=replace-me
-MEMLITE_SEMANTIC_SEARCH_CANDIDATE_MULTIPLIER=3
-MEMLITE_SEMANTIC_SEARCH_MAX_CANDIDATES=100
-MEMLITE_EPISODIC_SEARCH_CANDIDATE_MULTIPLIER=4
-MEMLITE_EPISODIC_SEARCH_MAX_CANDIDATES=100
+MEMOLITE_SQLITE_VEC_EXTENSION_PATH=/path/to/sqlite-vec.dylib
+MEMOLITE_MCP_API_KEY=replace-me
+MEMOLITE_SEMANTIC_SEARCH_CANDIDATE_MULTIPLIER=3
+MEMOLITE_SEMANTIC_SEARCH_MAX_CANDIDATES=100
+MEMOLITE_EPISODIC_SEARCH_CANDIDATE_MULTIPLIER=4
+MEMOLITE_EPISODIC_SEARCH_MAX_CANDIDATES=100
 ```
 
 ## 初始化
 
 ```bash
-memlite-configure configure --output .env --data-dir ~/.memlite
-memlite-configure init --data-dir ~/.memlite
+memolite-configure configure --output .env --data-dir ~/.memolite
+memolite-configure init --data-dir ~/.memolite
 ```
 
 ## 启动 API
 
 ```bash
-memlite-server
+memolite-server
 ```
 
 ## 启动 MCP
@@ -60,13 +60,13 @@ memlite-server
 stdio:
 
 ```bash
-memlite-mcp-stdio
+memolite-mcp-stdio
 ```
 
 HTTP:
 
 ```bash
-memlite-mcp-http
+memolite-mcp-http
 ```
 
 ## 健康检查
@@ -82,13 +82,13 @@ curl http://127.0.0.1:8080/metrics
 推荐使用快照命令而不是直接复制运行中的文件：
 
 ```bash
-memlite-configure export --output snapshot.json --data-dir ~/.memlite
+memolite-configure export --output snapshot.json --data-dir ~/.memolite
 ```
 
 恢复：
 
 ```bash
-memlite-configure import --input snapshot.json --data-dir ~/.memlite
+memolite-configure import --input snapshot.json --data-dir ~/.memolite
 ```
 
 ## 生产建议
@@ -97,4 +97,4 @@ memlite-configure import --input snapshot.json --data-dir ~/.memlite
 - 为 Kùzu 数据目录使用稳定路径
 - 定期导出 `snapshot.json`
 - 将 `reports/` 输出保存到独立目录
-- 若启用 MCP HTTP，配置 `MEMLITE_MCP_API_KEY`
+- 若启用 MCP HTTP，配置 `MEMOLITE_MCP_API_KEY`

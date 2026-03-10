@@ -65,7 +65,7 @@ memoLite 是一个面向 AI Agent/LLM 应用的轻量级记忆基础设施。
 ## 项目结构
 
 ```text
-src/memlite/
+src/memolite/
   app/              # 应用启动、资源注入、后台补偿
   api/              # REST 路由与 schema
   orchestrator/     # 统一编排层
@@ -138,7 +138,7 @@ memolite configure detect-sqlite-vec --extension-path /path/to/sqlite-vec.dylib
 
 ```bash
 # 前台模式（开发调试）
-MEMLITE_PORT=18731 memolite serve
+MEMOLITE_PORT=18731 memolite serve
 ```
 
 默认地址：`http://127.0.0.1:18731`
@@ -347,7 +347,7 @@ curl -X POST http://127.0.0.1:18731/memories/search \
 
 ```python
 import asyncio
-from memlite.client import MemLiteClient
+from memolite.client import MemLiteClient
 
 
 async def main() -> None:

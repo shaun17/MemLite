@@ -40,9 +40,9 @@
 ### 3.3 建议目录
 
 ```text
-memlite/
+memolite/
   src/
-    memlite/
+    memolite/
       api/
       app/
       common/

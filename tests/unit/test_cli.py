@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from memlite.cli import (
+from memolite.cli import (
     build_parser,
     build_settings,
     detect_sqlite_vec,
@@ -31,9 +31,9 @@ def test_render_env_contains_required_keys(tmp_path: Path):
 
     content = render_env(settings)
 
-    assert "MEMLITE_HOST=127.0.0.1" in content
-    assert "MEMLITE_SQLITE_PATH=" in content
-    assert "MEMLITE_KUZU_PATH=" in content
+    assert "MEMOLITE_HOST=127.0.0.1" in content
+    assert "MEMOLITE_SQLITE_PATH=" in content
+    assert "MEMOLITE_KUZU_PATH=" in content
 
 
 def test_write_env_file_rejects_overwrite(tmp_path: Path):

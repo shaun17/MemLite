@@ -2,9 +2,9 @@ from pathlib import Path
 
 import pytest
 
-from memlite.app.resources import ResourceManager
-from memlite.common.config import Settings
-from memlite.mcp.server import create_mcp_server
+from memolite.app.resources import ResourceManager
+from memolite.common.config import Settings
+from memolite.mcp.server import create_mcp_server
 
 
 @pytest.mark.anyio

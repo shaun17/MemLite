@@ -7,7 +7,7 @@
 ## 导出
 
 ```bash
-memlite-configure export --output snapshot.json --data-dir ~/.memlite
+memolite-configure export --output snapshot.json --data-dir ~/.memolite
 ```
 
 导出内容包含：
@@ -23,7 +23,7 @@ memlite-configure export --output snapshot.json --data-dir ~/.memlite
 ## 导入
 
 ```bash
-memlite-configure import --input snapshot.json --data-dir ~/.memlite-new
+memolite-configure import --input snapshot.json --data-dir ~/.memolite-new
 ```
 
 导入后会自动重建：
@@ -35,7 +35,7 @@ memlite-configure import --input snapshot.json --data-dir ~/.memlite-new
 ## 对账
 
 ```bash
-memlite-configure reconcile --output reconcile.json --data-dir ~/.memlite-new
+memolite-configure reconcile --output reconcile.json --data-dir ~/.memolite-new
 ```
 
 重点检查：
@@ -48,7 +48,7 @@ memlite-configure reconcile --output reconcile.json --data-dir ~/.memlite-new
 ## 修复
 
 ```bash
-memlite-configure repair --output repair.json --data-dir ~/.memlite-new
+memolite-configure repair --output repair.json --data-dir ~/.memolite-new
 ```
 
 修复内容包括：

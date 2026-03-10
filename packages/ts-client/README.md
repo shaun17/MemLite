@@ -1,11 +1,11 @@
-# `@memlite/ts-client`
+# `@memolite/ts-client`
 
 MemLite 的 TypeScript SDK。
 
 ## Quickstart
 
 ```ts
-import { MemLiteClient } from "@memlite/ts-client";
+import { MemLiteClient } from "@memolite/ts-client";
 
 const client = new MemLiteClient({ baseUrl: "http://127.0.0.1:8080" });
 

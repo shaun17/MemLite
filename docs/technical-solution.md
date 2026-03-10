@@ -445,7 +445,7 @@ resources:
 ### 10.1 目录建议
 
 ```text
-memlite/
+memolite/
   data/
     memolite.sqlite3
     kuzu/

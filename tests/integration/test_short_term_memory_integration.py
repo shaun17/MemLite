@@ -2,10 +2,10 @@ from pathlib import Path
 
 import pytest
 
-from memlite.common.config import Settings
-from memlite.memory.short_term_memory import ShortTermMemory, ShortTermMessage
-from memlite.storage.session_store import SqliteSessionStore
-from memlite.storage.sqlite_engine import SqliteEngineFactory
+from memolite.common.config import Settings
+from memolite.memory.short_term_memory import ShortTermMemory, ShortTermMessage
+from memolite.storage.session_store import SqliteSessionStore
+from memolite.storage.sqlite_engine import SqliteEngineFactory
 
 
 @pytest.mark.anyio

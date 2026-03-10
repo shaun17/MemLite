@@ -13,14 +13,14 @@
 ## 1. 初始化本地数据目录
 
 ```bash
-memlite-configure configure --output .env --data-dir ~/.memlite
-memlite-configure init --data-dir ~/.memlite
+memolite-configure configure --output .env --data-dir ~/.memolite
+memolite-configure init --data-dir ~/.memolite
 ```
 
 ## 2. 启动服务
 
 ```bash
-memlite-server
+memolite-server
 ```
 
 默认地址：
@@ -101,7 +101,7 @@ curl -X POST http://127.0.0.1:8080/memories/search \
 
 ```python
 import asyncio
-from memlite.client import MemLiteClient
+from memolite.client import MemLiteClient
 
 
 async def main() -> None:

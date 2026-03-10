@@ -2,13 +2,13 @@ from pathlib import Path
 
 import pytest
 
-from memlite.cli import configure_environment, initialize_local_environment, write_sample_config
-from memlite.common.config import Settings
+from memolite.cli import configure_environment, initialize_local_environment, write_sample_config
+from memolite.common.config import Settings
 
 
 @pytest.mark.anyio
 async def test_cli_init_bootstraps_sqlite_and_kuzu(tmp_path: Path):
-    data_dir = tmp_path / "memlite-data"
+    data_dir = tmp_path / "memolite-data"
     settings = Settings(
         sqlite_path=data_dir / "memolite.sqlite3",
         kuzu_path=data_dir / "kuzu",
@@ -34,7 +34,7 @@ def test_cli_configure_writes_env_and_creates_data_dir(tmp_path: Path):
     )
 
     content = output.read_text(encoding="utf-8")
-    assert "MEMLITE_PORT=9090" in content
+    assert "MEMOLITE_PORT=9090" in content
     assert data_dir.exists()
 
 
@@ -44,5 +44,5 @@ def test_cli_sample_config_generates_template_file(tmp_path: Path):
     write_sample_config(output=output, data_dir=tmp_path / "data", overwrite=True)
 
     content = output.read_text(encoding="utf-8")
-    assert "MEMLITE_SQLITE_PATH=" in content
-    assert "MEMLITE_KUZU_PATH=" in content
+    assert "MEMOLITE_SQLITE_PATH=" in content
+    assert "MEMOLITE_KUZU_PATH=" in content

@@ -4,9 +4,9 @@ from pathlib import Path
 import pytest
 from sqlalchemy import text
 
-from memlite.app.resources import ResourceManager
-from memlite.common.config import Settings
-from memlite.tools.migration import (
+from memolite.app.resources import ResourceManager
+from memolite.common.config import Settings
+from memolite.tools.migration import (
     export_snapshot,
     import_snapshot,
     reconcile_snapshot,

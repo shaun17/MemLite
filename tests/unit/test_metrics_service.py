@@ -1,4 +1,4 @@
-from memlite.metrics.service import MetricsService
+from memolite.metrics.service import MetricsService
 
 
 def test_metrics_service_accumulates_counters():

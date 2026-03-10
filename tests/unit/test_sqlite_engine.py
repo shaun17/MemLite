@@ -3,9 +3,9 @@ from pathlib import Path
 import pytest
 from sqlalchemy import text
 
-from memlite.common.config import Settings
-from memlite.storage.sqlite_engine import SqliteEngineFactory
-from memlite.storage.transactions import run_in_transaction
+from memolite.common.config import Settings
+from memolite.storage.sqlite_engine import SqliteEngineFactory
+from memolite.storage.transactions import run_in_transaction
 
 
 @pytest.mark.anyio

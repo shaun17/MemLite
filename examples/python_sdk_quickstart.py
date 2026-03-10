@@ -2,7 +2,7 @@
 
 import asyncio
 
-from memlite.client import MemLiteClient
+from memolite.client import MemLiteClient
 
 
 async def main() -> None:

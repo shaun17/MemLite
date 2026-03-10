@@ -2,11 +2,11 @@ from pathlib import Path
 
 import pytest
 
-from memlite.common.config import Settings
-from memlite.semantic.service import SemanticService, _candidate_limit
-from memlite.storage.semantic_config_store import SqliteSemanticConfigStore
-from memlite.storage.semantic_feature_store import SqliteSemanticFeatureStore
-from memlite.storage.sqlite_engine import SqliteEngineFactory
+from memolite.common.config import Settings
+from memolite.semantic.service import SemanticService, _candidate_limit
+from memolite.storage.semantic_config_store import SqliteSemanticConfigStore
+from memolite.storage.semantic_feature_store import SqliteSemanticFeatureStore
+from memolite.storage.sqlite_engine import SqliteEngineFactory
 
 
 async def fake_embedder(text: str) -> list[float]:

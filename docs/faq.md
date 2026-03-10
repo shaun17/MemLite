@@ -20,10 +20,10 @@
 
 使用：
 
-- `memlite-configure export`
-- `memlite-configure import`
-- `memlite-configure reconcile`
-- `memlite-configure repair`
+- `memolite-configure export`
+- `memolite-configure import`
+- `memolite-configure reconcile`
+- `memolite-configure repair`
 
 ## OpenClaw 插件是否已经可用？
 

@@ -2,10 +2,10 @@ from pathlib import Path
 
 import pytest
 
-from memlite.common.config import Settings
-from memlite.semantic.session_manager import SetBindingRequest, SemanticSessionManager
-from memlite.storage.semantic_config_store import SqliteSemanticConfigStore
-from memlite.storage.sqlite_engine import SqliteEngineFactory
+from memolite.common.config import Settings
+from memolite.semantic.session_manager import SetBindingRequest, SemanticSessionManager
+from memolite.storage.semantic_config_store import SqliteSemanticConfigStore
+from memolite.storage.sqlite_engine import SqliteEngineFactory
 
 
 @pytest.mark.anyio

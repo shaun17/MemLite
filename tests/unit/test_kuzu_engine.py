@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from memlite.common.config import Settings
-from memlite.storage.kuzu_engine import KuzuEngineFactory
+from memolite.common.config import Settings
+from memolite.storage.kuzu_engine import KuzuEngineFactory
 
 
 @pytest.mark.anyio

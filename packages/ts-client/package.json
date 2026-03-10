@@ -1,5 +1,5 @@
 {
-  "name": "@memlite/ts-client",
+  "name": "@memolite/ts-client",
   "version": "0.1.0",
   "description": "TypeScript SDK for MemLite",
   "type": "module",

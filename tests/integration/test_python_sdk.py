@@ -3,10 +3,10 @@ from pathlib import Path
 import httpx
 import pytest
 
-from memlite.app.main import create_app
-from memlite.app.resources import ResourceManager
-from memlite.client import MemLiteClient
-from memlite.common.config import Settings
+from memolite.app.main import create_app
+from memolite.app.resources import ResourceManager
+from memolite.client import MemLiteClient
+from memolite.common.config import Settings
 
 
 async def _build_sdk_client(tmp_path: Path) -> tuple[MemLiteClient, ResourceManager]:
@@ -110,6 +110,46 @@ async def test_sdk_memory_add_search_list_delete(tmp_path: Path):
     assert listed[0].uid == "ep-1"
     assert agent.search.combined[0].identifier == "ep-1"
     assert listed_after == []
+
+    await client.close()
+    await resources.close()
+
+
+@pytest.mark.anyio
+async def test_sdk_memory_search_infers_scope_from_session_key(tmp_path: Path):
+    client, resources = await _build_sdk_client(tmp_path)
+    await resources.orchestrator.create_project(org_id="org-a", project_id="project-a")
+    await resources.orchestrator.create_session(
+        session_key="session-a",
+        org_id="org-a",
+        project_id="project-a",
+        session_id="session-a",
+    )
+
+    await client.memory.add(
+        session_key="session-a",
+        semantic_set_id="session-a",
+        episodes=[
+            {
+                "uid": "ep-1",
+                "session_key": "session-a",
+                "session_id": "session-a",
+                "producer_id": "user-1",
+                "producer_role": "user",
+                "sequence_num": 1,
+                "content": "Ramen is my favorite food.",
+            }
+        ],
+    )
+
+    search = await client.memory.search(
+        query="favorite food",
+        session_key="session-a",
+    )
+
+    assert search.mode == "mixed"
+    assert search.episodic_matches[0].episode.uid == "ep-1"
+    assert search.combined[0].identifier == "ep-1"
 
     await client.close()
     await resources.close()
