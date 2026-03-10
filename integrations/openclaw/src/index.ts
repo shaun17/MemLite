@@ -50,7 +50,7 @@ type HealthResponse = {
   status: string;
 };
 
-const DEFAULT_BASE_URL = "http://127.0.0.1:8080";
+const DEFAULT_BASE_URL = "http://127.0.0.1:18731";
 const DEFAULT_TOP_K = 5;
 const DEFAULT_SEARCH_THRESHOLD = 0.5;
 const DEFAULT_FORGET_THRESHOLD = 0.85;

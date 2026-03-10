@@ -5,7 +5,7 @@
   "uiHints": {
     "baseUrl": {
       "label": "memoLite Base URL",
-      "placeholder": "http://127.0.0.1:8080",
+      "placeholder": "http://127.0.0.1:18731",
       "help": "Base URL for the memoLite service"
     },
     "userId": {
