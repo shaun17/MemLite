@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from memolite.semantic.service import SemanticIngestionWorker
@@ -48,11 +48,15 @@ def _make_embed_text(feature_name: str, value: str) -> str:
     return f"{feature_name} {value}"
 
 
+_VACUUM_INTERVAL_PASSES = 500  # run VACUUM every N compensation passes
+
+
 @dataclass
 class BackgroundTaskRunner:
     """Run lightweight startup recovery and compensation passes."""
 
     resources: ResourceManager
+    _pass_count: int = field(default=0, init=False, repr=False)
 
     async def run_startup_recovery(self) -> dict[str, int]:
         """Refresh backlog metrics and compute repair queue size."""
@@ -84,7 +88,19 @@ class BackgroundTaskRunner:
         self.resources.metrics.set_gauge("ingestion_backlog", len(remaining))
         self.resources.metrics.increment("compensation_pass_runs_total")
         self.resources.metrics.increment("compensation_items_processed_total", processed)
+        self._pass_count += 1
+        if self._pass_count % _VACUUM_INTERVAL_PASSES == 0:
+            await self._run_vacuum()
         return processed
+
+    async def _run_vacuum(self) -> None:
+        """Reclaim SQLite space freed by deleted/migrated rows."""
+        from sqlalchemy import text
+
+        engine = self.resources.sqlite.create_engine()
+        async with engine.connect() as conn:
+            await conn.execute(text("VACUUM"))
+        self.resources.metrics.increment("vacuum_runs_total")
 
     async def _process_history(self, set_id: str, history_ids: list[str]) -> int:
         """Extract basic semantic features from pending episodic history."""

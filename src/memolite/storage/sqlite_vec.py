@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import heapq
-import json
+import json  # retained for migration of legacy embedding_json rows
 import math
+import struct
 from dataclasses import dataclass
 from pathlib import Path
 from time import perf_counter
@@ -55,7 +56,7 @@ class SqliteVecIndex:
         self._metrics = metrics
 
     async def initialize(self) -> None:
-        """Ensure the vector table exists."""
+        """Ensure the vector table exists and migrate legacy JSON embeddings."""
         engine = self._engine_factory.create_engine()
         async with engine.begin() as conn:
             await conn.execute(
@@ -63,10 +64,60 @@ class SqliteVecIndex:
                     f"""
                     CREATE TABLE IF NOT EXISTS {self._table_name} (
                         feature_id INTEGER PRIMARY KEY,
-                        embedding_json TEXT NOT NULL
+                        embedding BLOB NOT NULL
                     )
                     """
                 )
+            )
+        await self._migrate_json_to_blob()
+
+    async def _migrate_json_to_blob(self) -> None:
+        """One-time migration: convert legacy JSON TEXT embeddings to BLOB."""
+        engine = self._engine_factory.create_engine()
+        async with engine.connect() as conn:
+            result = await conn.execute(
+                text(
+                    f"SELECT COUNT(*) FROM pragma_table_info('{self._table_name}') WHERE name='embedding_json'"
+                )
+            )
+            row = result.fetchone()
+            if row is None or row[0] == 0:
+                return  # Already migrated or new database
+
+            rows = (
+                await conn.execute(
+                    text(f"SELECT feature_id, embedding_json FROM {self._table_name}")
+                )
+            ).fetchall()
+
+        async with engine.begin() as conn:
+            await conn.execute(
+                text(f"ALTER TABLE {self._table_name} ADD COLUMN embedding BLOB")
+            )
+            for feature_id, json_str in rows:
+                vec = json.loads(json_str)
+                blob = struct.pack(f"{len(vec)}f", *vec)
+                await conn.execute(
+                    text(
+                        f"UPDATE {self._table_name} SET embedding=:blob WHERE feature_id=:fid"
+                    ),
+                    {"blob": blob, "fid": feature_id},
+                )
+            await conn.execute(
+                text(
+                    f"CREATE TABLE {self._table_name}_new"
+                    f" (feature_id INTEGER PRIMARY KEY, embedding BLOB NOT NULL)"
+                )
+            )
+            await conn.execute(
+                text(
+                    f"INSERT INTO {self._table_name}_new"
+                    f" SELECT feature_id, embedding FROM {self._table_name}"
+                )
+            )
+            await conn.execute(text(f"DROP TABLE {self._table_name}"))
+            await conn.execute(
+                text(f"ALTER TABLE {self._table_name}_new RENAME TO {self._table_name}")
             )
 
     async def upsert(self, item_id: int, embedding: list[float]) -> None:
@@ -82,16 +133,16 @@ class SqliteVecIndex:
             await session.execute(
                 text(
                     f"""
-                    INSERT INTO {self._table_name} (feature_id, embedding_json)
-                    VALUES (:feature_id, :embedding_json)
+                    INSERT INTO {self._table_name} (feature_id, embedding)
+                    VALUES (:feature_id, :embedding)
                     ON CONFLICT(feature_id)
-                    DO UPDATE SET embedding_json = excluded.embedding_json
+                    DO UPDATE SET embedding = excluded.embedding
                     """
                 ),
                 [
                     {
                         "feature_id": item_id,
-                        "embedding_json": json.dumps(embedding),
+                        "embedding": struct.pack(f"{len(embedding)}f", *embedding),
                     }
                     for item_id, embedding in items
                 ],
@@ -115,7 +166,7 @@ class SqliteVecIndex:
                 rows = (
                     await conn.execute(
                         text(
-                            f"SELECT feature_id, embedding_json FROM {self._table_name}"
+                            f"SELECT feature_id, embedding FROM {self._table_name}"
                         )
                     )
                 ).all()
@@ -131,7 +182,7 @@ class SqliteVecIndex:
                     await conn.execute(
                         text(
                             f"""
-                            SELECT feature_id, embedding_json
+                            SELECT feature_id, embedding
                             FROM {self._table_name}
                             WHERE feature_id IN ({placeholders})
                             """
@@ -141,10 +192,11 @@ class SqliteVecIndex:
                 ).all()
 
         top_k: list[tuple[float, int]] = []
-        for feature_id, embedding_json in rows:
+        for feature_id, embedding_bytes in rows:
             try:
-                embedding = json.loads(embedding_json)
-            except json.JSONDecodeError:
+                n = len(embedding_bytes) // 4
+                embedding = list(struct.unpack(f"{n}f", embedding_bytes))
+            except Exception:
                 continue
             score = _cosine_similarity(query_embedding, embedding)
             item = (score, int(feature_id))

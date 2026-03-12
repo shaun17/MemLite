@@ -1,6 +1,6 @@
 {
   "name": "@memolite/openclaw-memolite",
-  "version": "0.1.13",
+  "version": "0.1.15",
   "description": "OpenClaw plugin for memoLite",
   "type": "module",
   "main": "dist/index.mjs",

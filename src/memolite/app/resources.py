@@ -193,6 +193,11 @@ class ResourceManager:
         """Initialize backing stores and schemas."""
         if self._initialized:
             return
+        try:
+            import jieba
+            jieba.initialize()
+        except (ImportError, OSError):
+            pass
         await self.sqlite.initialize_schema()
         await self.semantic_feature_store.initialize()
         await self.derivative_index.initialize()

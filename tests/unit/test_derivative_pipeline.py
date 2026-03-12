@@ -99,7 +99,7 @@ async def test_derivative_pipeline_writes_vectors_and_graph(tmp_path: Path):
     async with engine.connect() as conn:
         vector_rows = (
             await conn.exec_driver_sql(
-                "SELECT feature_id, embedding_json FROM derivative_feature_vectors "
+                "SELECT feature_id, embedding FROM derivative_feature_vectors "
                 "ORDER BY feature_id"
             )
         ).all()

@@ -88,10 +88,10 @@ class DerivativePipeline:
                 {
                     "uid": episode.uid,
                     "session_id": episode.session_id,
-                    "content": episode.content,
-                    "content_type": episode.content_type,
+                    "content": "",
+                    "content_type": "",
                     "created_at": episode.created_at,
-                    "metadata_json": episode.metadata_json or "{}",
+                    "metadata_json": "",
                 }
             ],
         )
@@ -124,10 +124,10 @@ class DerivativePipeline:
                     "uid": record.uid,
                     "episode_uid": record.episode_uid,
                     "session_id": record.session_id,
-                    "content": record.content,
-                    "content_type": record.content_type,
+                    "content": "",
+                    "content_type": "",
                     "sequence_num": record.sequence_num,
-                    "metadata_json": record.metadata_json,
+                    "metadata_json": "",
                 }
                 for record in derivative_records
             ],
