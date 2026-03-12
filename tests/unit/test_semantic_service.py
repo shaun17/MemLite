@@ -60,7 +60,7 @@ async def test_semantic_service_search_list_delete(tmp_path: Path):
     await service.semantic_delete(set_id="set-a", tag="travel")
     remaining = await service.semantic_list(set_id="set-a")
 
-    assert [feature.feature_name for feature in search.features] == ["favorite_food"]
+    assert [sf.feature.feature_name for sf in search.features] == ["favorite_food"]
     assert len(listed) == 2
     assert [category.name for category in defaults] == ["profile"]
     assert config is None

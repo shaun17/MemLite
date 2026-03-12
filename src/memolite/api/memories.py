@@ -111,8 +111,8 @@ async def search_memories(
             for match in (result.episodic.matches if result.episodic else [])
         ],
         semantic_features=[
-            to_feature_response(feature)
-            for feature in (result.semantic.features if result.semantic else [])
+            to_feature_response(sf.feature)
+            for sf in (result.semantic.features if result.semantic else [])
         ],
         combined=[
             {
@@ -169,8 +169,8 @@ async def agent_mode(
             for match in (result.search.episodic.matches if result.search.episodic else [])
         ],
         semantic_features=[
-            to_feature_response(feature)
-            for feature in (result.search.semantic.features if result.search.semantic else [])
+            to_feature_response(sf.feature)
+            for sf in (result.search.semantic.features if result.search.semantic else [])
         ],
         combined=[
             {

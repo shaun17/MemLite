@@ -20,10 +20,18 @@ HistoryProcessor = Callable[[str, list[str]], Awaitable[int]]
 
 
 @dataclass(slots=True)
+class ScoredFeature:
+    """A semantic feature paired with its real vector similarity score."""
+
+    feature: SemanticFeatureRecord
+    score: float
+
+
+@dataclass(slots=True)
 class SemanticSearchResult:
     """Search result containing matched semantic features."""
 
-    features: list[SemanticFeatureRecord]
+    features: list[ScoredFeature]
 
 
 class SemanticService:
@@ -110,6 +118,8 @@ class SemanticService:
         if not hit_ids:
             return SemanticSearchResult(features=[])
 
+        score_map = {hit.item_id: hit.score for hit in eligible_hits}
+
         # Rehydrate only the ranked ids to keep response ordering stable while
         # still honoring category visibility rules.
         features = await self._feature_store.query_features(
@@ -123,7 +133,11 @@ class SemanticService:
             for feature in features
             if allowed_categories is None or feature.category in allowed_categories
         }
-        ordered = [feature_map[item_id] for item_id in hit_ids if item_id in feature_map]
+        ordered = [
+            ScoredFeature(feature=feature_map[item_id], score=score_map.get(item_id, 0.0))
+            for item_id in hit_ids
+            if item_id in feature_map
+        ]
         return SemanticSearchResult(features=ordered[:limit])
 
     async def semantic_list(

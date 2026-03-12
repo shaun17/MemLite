@@ -4,6 +4,7 @@ import pytest
 
 from memolite.app.resources import ResourceManager
 from memolite.common.config import Settings
+from memolite.app.background import _extract_features
 
 
 @pytest.mark.anyio
@@ -89,3 +90,27 @@ async def test_compensation_pass_extracts_basic_semantic_features(tmp_path: Path
     assert "name" in names
     assert "favorite_preference" in names
     await resources.close()
+
+
+def test_extract_features_supports_chinese_preference_phrases():
+    features = _extract_features("我叫 wenren。我最喜欢吃拉面。")
+
+    assert any(f[:4] == ("profile", "identity", "name", "wenren") for f in features)
+    assert any(f[:4] == ("profile", "preference", "favorite_food", "拉面") for f in features)
+
+
+def test_extract_features_embed_text_is_chinese_friendly():
+    """Preference features with CJK values must use a CJK-compatible embed_text."""
+    features = _extract_features("我最喜欢吃拉面")
+
+    pref_features = [f for f in features if f[2] == "favorite_food"]
+    assert pref_features, "should extract a favorite_food feature"
+
+    embed_text = pref_features[0][4]  # 5th element is embed_text (after fix)
+    # embed_text must share CJK characters with the query "我喜欢什么"
+    # so the embedder generates overlapping token buckets
+    query_chars = set("我喜欢什么")
+    embed_chars = set(embed_text)
+    assert query_chars & embed_chars, (
+        f"embed_text '{embed_text}' shares no CJK characters with '我喜欢什么'"
+    )

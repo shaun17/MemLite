@@ -53,7 +53,7 @@ class Settings(BaseSettings):
     app_name: str = Field(default="MemoLite")
     environment: str = Field(default="development")
     host: str = Field(default="127.0.0.1")
-    port: int = Field(default=8080)
+    port: int = Field(default=18731)
     log_level: str = Field(default="INFO")
     sqlite_path: Path = Field(default=DEFAULT_SQLITE_PATH)
     kuzu_path: Path = Field(default=DEFAULT_KUZU_PATH)

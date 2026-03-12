@@ -61,10 +61,10 @@ async def test_structured_filters_keep_semantic_search_behavior_stable(tmp_path:
         tag="travel",
     )
 
-    assert [feature.feature_name for feature in food_results.features] == [
+    assert [sf.feature.feature_name for sf in food_results.features] == [
         "favorite_food"
     ]
-    assert [feature.feature_name for feature in travel_results.features] == [
+    assert [sf.feature.feature_name for sf in travel_results.features] == [
         "seat_preference"
     ]
 

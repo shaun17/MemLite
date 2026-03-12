@@ -19,6 +19,33 @@ _FAVORITE_PATTERN = re.compile(
     r"(?:my favorite\s+(food|drink|language|editor|framework)?\s*is|i (?:like|love|prefer))\s+([^\.!?\n]{1,80})",
     re.IGNORECASE,
 )
+_ZH_NAME_PATTERN = re.compile(r"(?:我叫|我的名字是)\s*([^\s，。！？；,!.?;]{1,30})")
+_ZH_FAVORITE_PATTERN = re.compile(
+    r"(?:我(?:最?喜欢|爱吃|喜欢吃|常吃))(?:的)?(?:(食物|饮料|语言|编辑器|框架))?(?:是|有)?\s*([^\n，。！？；,!.?;]{1,80})"
+)
+_ZH_PREFERENCE_OBJECT_TYPES = {
+    "食物": "food",
+    "饮料": "drink",
+    "语言": "language",
+    "编辑器": "editor",
+    "框架": "framework",
+}
+
+_CJK_DETECT = re.compile(r"[\u4e00-\u9fff]")
+
+
+def _make_embed_text(feature_name: str, value: str) -> str:
+    """Build an embedding-friendly text representation for a feature.
+
+    For features whose value contains CJK characters, use a Chinese prefix so
+    the tokenizer produces tokens that overlap with Chinese queries.  English
+    features keep the original ``feature_name value`` form.
+    """
+    if _CJK_DETECT.search(value):
+        if "name" in feature_name:
+            return f"叫 {value}"
+        return f"喜欢 {value}"
+    return f"{feature_name} {value}"
 
 
 @dataclass
@@ -68,10 +95,12 @@ class BackgroundTaskRunner:
             episode = episode_by_uid.get(history_id)
             if episode is None:
                 continue
-            for category, tag, feature_name, value in _extract_features(episode.content):
+            for category, tag, feature_name, value, embed_text in _extract_features(
+                episode.content
+            ):
                 metadata = json.dumps({"source": "background_compensation"}, ensure_ascii=False)
                 embedding = await self.resources.semantic_service.generate_feature_embedding(
-                    f"{feature_name} {value}"
+                    embed_text
                 )
                 feature_id = await self.resources.semantic_feature_store.add_feature(
                     set_id=set_id,
@@ -89,14 +118,23 @@ class BackgroundTaskRunner:
         return len(history_ids)
 
 
-def _extract_features(content: str) -> list[tuple[str, str, str, str]]:
-    """Heuristic semantic feature extraction from free text."""
-    features: list[tuple[str, str, str, str]] = []
+def _extract_features(content: str) -> list[tuple[str, str, str, str, str]]:
+    """Heuristic semantic feature extraction from free text.
+
+    Returns 5-tuples of (category, tag, feature_name, value, embed_text) where
+    embed_text is crafted for maximum token overlap with likely user queries.
+    """
+    features: list[tuple[str, str, str, str, str]] = []
 
     name_match = _NAME_PATTERN.search(content)
     if name_match:
         name = name_match.group(1).strip()
-        features.append(("profile", "identity", "name", name))
+        features.append(("profile", "identity", "name", name, _make_embed_text("name", name)))
+
+    zh_name_match = _ZH_NAME_PATTERN.search(content)
+    if zh_name_match:
+        name = zh_name_match.group(1).strip()
+        features.append(("profile", "identity", "name", name, _make_embed_text("name", name)))
 
     for match in _FAVORITE_PATTERN.finditer(content):
         object_type = (match.group(1) or "preference").strip().lower()
@@ -104,6 +142,24 @@ def _extract_features(content: str) -> list[tuple[str, str, str, str]]:
         if not raw_value:
             continue
         feature_name = f"favorite_{object_type}"
-        features.append(("profile", "preference", feature_name, raw_value))
+        features.append(
+            ("profile", "preference", feature_name, raw_value,
+             _make_embed_text(feature_name, raw_value))
+        )
+
+    for match in _ZH_FAVORITE_PATTERN.finditer(content):
+        object_type = _ZH_PREFERENCE_OBJECT_TYPES.get(
+            (match.group(1) or "").strip(),
+            "food",
+        )
+        raw_value = match.group(2).strip(" ，。！？；,!.?;\t\n\r")
+        raw_value = re.sub(r"^(?:吃|喝|用|是)\s*", "", raw_value)
+        if not raw_value:
+            continue
+        feature_name = f"favorite_{object_type}"
+        features.append(
+            ("profile", "preference", feature_name, raw_value,
+             _make_embed_text(feature_name, raw_value))
+        )
 
     return features

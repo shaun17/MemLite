@@ -27,6 +27,38 @@ from memolite.storage.sqlite_vec import SqliteVecIndex
 
 
 _TOKEN_PATTERN = re.compile(r"[\w\-']+")
+_CJK_PATTERN = re.compile(r"[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]")
+_NON_CJK_TOKEN = re.compile(r"[a-z0-9\-']+")
+
+
+def _tokenize(text: str) -> list[str]:
+    """Tokenize text with optional CJK-aware segmentation.
+
+    When the input contains CJK characters and jieba is installed, uses
+    jieba.cut() for proper Chinese word segmentation.  Falls back to treating
+    each CJK character as its own token (bigram-ready) while keeping Latin
+    words grouped, so the embedder degrades gracefully without jieba.
+    """
+    lowered = text.lower()
+    if not _CJK_PATTERN.search(lowered):
+        return _TOKEN_PATTERN.findall(lowered)
+    try:
+        import jieba  # optional dependency
+        return [t for t in jieba.cut(lowered) if t.strip()]
+    except (ImportError, TypeError):
+        tokens: list[str] = []
+        buf = ""
+        for ch in lowered:
+            if _CJK_PATTERN.match(ch):
+                if buf:
+                    tokens.extend(_NON_CJK_TOKEN.findall(buf))
+                    buf = ""
+                tokens.append(ch)
+            else:
+                buf += ch
+        if buf:
+            tokens.extend(_NON_CJK_TOKEN.findall(buf))
+        return tokens
 
 
 async def default_embedder(text: str) -> list[float]:
@@ -38,8 +70,7 @@ async def default_embedder(text: str) -> list[float]:
     """
     dimensions = 64
     vector = [0.0] * dimensions
-    lowered = text.lower()
-    tokens = _TOKEN_PATTERN.findall(lowered)
+    tokens = _tokenize(text)
     if not tokens:
         return vector
 

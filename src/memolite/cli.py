@@ -36,7 +36,7 @@ def build_parser() -> argparse.ArgumentParser:
     configure_parser.add_argument("--data-dir", type=Path, default=None)
     configure_parser.add_argument("--sqlite-vec-extension", type=Path, default=None)
     configure_parser.add_argument("--host", default="127.0.0.1")
-    configure_parser.add_argument("--port", type=int, default=8080)
+    configure_parser.add_argument("--port", type=int, default=18731)
     configure_parser.add_argument("--overwrite", action="store_true")
 
     detect_parser = subparsers.add_parser(
@@ -88,7 +88,7 @@ def build_parser() -> argparse.ArgumentParser:
         "load-test",
         help="Run concurrent HTTP load against the memory search API",
     )
-    load_test_parser.add_argument("--base-url", default="http://127.0.0.1:8080")
+    load_test_parser.add_argument("--base-url", default="http://127.0.0.1:18731")
     load_test_parser.add_argument("--org-id", default="demo-org")
     load_test_parser.add_argument("--project-id", default="demo-project")
     load_test_parser.add_argument("--query", default="memory recall")
@@ -273,7 +273,7 @@ def build_settings(
         kuzu_path=resolved_data_dir / "kuzu",
         sqlite_vec_extension_path=sqlite_vec_extension,
         host=host or "127.0.0.1",
-        port=port or 8080,
+        port=port or 18731,
     )
 
 

@@ -72,7 +72,7 @@ async def test_semantic_service_respects_config_and_vector_search(tmp_path: Path
 
     assert config is not None
     assert config.embedder_name == "fake-embedder"
-    assert [feature.feature_name for feature in results.features] == ["favorite_food"]
+    assert [sf.feature.feature_name for sf in results.features] == ["favorite_food"]
 
     await factory.dispose()
 
@@ -117,11 +117,11 @@ async def test_add_history_ingest_and_search_flow(tmp_path: Path):
         set_ids=["set-a"], is_ingested=False
     )
     results = await service.semantic_search(query="food", set_id="set-a")
-    citations = await feature_store.get_citations(results.features[0].id)
+    citations = await feature_store.get_citations(results.features[0].feature.id)
 
     assert processed == 1
     assert pending_count == 0
-    assert [feature.feature_name for feature in results.features] == [
+    assert [sf.feature.feature_name for sf in results.features] == [
         "feature_episode-food-1"
     ]
     assert citations == ["episode-food-1"]

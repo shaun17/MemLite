@@ -282,6 +282,10 @@ function toMetadata(
   return merged;
 }
 
+function resolveSemanticSetId(cfg: PluginConfig, sessionKey?: string): string | null {
+  return cfg.userId ?? sessionKey ?? null;
+}
+
 async function ensureProject(client: memoLiteApiClient, cfg: PluginConfig): Promise<void> {
   const { orgId, projectId } = requireProjectConfig(cfg);
   try {
@@ -338,8 +342,8 @@ async function searchMemories(params: {
     query,
     session_key: sessionKey ?? null,
     session_id: scope === "session" ? sessionKey ?? null : null,
-    semantic_set_id: cfg.userId ?? sessionKey ?? null,
-    mode: "episodic",
+    semantic_set_id: resolveSemanticSetId(cfg, sessionKey),
+    mode: "mixed",
     limit,
     min_score: minScore,
   });
@@ -483,6 +487,7 @@ async function autoCaptureMessages(params: {
       const normalizedText = clipText(text, MAX_CAPTURE_CHARS);
       await client.post("/memories", {
         session_key: sessionKey,
+        semantic_set_id: resolveSemanticSetId(cfg, sessionKey),
         episodes: [
           {
             uid: `${sessionKey}-${sequence}`,
@@ -630,6 +635,7 @@ const memlitePlugin = {
 
           const result = await client.post<Array<{ uid: string }>>("/memories", {
             session_key: ctx.sessionKey,
+            semantic_set_id: resolveSemanticSetId(cfg, ctx.sessionKey),
             episodes: [
               {
                 uid: `${ctx.sessionKey}-${sequence}`,

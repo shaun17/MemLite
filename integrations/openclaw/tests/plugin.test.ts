@@ -411,6 +411,44 @@ describe("openclaw memolite plugin", () => {
     expect(logger.warn).toHaveBeenCalled();
   });
 
+  it("stores semantic set ids and searches in mixed mode", async () => {
+    global.fetch = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ detail: "missing" }), { status: 404 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ status: "ok" }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ detail: "missing" }), { status: 404 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ status: "ok" }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify([]), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify([{ uid: "session-a-1" }]), { status: 200 }))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ episodic_matches: [], semantic_features: [] }), {
+          status: 200,
+        }),
+      );
+
+    const { tools } = createApi({
+      baseUrl: "http://memolite.local",
+      orgId: "org-a",
+      projectId: "project-a",
+      userId: "user-1",
+    });
+    const toolByName = new Map(tools.map((tool) => [tool.name, tool]));
+
+    await toolByName.get("memolite_store")!.execute("tool-1", { text: "我最喜欢吃拉面。" });
+    await toolByName
+      .get("memolite_search")!
+      .execute("tool-2", { query: "我喜欢吃什么", scope: "all" });
+
+    const storeCall = (global.fetch as any).mock.calls[5];
+    const storeBody = JSON.parse(storeCall[1].body);
+    expect(storeBody.semantic_set_id).toBe("user-1");
+
+    const searchCall = (global.fetch as any).mock.calls[6];
+    const searchBody = JSON.parse(searchCall[1].body);
+    expect(searchBody.semantic_set_id).toBe("user-1");
+    expect(searchBody.mode).toBe("mixed");
+  });
+
   it("exposes a MemoLite status tool for runtime verification", async () => {
     global.fetch = vi.fn<typeof fetch>().mockResolvedValue(
       new Response(JSON.stringify({ status: "ok" }), { status: 200 }),

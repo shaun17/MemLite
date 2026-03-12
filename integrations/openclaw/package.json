@@ -1,6 +1,6 @@
 {
-  "name": "@memolite/openclaw-memolite",
-  "version": "0.1.7",
+  "name": "openclaw-memolite",
+  "version": "0.1.12",
   "description": "OpenClaw plugin for memoLite",
   "type": "module",
   "main": "dist/index.mjs",
@@ -15,6 +15,7 @@
   },
   "scripts": {
     "build": "tsup",
+    "prepublishOnly": "node scripts/sync-version.mjs && tsup",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

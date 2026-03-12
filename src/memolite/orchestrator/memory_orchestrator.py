@@ -10,7 +10,7 @@ from memolite.episodic.delete import EpisodicDeleteService
 from memolite.episodic.derivative_pipeline import DerivativePipeline
 from memolite.episodic.search import EpisodicSearchResult, EpisodicSearchService
 from memolite.memory.short_term_memory import ShortTermMemory, ShortTermMessage
-from memolite.semantic.service import SemanticSearchResult, SemanticService
+from memolite.semantic.service import ScoredFeature, SemanticSearchResult, SemanticService
 from memolite.storage.episode_store import EpisodeRecord, SqliteEpisodeStore
 from memolite.storage.project_store import ProjectRecord, SqliteProjectStore
 from memolite.storage.semantic_feature_store import SqliteSemanticFeatureStore
@@ -437,7 +437,7 @@ class MemoryOrchestrator:
         semantic_set_id: str | None,
         limit: int,
     ) -> SemanticSearchResult:
-        merged_features = []
+        merged_features: list[ScoredFeature] = []
         seen_feature_ids: set[int] = set()
         for subquery in subqueries:
             result = await self._semantic_service.semantic_search(
@@ -445,11 +445,11 @@ class MemoryOrchestrator:
                 set_id=semantic_set_id,
                 limit=limit,
             )
-            for feature in result.features:
-                if feature.id in seen_feature_ids:
+            for sf in result.features:
+                if sf.feature.id in seen_feature_ids:
                     continue
-                seen_feature_ids.add(feature.id)
-                merged_features.append(feature)
+                seen_feature_ids.add(sf.feature.id)
+                merged_features.append(sf)
         return SemanticSearchResult(features=merged_features[:limit])
 
     def _dedupe_matches(self, matches):
@@ -486,15 +486,14 @@ class MemoryOrchestrator:
                 for match in episodic_result.matches
             )
         if semantic_result is not None:
-            semantic_count = len(semantic_result.features)
             merged.extend(
                 CombinedMemoryItem(
                     source="semantic",
-                    content=feature.value,
-                    identifier=str(feature.id),
-                    score=1.0 - (index / max(semantic_count, 1)),
+                    content=sf.feature.value,
+                    identifier=str(sf.feature.id),
+                    score=sf.score,
                 )
-                for index, feature in enumerate(semantic_result.features)
+                for sf in semantic_result.features
             )
         return sorted(
             merged,

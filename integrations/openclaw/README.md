@@ -35,7 +35,7 @@ npm run build
   "openclaw-memolite": {
     "enabled": true,
     "config": {
-      "baseUrl": "http://127.0.0.1:8080",
+      "baseUrl": "http://127.0.0.1:18731",
       "orgId": "openclaw",
       "projectId": "openclaw",
       "userId": "openclaw",
