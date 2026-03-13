@@ -24,7 +24,11 @@ async def load_test_memory_search(
     timings: list[float] = []
     failures = 0
 
-    async with httpx.AsyncClient(base_url=base_url, timeout=timeout_seconds) as client:
+    async with httpx.AsyncClient(
+        base_url=base_url,
+        timeout=timeout_seconds,
+        trust_env=False,
+    ) as client:
         async def _single_request() -> None:
             nonlocal failures
             async with limiter:

@@ -1,5 +1,6 @@
 import asyncio
 
+import httpx
 import pytest
 
 from memolite.tools.loadtest import load_test_memory_search
@@ -40,3 +41,31 @@ async def test_load_test_memory_search_collects_report():
     assert report["success_count"] == 4
     assert report["failure_count"] == 0
     assert report["avg_latency_ms"] >= 0
+
+
+def test_load_test_memory_search_disables_env_proxy(monkeypatch):
+    captured: dict[str, object] = {}
+    original_client = httpx.AsyncClient
+
+    class CapturingAsyncClient(original_client):
+        def __init__(self, *args, **kwargs):
+            captured["trust_env"] = kwargs.get("trust_env")
+            super().__init__(*args, **kwargs)
+
+    monkeypatch.setattr(httpx, "AsyncClient", CapturingAsyncClient)
+
+    async def runner() -> None:
+        try:
+            await load_test_memory_search(
+                base_url="http://127.0.0.1:1",
+                org_id="org-1",
+                project_id="project-1",
+                query="recall",
+                total_requests=0,
+            )
+        except Exception:
+            pass
+
+    asyncio.run(runner())
+
+    assert captured["trust_env"] is False
