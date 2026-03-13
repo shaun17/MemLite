@@ -4,3 +4,7 @@ __pycache__/
 *.pyc
 .DS_Store
 src/*.egg-info/
+/node_modules/
+/package.json
+/package-lock.json
+/todo-2026-03-12.md
