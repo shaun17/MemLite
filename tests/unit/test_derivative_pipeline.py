@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from memolite.common.config import Settings
-from memolite.episodic.derivative_pipeline import DerivativePipeline
+from memolite.episodic.derivative_pipeline import DerivativePipeline, vector_item_id
 from memolite.storage.episode_store import EpisodeRecord
 from memolite.storage.graph_store import KuzuGraphStore
 from memolite.storage.kuzu_engine import KuzuEngineFactory
@@ -65,6 +65,15 @@ def test_derivative_metadata_mapping_preserves_source_fields():
     assert metadata["chunk_index"] == 2
     assert metadata["chunk_count"] == 3
     assert metadata["source_metadata"] == {"topic": "food"}
+
+
+def test_vector_item_id_is_stable_positive_and_63_bit():
+    value = vector_item_id("ep-1:d:1")
+
+    assert value == vector_item_id("ep-1:d:1")
+    assert value >= 0
+    assert value <= 0x7FFFFFFFFFFFFFFF
+    assert value != vector_item_id("ep-1:d:2")
 
 
 @pytest.mark.anyio

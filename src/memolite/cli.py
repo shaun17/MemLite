@@ -14,6 +14,7 @@ from memolite.tools.migration import (
     export_snapshot,
     import_snapshot,
     reconcile_snapshot,
+    rebuild_vectors_snapshot,
     repair_snapshot,
 )
 from memolite.tools.benchmark import benchmark_search_workload
@@ -74,6 +75,18 @@ def build_parser() -> argparse.ArgumentParser:
     )
     repair_parser.add_argument("--output", type=Path, default=None)
     repair_parser.add_argument("--data-dir", type=Path, default=None)
+
+    rebuild_vectors_parser = subparsers.add_parser(
+        "rebuild-vectors",
+        help="Rebuild semantic and/or derivative vectors from persisted source data",
+    )
+    rebuild_vectors_parser.add_argument(
+        "--target",
+        choices=["semantic", "derivative", "all"],
+        default="all",
+    )
+    rebuild_vectors_parser.add_argument("--output", type=Path, default=None)
+    rebuild_vectors_parser.add_argument("--data-dir", type=Path, default=None)
 
     benchmark_parser = subparsers.add_parser(
         "benchmark-search",
@@ -137,6 +150,15 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "repair":
         asyncio.run(_run_repair(output=args.output, data_dir=args.data_dir))
+        return 0
+    if args.command == "rebuild-vectors":
+        asyncio.run(
+            _run_rebuild_vectors(
+                target=args.target,
+                output=args.output,
+                data_dir=args.data_dir,
+            )
+        )
         return 0
     if args.command == "benchmark-search":
         asyncio.run(
@@ -203,6 +225,22 @@ async def _run_repair(*, output: Path | None, data_dir: Path | None) -> None:
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(json_dump(result), encoding="utf-8")
         print(f"wrote repair report: {output}")
+        return
+    print(json_dump(result))
+
+
+async def _run_rebuild_vectors(
+    *,
+    target: str,
+    output: Path | None,
+    data_dir: Path | None,
+) -> None:
+    settings = build_settings(data_dir=data_dir)
+    result = await rebuild_vectors_snapshot(settings, target=target)
+    if output is not None:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json_dump(result), encoding="utf-8")
+        print(f"wrote rebuild-vectors report: {output}")
         return
     print(json_dump(result))
 

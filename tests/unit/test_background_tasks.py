@@ -99,18 +99,21 @@ def test_extract_features_supports_chinese_preference_phrases():
     assert any(f[:4] == ("profile", "preference", "favorite_food", "拉面") for f in features)
 
 
-def test_extract_features_embed_text_is_chinese_friendly():
-    """Preference features with CJK values must use a CJK-compatible embed_text."""
-    features = _extract_features("我最喜欢吃拉面")
+def test_extract_features_embed_text_is_chinese_friendly_for_hash_mode():
+    features = _extract_features("我最喜欢吃拉面", use_cjk_prefix_hack=True)
 
     pref_features = [f for f in features if f[2] == "favorite_food"]
     assert pref_features, "should extract a favorite_food feature"
 
-    embed_text = pref_features[0][4]  # 5th element is embed_text (after fix)
-    # embed_text must share CJK characters with the query "我喜欢什么"
-    # so the embedder generates overlapping token buckets
+    embed_text = pref_features[0][4]
     query_chars = set("我喜欢什么")
     embed_chars = set(embed_text)
-    assert query_chars & embed_chars, (
-        f"embed_text '{embed_text}' shares no CJK characters with '我喜欢什么'"
-    )
+    assert query_chars & embed_chars
+
+
+def test_extract_features_uses_plain_feature_text_without_hash_hack():
+    features = _extract_features("我最喜欢吃拉面", use_cjk_prefix_hack=False)
+
+    pref_features = [f for f in features if f[2] == "favorite_food"]
+    assert pref_features
+    assert pref_features[0][4] == "favorite_food 拉面"

@@ -9,6 +9,7 @@ from memolite.common.config import Settings
 from memolite.tools.migration import (
     export_snapshot,
     import_snapshot,
+    rebuild_vectors_snapshot,
     reconcile_snapshot,
     repair_snapshot,
 )
@@ -68,6 +69,8 @@ async def test_export_and_import_snapshot_roundtrip(tmp_path: Path):
     assert exported["tables"]["projects"][0]["project_id"] == "project-a"
     assert exported["tables"]["episodes"][0]["uid"] == "ep-1"
     assert exported["tables"]["semantic_features"][0]["feature_name"] == "favorite_food"
+    derivative_vector = exported["tables"]["derivative_feature_vectors"][0]["embedding"]
+    assert derivative_vector["__memolite_encoding__"] == "base64"
 
     target_settings = Settings(
         sqlite_path=tmp_path / "target" / "memolite.sqlite3",
@@ -89,6 +92,24 @@ async def test_export_and_import_snapshot_roundtrip(tmp_path: Path):
         assert derivative_nodes
     finally:
         await imported.close()
+
+
+@pytest.mark.anyio
+async def test_rebuild_vectors_snapshot_targets(tmp_path: Path):
+    settings = Settings(
+        sqlite_path=tmp_path / "memolite.sqlite3",
+        kuzu_path=tmp_path / "kuzu",
+    )
+    resources = await _seed_dataset(settings)
+    await resources.close()
+
+    semantic_only = await rebuild_vectors_snapshot(settings, target="semantic")
+    derivative_only = await rebuild_vectors_snapshot(settings, target="derivative")
+
+    assert semantic_only["semantic_vectors_rebuilt"] == 1
+    assert semantic_only["episodes_rebuilt"] == 0
+    assert derivative_only["semantic_vectors_rebuilt"] == 0
+    assert derivative_only["episodes_rebuilt"] == 1
 
 
 @pytest.mark.anyio
@@ -135,8 +156,8 @@ async def test_repair_cleans_orphans_and_is_idempotent(tmp_path: Path):
         await conn.execute(
             text(
                 """
-                INSERT INTO derivative_feature_vectors (feature_id, embedding_json)
-                VALUES (123456, '[1.0, 0.0, 0.0, 0.0]')
+                INSERT INTO derivative_feature_vectors (feature_id, embedding)
+                VALUES (123456, X'0000803F000000000000000000000000')
                 """
             )
         )

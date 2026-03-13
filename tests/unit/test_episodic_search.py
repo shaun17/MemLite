@@ -162,6 +162,27 @@ async def test_episodic_search_reranker_can_override_default_order(tmp_path: Pat
 
 
 @pytest.mark.anyio
+async def test_episodic_search_reranker_respects_runtime_disable_flag(tmp_path: Path):
+    base_service = await prepare_search_fixture(tmp_path)
+
+    async def reverse_reranker(_query, matches):
+        return list(reversed(matches))
+
+    reranked_service = EpisodicSearchService(
+        episode_store=base_service._episode_store,
+        graph_store=base_service._graph_store,
+        derivative_index=base_service._derivative_index,
+        embedder=fake_embedder,
+        reranker=reverse_reranker,
+        rerank_enabled_getter=lambda: False,
+    )
+
+    results = await reranked_service.search(query="food ramen", session_id="session-a")
+
+    assert [match.episode.uid for match in results.matches] == ["ep-1", "ep-4"]
+
+
+@pytest.mark.anyio
 async def test_episodic_search_returns_stable_chronology_for_equal_scores(tmp_path: Path):
     service = await prepare_search_fixture(tmp_path)
 

@@ -16,12 +16,15 @@ def test_cli_parser_supports_expected_commands():
 
     args = parser.parse_args(["configure", "--output", ".env"])
     benchmark_args = parser.parse_args(["benchmark-search", "--episode-count", "5"])
+    rebuild_args = parser.parse_args(["rebuild-vectors", "--target", "semantic"])
     load_test_args = parser.parse_args(["load-test", "--total-requests", "20"])
 
     assert args.command == "configure"
     assert args.output == Path(".env")
     assert benchmark_args.command == "benchmark-search"
     assert benchmark_args.episode_count == 5
+    assert rebuild_args.command == "rebuild-vectors"
+    assert rebuild_args.target == "semantic"
     assert load_test_args.command == "load-test"
     assert load_test_args.total_requests == 20
 

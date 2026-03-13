@@ -1,12 +1,12 @@
 """Application resource manager bootstrap."""
 
-import hashlib
-import math
-import re
+import sqlite3
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from memolite.app.background import BackgroundTaskRunner
 from memolite.common.config import Settings
+from memolite.embedders import create_embedder
 from memolite.episodic.delete import EpisodicDeleteService
 from memolite.episodic.derivative_pipeline import DerivativePipeline
 from memolite.episodic.search import EpisodicSearchService
@@ -26,64 +26,39 @@ from memolite.storage.sqlite_engine import SqliteEngineFactory
 from memolite.storage.sqlite_vec import SqliteVecIndex
 
 
-_TOKEN_PATTERN = re.compile(r"[\w\-']+")
-_CJK_PATTERN = re.compile(r"[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]")
-_NON_CJK_TOKEN = re.compile(r"[a-z0-9\-']+")
+def _resolve_embedder_provider_name(settings: Settings) -> str:
+    """Resolve the embedder provider name from settings or persisted set config.
 
-
-def _tokenize(text: str) -> list[str]:
-    """Tokenize text with optional CJK-aware segmentation.
-
-    When the input contains CJK characters and jieba is installed, uses
-    jieba.cut() for proper Chinese word segmentation.  Falls back to treating
-    each CJK character as its own token (bigram-ready) while keeping Latin
-    words grouped, so the embedder degrades gracefully without jieba.
+    Current behavior keeps the selection intentionally simple: if the SQLite DB
+    already contains exactly one distinct non-empty embedder_name across set
+    configs, treat it as the global provider override. Otherwise fall back to
+    settings.embedder_provider.
     """
-    lowered = text.lower()
-    if not _CJK_PATTERN.search(lowered):
-        return _TOKEN_PATTERN.findall(lowered)
+    db_path = Path(settings.sqlite_path)
+    if not db_path.exists():
+        return settings.embedder_provider
     try:
-        import jieba  # optional dependency
-        return [t for t in jieba.cut(lowered) if t.strip()]
-    except (ImportError, TypeError):
-        tokens: list[str] = []
-        buf = ""
-        for ch in lowered:
-            if _CJK_PATTERN.match(ch):
-                if buf:
-                    tokens.extend(_NON_CJK_TOKEN.findall(buf))
-                    buf = ""
-                tokens.append(ch)
-            else:
-                buf += ch
-        if buf:
-            tokens.extend(_NON_CJK_TOKEN.findall(buf))
-        return tokens
+        with sqlite3.connect(str(db_path)) as conn:
+            row = conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='semantic_config_set_id_resources'"
+            ).fetchone()
+            if row is None:
+                return settings.embedder_provider
+            rows = conn.execute(
+                """
+                SELECT DISTINCT embedder_name
+                FROM semantic_config_set_id_resources
+                WHERE embedder_name IS NOT NULL AND TRIM(embedder_name) != ''
+                ORDER BY embedder_name
+                """
+            ).fetchall()
+    except sqlite3.Error:
+        return settings.embedder_provider
 
-
-async def default_embedder(text: str) -> list[float]:
-    """Return a deterministic lightweight embedding.
-
-    This is still a local fallback embedder, but unlike the previous keyword
-    bucket implementation it supports open-vocabulary text via hashed token
-    projections.
-    """
-    dimensions = 64
-    vector = [0.0] * dimensions
-    tokens = _tokenize(text)
-    if not tokens:
-        return vector
-
-    for token in tokens:
-        digest = hashlib.blake2b(token.encode("utf-8"), digest_size=8).digest()
-        bucket = int.from_bytes(digest[:4], "big") % dimensions
-        sign = 1.0 if (digest[4] & 1) == 0 else -1.0
-        vector[bucket] += sign
-
-    norm = math.sqrt(sum(value * value for value in vector))
-    if norm == 0:
-        return vector
-    return [value / norm for value in vector]
+    provider_names = [str(row[0]) for row in rows]
+    if len(provider_names) == 1:
+        return provider_names[0]
+    return settings.embedder_provider
 
 
 @dataclass
@@ -109,6 +84,7 @@ class ResourceManager:
     semantic_session_manager: SemanticSessionManager
     orchestrator: MemoryOrchestrator
     background_tasks: BackgroundTaskRunner
+    embedder_provider_name: str
     _initialized: bool = field(default=False, init=False, repr=False)
 
     @classmethod
@@ -127,16 +103,21 @@ class ResourceManager:
         derivative_index = SqliteVecIndex(sqlite, "derivative_feature_vectors")
         derivative_index.bind_metrics(metrics)
         graph_store = KuzuGraphStore(kuzu)
+        embedder_provider_name = _resolve_embedder_provider_name(settings)
+        embedder_settings = settings.model_copy(update={"embedder_provider": embedder_provider_name})
+        embedder_provider = create_embedder(embedder_settings)
+        embedder_fn = embedder_provider.as_embedder_fn()
         derivative_pipeline = DerivativePipeline(
             graph_store=graph_store,
             derivative_index=derivative_index,
-            embedder=default_embedder,
+            embedder=embedder_fn,
         )
         episodic_search = EpisodicSearchService(
             episode_store=episode_store,
             graph_store=graph_store,
             derivative_index=derivative_index,
-            embedder=default_embedder,
+            embedder=embedder_fn,
+            rerank_enabled_getter=lambda: memory_config.get_episodic().rerank_enabled,
             metrics=metrics,
             candidate_multiplier=settings.episodic_search_candidate_multiplier,
             max_candidates=settings.episodic_search_max_candidates,
@@ -149,7 +130,7 @@ class ResourceManager:
         semantic_service = SemanticService(
             feature_store=semantic_feature_store,
             config_store=semantic_config_store,
-            embedder=default_embedder,
+            embedder=embedder_fn,
             default_category_resolver=lambda _set_id: [],
             candidate_multiplier=settings.semantic_search_candidate_multiplier,
             max_candidates=settings.semantic_search_max_candidates,
@@ -185,6 +166,7 @@ class ResourceManager:
             semantic_session_manager=semantic_session_manager,
             orchestrator=orchestrator,
             background_tasks=None,  # type: ignore[arg-type]
+            embedder_provider_name=embedder_provider_name,
         )
         resources.background_tasks = BackgroundTaskRunner(resources=resources)
         return resources
@@ -193,11 +175,12 @@ class ResourceManager:
         """Initialize backing stores and schemas."""
         if self._initialized:
             return
-        try:
-            import jieba
-            jieba.initialize()
-        except (ImportError, OSError):
-            pass
+        if self.embedder_provider_name == "hash":
+            try:
+                import jieba
+                jieba.initialize()
+            except (ImportError, OSError):
+                pass
         await self.sqlite.initialize_schema()
         await self.semantic_feature_store.initialize()
         await self.derivative_index.initialize()

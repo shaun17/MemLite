@@ -13,6 +13,7 @@ from memolite.storage.sqlite_vec import SqliteVecIndex
 
 EmbedderFn = Callable[[str], Awaitable[list[float]]]
 RerankerFn = Callable[[str, list["EpisodicSearchMatch"]], Awaitable[list["EpisodicSearchMatch"]]]
+RerankEnabledGetter = Callable[[], bool]
 
 
 @dataclass(slots=True)
@@ -43,6 +44,7 @@ class EpisodicSearchService:
         derivative_index: SqliteVecIndex,
         embedder: EmbedderFn,
         reranker: RerankerFn | None = None,
+        rerank_enabled_getter: RerankEnabledGetter | None = None,
         metrics=None,
         candidate_multiplier: int = 4,
         max_candidates: int = 100,
@@ -52,6 +54,7 @@ class EpisodicSearchService:
         self._derivative_index = derivative_index
         self._embedder = embedder
         self._reranker = reranker
+        self._rerank_enabled_getter = rerank_enabled_getter or (lambda: True)
         self._metrics = metrics
         self._candidate_multiplier = max(candidate_multiplier, 1)
         self._max_candidates = max(max_candidates, 1)
@@ -185,7 +188,7 @@ class EpisodicSearchService:
         query: str,
         matches: list[EpisodicSearchMatch],
     ) -> list[EpisodicSearchMatch]:
-        if self._reranker is None or not matches:
+        if self._reranker is None or not matches or not self._rerank_enabled_getter():
             return matches
         reranked = await self._reranker(query, matches)
         return reranked

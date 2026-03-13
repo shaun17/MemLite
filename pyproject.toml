@@ -28,6 +28,9 @@ dev = [
     "httpx>=0.28.1",
     "pytest>=8.4.2",
 ]
+embeddings = [
+    "sentence-transformers>=3.0.0",
+]
 
 [project.scripts]
 memolite = "memolite.command:main"

@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
-import zlib
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 
@@ -168,4 +168,11 @@ def _parse_metadata_json(metadata_json: str | None) -> dict[str, object]:
 
 
 def vector_item_id(uid: str) -> int:
-    return zlib.crc32(uid.encode("utf-8")) & 0x7FFFFFFF
+    """Map derivative uid to a stable positive 63-bit integer id.
+
+    CRC32 was too small and collision-prone for growing vector tables. Use the
+    first 8 bytes of SHA-256 instead so item ids remain deterministic while the
+    collision risk becomes negligible for practical MemoLite datasets.
+    """
+    digest = hashlib.sha256(uid.encode("utf-8")).digest()
+    return int.from_bytes(digest[:8], "big") & 0x7FFFFFFFFFFFFFFF

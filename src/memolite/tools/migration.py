@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import json
 from pathlib import Path
 from typing import Any
@@ -27,6 +28,7 @@ EXPORT_TABLES = (
     "semantic_config_disabled_category",
     "semantic_features",
     "semantic_feature_vectors",
+    "derivative_feature_vectors",
     "semantic_citations",
     "semantic_set_ingested_history",
 )
@@ -44,7 +46,7 @@ async def export_snapshot(settings: Settings, output: Path) -> Path:
         async with engine.connect() as conn:
             for table in EXPORT_TABLES:
                 rows = (await conn.execute(text(f"SELECT * FROM {table}"))).mappings().all()
-                snapshot["tables"][table] = [dict(row) for row in rows]
+                snapshot["tables"][table] = [_json_safe_row(dict(row)) for row in rows]
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(json.dumps(snapshot, indent=2, ensure_ascii=False), encoding="utf-8")
         return output
@@ -65,13 +67,14 @@ async def import_snapshot(settings: Settings, source: Path) -> None:
         async with resources.sqlite.create_engine().begin() as conn:
             for table in EXPORT_TABLES:
                 for row in tables.get(table, []):
-                    columns = list(row.keys())
+                    restored_row = _restore_snapshot_row(row)
+                    columns = list(restored_row.keys())
                     placeholders = ", ".join(f":{column}" for column in columns)
                     statement = (
                         f"INSERT OR REPLACE INTO {table} ({', '.join(columns)}) "
                         f"VALUES ({placeholders})"
                     )
-                    await conn.execute(text(statement), row)
+                    await conn.execute(text(statement), restored_row)
         await rebuild_semantic_vectors(resources)
         await rebuild_derivative_graph(resources)
     finally:
@@ -79,24 +82,29 @@ async def import_snapshot(settings: Settings, source: Path) -> None:
 
 
 async def rebuild_semantic_vectors(resources: ResourceManager) -> int:
-    """Rebuild semantic feature vector table from stored vector payloads."""
+    """Rebuild semantic vector table from stored vector payloads.
+
+    Semantic vectors currently only live in SQLite vector storage, so this
+    routine can preserve and normalize existing rows but cannot recreate
+    missing embeddings from first principles.
+    """
     engine = resources.sqlite.create_engine()
     async with engine.begin() as conn:
         rows = (
             await conn.execute(
-                text("SELECT feature_id, embedding_json FROM semantic_feature_vectors")
+                text("SELECT feature_id, embedding FROM semantic_feature_vectors")
             )
         ).all()
         await conn.execute(text("DELETE FROM semantic_feature_vectors"))
-        for feature_id, embedding_json in rows:
+        for feature_id, embedding in rows:
             await conn.execute(
                 text(
                     """
-                    INSERT INTO semantic_feature_vectors (feature_id, embedding_json)
-                    VALUES (:feature_id, :embedding_json)
+                    INSERT INTO semantic_feature_vectors (feature_id, embedding)
+                    VALUES (:feature_id, :embedding)
                     """
                 ),
-                {"feature_id": feature_id, "embedding_json": embedding_json},
+                {"feature_id": feature_id, "embedding": embedding},
             )
     return len(rows)
 
@@ -151,6 +159,34 @@ async def repair_snapshot(settings: Settings) -> dict[str, int]:
             "episodes_rebuilt": derivative_count,
             "orphan_records_removed": orphan_deleted,
             "soft_delete_residue_removed": residue_deleted,
+        }
+    finally:
+        await resources.close()
+
+
+async def rebuild_vectors_snapshot(
+    settings: Settings,
+    *,
+    target: str = "all",
+) -> dict[str, int]:
+    """Rebuild semantic and/or derivative vectors from persisted source data."""
+    from memolite.app.resources import ResourceManager
+
+    if target not in {"semantic", "derivative", "all"}:
+        raise ValueError(f"unsupported rebuild target: {target}")
+
+    resources = ResourceManager.create(settings)
+    await resources.initialize()
+    try:
+        semantic_count = 0
+        derivative_count = 0
+        if target in {"semantic", "all"}:
+            semantic_count = await rebuild_semantic_vectors(resources)
+        if target in {"derivative", "all"}:
+            derivative_count = await rebuild_derivative_graph(resources)
+        return {
+            "semantic_vectors_rebuilt": semantic_count,
+            "episodes_rebuilt": derivative_count,
         }
     finally:
         await resources.close()
@@ -265,6 +301,33 @@ async def cleanup_orphan_data(resources: ResourceManager) -> int:
         deleted += len(orphan_derivative_nodes)
 
     return deleted
+
+
+def _json_safe_row(row: dict[str, Any]) -> dict[str, Any]:
+    converted: dict[str, Any] = {}
+    for key, value in row.items():
+        if isinstance(value, (bytes, bytearray, memoryview)):
+            converted[key] = {
+                "__memolite_encoding__": "base64",
+                "data": base64.b64encode(bytes(value)).decode("ascii"),
+            }
+        else:
+            converted[key] = value
+    return converted
+
+
+def _restore_snapshot_row(row: dict[str, Any]) -> dict[str, Any]:
+    restored: dict[str, Any] = {}
+    for key, value in row.items():
+        if (
+            isinstance(value, dict)
+            and value.get("__memolite_encoding__") == "base64"
+            and "data" in value
+        ):
+            restored[key] = base64.b64decode(value["data"])
+        else:
+            restored[key] = value
+    return restored
 
 
 def _vector_item_id(uid: str) -> int:

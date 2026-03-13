@@ -34,14 +34,19 @@ _ZH_PREFERENCE_OBJECT_TYPES = {
 _CJK_DETECT = re.compile(r"[\u4e00-\u9fff]")
 
 
-def _make_embed_text(feature_name: str, value: str) -> str:
+def _make_embed_text(
+    feature_name: str,
+    value: str,
+    *,
+    use_cjk_prefix_hack: bool = True,
+) -> str:
     """Build an embedding-friendly text representation for a feature.
 
-    For features whose value contains CJK characters, use a Chinese prefix so
-    the tokenizer produces tokens that overlap with Chinese queries.  English
-    features keep the original ``feature_name value`` form.
+    The Chinese prefix hack only helps the lightweight hash embedder by forcing
+    token overlap. Real embedding models should receive the plain feature/value
+    text instead.
     """
-    if _CJK_DETECT.search(value):
+    if use_cjk_prefix_hack and _CJK_DETECT.search(value):
         if "name" in feature_name:
             return f"叫 {value}"
         return f"喜欢 {value}"
@@ -112,7 +117,8 @@ class BackgroundTaskRunner:
             if episode is None:
                 continue
             for category, tag, feature_name, value, embed_text in _extract_features(
-                episode.content
+                episode.content,
+                use_cjk_prefix_hack=self.resources.embedder_provider_name == "hash",
             ):
                 metadata = json.dumps({"source": "background_compensation"}, ensure_ascii=False)
                 embedding = await self.resources.semantic_service.generate_feature_embedding(
@@ -134,23 +140,39 @@ class BackgroundTaskRunner:
         return len(history_ids)
 
 
-def _extract_features(content: str) -> list[tuple[str, str, str, str, str]]:
+def _extract_features(
+    content: str,
+    *,
+    use_cjk_prefix_hack: bool = True,
+) -> list[tuple[str, str, str, str, str]]:
     """Heuristic semantic feature extraction from free text.
 
-    Returns 5-tuples of (category, tag, feature_name, value, embed_text) where
-    embed_text is crafted for maximum token overlap with likely user queries.
+    Returns 5-tuples of (category, tag, feature_name, value, embed_text). The
+    Chinese overlap hack is reserved for the hash embedder path.
     """
     features: list[tuple[str, str, str, str, str]] = []
 
     name_match = _NAME_PATTERN.search(content)
     if name_match:
         name = name_match.group(1).strip()
-        features.append(("profile", "identity", "name", name, _make_embed_text("name", name)))
+        features.append((
+            "profile",
+            "identity",
+            "name",
+            name,
+            _make_embed_text("name", name, use_cjk_prefix_hack=use_cjk_prefix_hack),
+        ))
 
     zh_name_match = _ZH_NAME_PATTERN.search(content)
     if zh_name_match:
         name = zh_name_match.group(1).strip()
-        features.append(("profile", "identity", "name", name, _make_embed_text("name", name)))
+        features.append((
+            "profile",
+            "identity",
+            "name",
+            name,
+            _make_embed_text("name", name, use_cjk_prefix_hack=use_cjk_prefix_hack),
+        ))
 
     for match in _FAVORITE_PATTERN.finditer(content):
         object_type = (match.group(1) or "preference").strip().lower()
@@ -174,8 +196,17 @@ def _extract_features(content: str) -> list[tuple[str, str, str, str, str]]:
             continue
         feature_name = f"favorite_{object_type}"
         features.append(
-            ("profile", "preference", feature_name, raw_value,
-             _make_embed_text(feature_name, raw_value))
+            (
+                "profile",
+                "preference",
+                feature_name,
+                raw_value,
+                _make_embed_text(
+                    feature_name,
+                    raw_value,
+                    use_cjk_prefix_hack=use_cjk_prefix_hack,
+                ),
+            )
         )
 
     return features
