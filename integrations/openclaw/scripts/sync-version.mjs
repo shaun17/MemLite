@@ -20,4 +20,4 @@ const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
 pkg.version = version;
 writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
 
-console.log(`synced @wenrennow/openclaw-memolite version → ${version}`);
+console.log(`synced @wenrennow/memolite version → ${version}`);
