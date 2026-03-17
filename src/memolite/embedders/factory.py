@@ -11,7 +11,7 @@ from memolite.embedders.sentence_transformer import SentenceTransformerEmbedderP
 def create_embedder(settings: Settings) -> EmbedderProvider:
     """Create an embedder provider from settings."""
     provider = getattr(settings, "embedder_provider", "hash")
-    if provider == "hash":
+    if provider in ("hash", "default"):
         return HashEmbedderProvider()
     if provider == "sentence_transformer":
         model_name = settings.embedder_model or "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
