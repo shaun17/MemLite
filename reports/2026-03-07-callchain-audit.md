@@ -135,6 +135,7 @@
 
 ---
 
+
 ## 7) 建议修复顺序
 
 1. **先修 P0**：真实 embedding provider + 真实 semantic ingestion。
