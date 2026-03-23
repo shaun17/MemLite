@@ -2,9 +2,9 @@
 set -euo pipefail
 
 # One-shot setup:
-# 1) install OpenClaw memolite plugin
+# 1) install/update OpenClaw memolite plugin
 # 2) configure plugin entry in ~/.openclaw/openclaw.json
-# 3) install/start memolite service (LaunchAgent)
+# 3) install/start memolite service
 # 4) restart openclaw gateway
 # 5) health checks
 
@@ -18,6 +18,7 @@ AUTO_CAPTURE="${AUTO_CAPTURE:-true}"
 AUTO_RECALL="${AUTO_RECALL:-true}"
 SEARCH_THRESHOLD="${SEARCH_THRESHOLD:-0.5}"
 TOP_K="${TOP_K:-5}"
+PLUGIN_ID="openclaw-memolite"
 
 OPENCLAW_CONFIG="$HOME/.openclaw/openclaw.json"
 
@@ -30,8 +31,18 @@ need_cmd() {
 
 need_cmd openclaw
 need_cmd python3
+need_cmd curl
+
+if [[ ! -e "$OPENCLAW_CONFIG" ]]; then
+  echo "[ERROR] OpenClaw config missing: $OPENCLAW_CONFIG"
+  exit 1
+fi
 
 echo "[1/5] Install plugin: $PLUGIN_PATH"
+if openclaw plugins info "$PLUGIN_ID" >/dev/null 2>&1; then
+  echo "[INFO] Existing plugin detected; reinstalling $PLUGIN_ID"
+  openclaw plugins uninstall "$PLUGIN_ID" --force >/dev/null
+fi
 openclaw plugins install "$PLUGIN_PATH"
 
 echo "[2/5] Update OpenClaw config"
@@ -40,9 +51,9 @@ import json, pathlib
 p=pathlib.Path("$OPENCLAW_CONFIG")
 obj=json.loads(p.read_text())
 plugins=obj.setdefault('plugins',{})
-plugins.setdefault('slots',{})['memory']='openclaw-memolite'
+plugins.setdefault('slots',{})['memory']='$PLUGIN_ID'
 entries=plugins.setdefault('entries',{})
-entry=entries.setdefault('openclaw-memolite',{})
+entry=entries.setdefault('$PLUGIN_ID',{})
 entry['enabled']=True
 entry['config']={
   'baseUrl':'$BASE_URL',
@@ -66,8 +77,8 @@ openclaw gateway restart
 
 echo "[5/5] Health checks"
 echo "- memolite health: $BASE_URL/health"
-curl -sS "$BASE_URL/health" && echo
-openclaw plugins list | rg -n "openclaw-memolite|memory-core|memory-lancedb|Plugins" -n
+curl -fsS "$BASE_URL/health" && echo
+openclaw plugins list | rg -n "$PLUGIN_ID|memory-core|memory-lancedb|Plugins" -n
 
 echo
 echo "[OK] setup completed"
