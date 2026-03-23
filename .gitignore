@@ -4,7 +4,7 @@ __pycache__/
 *.pyc
 .DS_Store
 src/*.egg-info/
-dist/
+/dist/
 /node_modules/
 /package.json
 /package-lock.json
