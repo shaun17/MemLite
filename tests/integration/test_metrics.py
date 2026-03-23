@@ -4,7 +4,9 @@ from memolite.app.main import create_app
 from memolite.common.config import reset_settings_cache
 
 
-def test_metrics_endpoint_returns_snapshot():
+def test_metrics_endpoint_returns_snapshot(tmp_path, monkeypatch):
+    monkeypatch.setenv("MEMOLITE_SQLITE_PATH", str(tmp_path / "memolite.sqlite3"))
+    monkeypatch.setenv("MEMOLITE_KUZU_PATH", str(tmp_path / "graph.kuzu"))
     reset_settings_cache()
     app = create_app()
     app.state.resources.metrics.increment("requests", 2)
