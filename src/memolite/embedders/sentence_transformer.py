@@ -37,6 +37,10 @@ class SentenceTransformerEmbedderProvider(EmbedderProvider):
         )
         return [float(value) for value in vector]
 
+    async def warm_up(self) -> None:
+        """Pre-load the sentence-transformer model into memory."""
+        await asyncio.to_thread(self._ensure_model)
+
     def _ensure_model(self):
         if self._model is None:
             try:

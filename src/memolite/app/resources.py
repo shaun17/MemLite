@@ -7,11 +7,14 @@ from pathlib import Path
 from memolite.app.background import BackgroundTaskRunner
 from memolite.common.config import Settings
 from memolite.embedders import create_embedder
+from memolite.embedders.base import EmbedderProvider
 from memolite.episodic.delete import EpisodicDeleteService
 from memolite.episodic.derivative_pipeline import DerivativePipeline
 from memolite.episodic.search import EpisodicSearchService
 from memolite.memory.config_service import MemoryConfigService
 from memolite.metrics.service import MetricsService
+from memolite.rerankers import create_reranker
+from memolite.rerankers.base import RerankerProvider
 from memolite.orchestrator.memory_orchestrator import MemoryOrchestrator
 from memolite.semantic.service import SemanticService
 from memolite.semantic.session_manager import SemanticSessionManager
@@ -85,6 +88,8 @@ class ResourceManager:
     orchestrator: MemoryOrchestrator
     background_tasks: BackgroundTaskRunner
     embedder_provider_name: str
+    _embedder_provider: EmbedderProvider = field(repr=False)
+    _reranker_provider: RerankerProvider | None = field(default=None, repr=False)
     _initialized: bool = field(default=False, init=False, repr=False)
 
     @classmethod
@@ -107,6 +112,9 @@ class ResourceManager:
         embedder_settings = settings.model_copy(update={"embedder_provider": embedder_provider_name})
         embedder_provider = create_embedder(embedder_settings)
         embedder_fn = embedder_provider.as_embedder_fn()
+        memory_config = MemoryConfigService()
+        reranker_provider = create_reranker(settings)
+        reranker_fn = reranker_provider.as_reranker_fn() if reranker_provider else None
         derivative_pipeline = DerivativePipeline(
             graph_store=graph_store,
             derivative_index=derivative_index,
@@ -117,6 +125,7 @@ class ResourceManager:
             graph_store=graph_store,
             derivative_index=derivative_index,
             embedder=embedder_fn,
+            reranker=reranker_fn,
             rerank_enabled_getter=lambda: memory_config.get_episodic().rerank_enabled,
             metrics=metrics,
             candidate_multiplier=settings.episodic_search_candidate_multiplier,
@@ -149,7 +158,7 @@ class ResourceManager:
         resources = cls(
             settings=settings,
             metrics=metrics,
-            memory_config=MemoryConfigService(),
+            memory_config=memory_config,
             sqlite=sqlite,
             kuzu=kuzu,
             project_store=project_store,
@@ -167,6 +176,8 @@ class ResourceManager:
             orchestrator=orchestrator,
             background_tasks=None,  # type: ignore[arg-type]
             embedder_provider_name=embedder_provider_name,
+            _embedder_provider=embedder_provider,
+            _reranker_provider=reranker_provider,
         )
         resources.background_tasks = BackgroundTaskRunner(resources=resources)
         return resources
@@ -175,6 +186,9 @@ class ResourceManager:
         """Initialize backing stores and schemas."""
         if self._initialized:
             return
+        await self._embedder_provider.warm_up()
+        if self._reranker_provider is not None:
+            await self._reranker_provider.warm_up()
         if self.embedder_provider_name == "hash":
             try:
                 import jieba

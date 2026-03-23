@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import asyncio
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from time import perf_counter
+from typing import Any
 
 import kuzu
 
@@ -52,6 +54,8 @@ class KuzuEngineFactory:
         self._database: kuzu.Database | None = None
         self._connection: kuzu.Connection | None = None
         self._metrics = None
+        self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="memolite-kuzu")
+        self._connection_lock = asyncio.Lock()
 
     def bind_metrics(self, metrics) -> None:  # type: ignore[no-untyped-def]
         self._metrics = metrics
@@ -67,11 +71,15 @@ class KuzuEngineFactory:
         path.mkdir(parents=True, exist_ok=True)
         return path
 
+    async def _run_in_executor(self, fn, /, *args):  # type: ignore[no-untyped-def]
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(self._executor, lambda: fn(*args))
+
     async def create_database(self) -> kuzu.Database:
         """Create or return the active Kùzu database."""
         if self._database is None:
             await self.initialize_data_dir()
-            self._database = await asyncio.to_thread(
+            self._database = await self._run_in_executor(
                 kuzu.Database,
                 str(self.database_path),
             )
@@ -81,28 +89,43 @@ class KuzuEngineFactory:
         """Create or return the active Kùzu connection."""
         if self._connection is None:
             database = await self.create_database()
-            self._connection = await asyncio.to_thread(kuzu.Connection, database)
+            self._connection = await self._run_in_executor(kuzu.Connection, database)
         return self._connection
 
     async def initialize_schema(self) -> None:
         """Create base graph schema required by episodic memory."""
-        connection = await self.create_connection()
-        for statement in KUZU_BOOTSTRAP_STATEMENTS:
-            await asyncio.to_thread(connection.execute, statement)
+        async with self._connection_lock:
+            connection = await self.create_connection()
+            for statement in KUZU_BOOTSTRAP_STATEMENTS:
+                await self._run_in_executor(connection.execute, statement)
 
-    async def execute(self, query: str) -> None:
+    async def execute(
+        self,
+        query: str,
+        parameters: dict[str, Any] | None = None,
+    ) -> None:
         """Execute a mutating Kùzu query."""
-        connection = await self.create_connection()
-        await retry_async(lambda: asyncio.to_thread(connection.execute, query))
+        async with self._connection_lock:
+            connection = await self.create_connection()
+            await retry_async(
+                lambda: self._run_in_executor(connection.execute, query, parameters)
+            )
 
-    async def query(self, query: str) -> list[list[object]]:
+    async def query(
+        self,
+        query: str,
+        parameters: dict[str, Any] | None = None,
+    ) -> list[list[object]]:
         """Run a read query and return all rows."""
         started = perf_counter()
-        connection = await self.create_connection()
-        result = await retry_async(lambda: asyncio.to_thread(connection.execute, query))
-        rows: list[list[object]] = []
-        while result.has_next():
-            rows.append(await asyncio.to_thread(result.get_next))
+        async with self._connection_lock:
+            connection = await self.create_connection()
+            result = await retry_async(
+                lambda: self._run_in_executor(connection.execute, query, parameters)
+            )
+            rows: list[list[object]] = []
+            while result.has_next():
+                rows.append(await self._run_in_executor(result.get_next))
         if self._metrics is not None:
             self._metrics.increment("graph_queries_total")
             self._metrics.observe_timing(
@@ -113,5 +136,11 @@ class KuzuEngineFactory:
 
     async def close(self) -> None:
         """Release in-process Kùzu handles."""
-        self._connection = None
-        self._database = None
+        async with self._connection_lock:
+            if self._connection is not None:
+                await self._run_in_executor(self._connection.close)
+                self._connection = None
+            if self._database is not None:
+                await self._run_in_executor(self._database.close)
+                self._database = None
+        self._executor.shutdown(wait=True)

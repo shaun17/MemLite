@@ -92,6 +92,18 @@ pipx install memolite
 pip install memolite
 ```
 
+If you want local semantic embeddings + reranker support (`sentence-transformers` / `CrossEncoder`):
+
+```bash
+pip install 'memolite[embeddings]'
+# or, for source development
+pip install -e '.[dev,embeddings]'
+```
+
+Notes:
+- install `memolite` only: good for the hash embedder or setups without a local reranker
+- install `memolite[embeddings]`: includes both embedding and reranker dependencies
+
 Best for: regular users, production use, fast setup.
 
 ### Option B: Install from source (developers)
@@ -271,7 +283,7 @@ memolite openclaw uninstall
 
 ## 6. Minimal REST flow
 
-### 4.1 Create project
+### 6.1 Create project
 
 ```bash
 curl -X POST http://127.0.0.1:18731/projects \
@@ -283,7 +295,7 @@ curl -X POST http://127.0.0.1:18731/projects \
   }'
 ```
 
-### 4.2 Create session
+### 6.2 Create session
 
 ```bash
 curl -X POST http://127.0.0.1:18731/sessions \
@@ -297,7 +309,7 @@ curl -X POST http://127.0.0.1:18731/sessions \
   }'
 ```
 
-### 4.3 Write memory
+### 6.3 Write memory
 
 ```bash
 curl -X POST http://127.0.0.1:18731/memories \
@@ -319,7 +331,7 @@ curl -X POST http://127.0.0.1:18731/memories \
   }'
 ```
 
-### 4.4 Search memory
+### 6.4 Search memory
 
 ```bash
 curl -X POST http://127.0.0.1:18731/memories/search \

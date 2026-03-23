@@ -74,6 +74,9 @@ async def test_semantic_feature_store_query_delete_and_history(tmp_path: Path):
         set_ids=["set-a"], is_ingested=False
     )
     await store.mark_messages_ingested(set_id="set-a", history_ids=["episode-1"])
+    ingested_count = await store.get_history_messages_count(
+        set_ids=["set-a"], is_ingested=True
+    )
     pending_set_ids = await store.get_history_set_ids(min_uningested_messages=1)
     set_ids = await store.get_set_ids_starts_with("set-")
     await store.delete_feature_set(tag="travel")
@@ -89,6 +92,7 @@ async def test_semantic_feature_store_query_delete_and_history(tmp_path: Path):
     assert citations == ["episode-1", "episode-2"]
     assert history == ["episode-1", "episode-2"]
     assert history_count == 2
+    assert ingested_count == 1
     assert pending_set_ids == ["set-a"]
     assert set_ids == ["set-a"]
     assert deleted_feature is not None and deleted_feature.deleted == 1

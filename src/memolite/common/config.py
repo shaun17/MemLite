@@ -63,6 +63,8 @@ class Settings(BaseSettings):
     embedder_model: str | None = Field(default=None)
     embedder_cache_enabled: bool = Field(default=True)
     embedder_cache_size: int = Field(default=1000)
+    reranker_provider: str = Field(default="none")
+    reranker_model: str | None = Field(default=None)
     semantic_search_candidate_multiplier: int = Field(default=3)
     semantic_search_max_candidates: int = Field(default=100)
     episodic_search_candidate_multiplier: int = Field(default=4)

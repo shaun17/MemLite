@@ -68,12 +68,13 @@ class KuzuGraphStore:
             uid = node.get("uid")
             if uid is None:
                 continue
-            assignments = _render_set_assignments("n", node)
+            assignments, parameters = _render_set_assignments("n", node)
+            parameters["uid"] = uid
             query = f"""
-            MERGE (n:{node_table} {{uid: {_quote(uid)}}})
+            MERGE (n:{node_table} {{uid: $uid}})
             {f"SET {assignments}" if assignments else ""}
             """
-            await self._engine.execute(query)
+            await self._engine.execute(query, parameters)
 
     async def add_edges(
         self,
@@ -86,11 +87,18 @@ class KuzuGraphStore:
         for edge in edges:
             query = f"""
             MATCH (src:{from_table}), (dst:{to_table})
-            WHERE src.uid = {_quote(edge.from_uid)} AND dst.uid = {_quote(edge.to_uid)}
+            WHERE src.uid = $from_uid AND dst.uid = $to_uid
             MERGE (src)-[r:{relation_table}]->(dst)
-            SET r.relation_type = {_quote(edge.relation_type)}
+            SET r.relation_type = $relation_type
             """
-            await self._engine.execute(query)
+            await self._engine.execute(
+                query,
+                {
+                    "from_uid": edge.from_uid,
+                    "to_uid": edge.to_uid,
+                    "relation_type": edge.relation_type,
+                },
+            )
 
     async def get_nodes(
         self,
@@ -113,15 +121,17 @@ class KuzuGraphStore:
     ) -> list[GraphNodeRecord]:
         properties = NODE_PROPERTIES[node_table]
         where_clauses: list[str] = []
+        parameters: dict[str, object | None] = {}
         if match_filters:
             for key, value in match_filters.items():
                 if key not in properties:
                     continue
-                where_clauses.append(f"n.{key} = {_quote(value)}")
+                parameter_name = f"filter_{key}"
+                where_clauses.append(f"n.{key} = ${parameter_name}")
+                parameters[parameter_name] = value
         if match_any_uids:
-            where_clauses.append(
-                "n.uid IN [" + ", ".join(_quote(uid) for uid in match_any_uids) + "]"
-            )
+            where_clauses.append("n.uid IN $match_any_uids")
+            parameters["match_any_uids"] = match_any_uids
 
         query = "MATCH (n:{table})".format(table=node_table)
         if where_clauses:
@@ -129,7 +139,7 @@ class KuzuGraphStore:
         query += " RETURN " + ", ".join(
             f"n.{property_name}" for property_name in properties
         )
-        rows = await self._engine.query(query)
+        rows = await self._engine.query(query, parameters)
         return [
             GraphNodeRecord(
                 node_table=node_table,
@@ -154,6 +164,34 @@ class KuzuGraphStore:
             direction="out",
         )
 
+    async def search_related_nodes_batch(
+        self,
+        *,
+        source_table: NodeTable,
+        source_uids: list[str],
+        relation_table: str,
+        target_table: NodeTable,
+    ) -> dict[str, list[GraphNodeRecord]]:
+        if not source_uids:
+            return {}
+        properties = NODE_PROPERTIES[target_table]
+        query = f"""
+        MATCH (src:{source_table})-[:{relation_table}]->(dst:{target_table})
+        WHERE src.uid IN $source_uids
+        RETURN src.uid, {", ".join(f"dst.{property_name}" for property_name in properties)}
+        """
+        rows = await self._engine.query(query, {"source_uids": source_uids})
+        grouped: dict[str, list[GraphNodeRecord]] = {uid: [] for uid in source_uids}
+        for row in rows:
+            source_uid = str(row[0])
+            grouped.setdefault(source_uid, []).append(
+                GraphNodeRecord(
+                    node_table=target_table,
+                    properties=dict(zip(properties, row[1:], strict=True)),
+                )
+            )
+        return grouped
+
     async def search_directional_nodes(
         self,
         *,
@@ -175,10 +213,10 @@ class KuzuGraphStore:
 
         query = f"""
         MATCH {pattern}
-        WHERE src.uid = {_quote(source_uid)}
+        WHERE src.uid = $source_uid
         RETURN {", ".join(f"dst.{property_name}" for property_name in properties)}
         """
-        rows = await self._engine.query(query)
+        rows = await self._engine.query(query, {"source_uid": source_uid})
         return [
             GraphNodeRecord(
                 node_table=target_table,
@@ -195,34 +233,21 @@ class KuzuGraphStore:
     ) -> None:
         if not uids:
             return
-        predicate = "n.uid IN [" + ", ".join(_quote(uid) for uid in uids) + "]"
         await self._engine.execute(
-            f"MATCH (n:{node_table}) WHERE {predicate} DETACH DELETE n"
+            f"MATCH (n:{node_table}) WHERE n.uid IN $uids DETACH DELETE n",
+            {"uids": uids},
         )
 
 
-def _render_properties(properties: dict[str, object | None]) -> str:
-    return ", ".join(
-        f"{key}: {_quote(value)}"
-        for key, value in properties.items()
-        if value is not None
-    )
-
-
-def _render_set_assignments(alias: str, properties: dict[str, object | None]) -> str:
-    assignments = [
-        f"{alias}.{key} = {_quote(value)}"
-        for key, value in properties.items()
-        if key != "uid" and value is not None
-    ]
-    return ", ".join(assignments)
-
-
-def _quote(value: object | None) -> str:
-    if value is None:
-        return "NULL"
-    if isinstance(value, bool):
-        return "TRUE" if value else "FALSE"
-    if isinstance(value, (int, float)):
-        return str(value)
-    return json.dumps(str(value))
+def _render_set_assignments(
+    alias: str,
+    properties: dict[str, object | None],
+) -> tuple[str, dict[str, object | None]]:
+    assignments: list[str] = []
+    parameters: dict[str, object | None] = {}
+    for key, value in properties.items():
+        if key == "uid" or value is None:
+            continue
+        assignments.append(f"{alias}.{key} = ${key}")
+        parameters[key] = value
+    return ", ".join(assignments), parameters

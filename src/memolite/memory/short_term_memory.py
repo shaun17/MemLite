@@ -3,6 +3,8 @@
 from collections import deque
 from dataclasses import dataclass
 
+_MAX_SUMMARY_LENGTH = 4096
+
 from memolite.storage.session_store import SqliteSessionStore
 
 
@@ -114,9 +116,10 @@ class ShortTermMemory:
 
         summary_lines = [f"{message.producer_role}: {message.content}" for message in evicted]
         summary_chunk = " | ".join(summary_lines)
-        self._summary = (
+        merged_summary = (
             f"{self._summary} || {summary_chunk}" if self._summary else summary_chunk
         )
+        self._summary = _truncate_summary(merged_summary)
         await self.persist_summary()
 
     async def persist_summary(self) -> None:
@@ -163,3 +166,10 @@ class ShortTermMemory:
     def _ensure_open(self) -> None:
         if self._closed:
             raise RuntimeError("ShortTermMemory is closed")
+
+
+def _truncate_summary(summary: str, max_length: int = _MAX_SUMMARY_LENGTH) -> str:
+    if len(summary) <= max_length:
+        return summary
+    trimmed = summary[-max_length:].lstrip(" |")
+    return f"... {trimmed}" if trimmed else "..."

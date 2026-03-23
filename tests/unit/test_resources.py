@@ -104,3 +104,32 @@ def test_resource_manager_uses_persisted_embedder_provider_override(tmp_path):
 
     assert resources.embedder_provider_name == "sentence_transformer"
     assert resources.derivative_pipeline._embedder.__self__.name == "sentence_transformer"  # type: ignore[attr-defined]
+
+
+def test_resource_manager_injects_reranker_when_configured(tmp_path):
+    settings = Settings(
+        sqlite_path=tmp_path / "memolite.sqlite3",
+        kuzu_path=tmp_path / "graph.kuzu",
+        embedder_provider="hash",
+        reranker_provider="cross_encoder",
+    )
+
+    resources = ResourceManager.create(settings)
+
+    assert resources.episodic_search._reranker is not None  # type: ignore[attr-defined]
+    assert resources._reranker_provider is not None  # type: ignore[attr-defined]
+    assert resources._reranker_provider.name == "cross_encoder"  # type: ignore[attr-defined]
+
+
+def test_resource_manager_no_reranker_when_disabled(tmp_path):
+    settings = Settings(
+        sqlite_path=tmp_path / "memolite.sqlite3",
+        kuzu_path=tmp_path / "graph.kuzu",
+        embedder_provider="hash",
+        reranker_provider="none",
+    )
+
+    resources = ResourceManager.create(settings)
+
+    assert resources.episodic_search._reranker is None  # type: ignore[attr-defined]
+    assert resources._reranker_provider is None  # type: ignore[attr-defined]

@@ -99,12 +99,13 @@ class BackgroundTaskRunner:
         return processed
 
     async def _run_vacuum(self) -> None:
-        """Reclaim SQLite space freed by deleted/migrated rows."""
+        """Reclaim SQLite space with low-impact maintenance pragmas."""
         from sqlalchemy import text
 
         engine = self.resources.sqlite.create_engine()
-        async with engine.connect() as conn:
-            await conn.execute(text("VACUUM"))
+        async with engine.begin() as conn:
+            await conn.execute(text("PRAGMA wal_checkpoint(PASSIVE)"))
+            await conn.execute(text("PRAGMA incremental_vacuum(200)"))
         self.resources.metrics.increment("vacuum_runs_total")
 
     async def _process_history(self, set_id: str, history_ids: list[str]) -> int:

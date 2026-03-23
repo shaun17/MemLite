@@ -92,6 +92,18 @@ pipx install memolite
 pip install memolite
 ```
 
+如果要启用本地语义 embedding + reranker（`sentence-transformers` / `CrossEncoder`）：
+
+```bash
+pip install 'memolite[embeddings]'
+# 或源码开发时
+pip install -e '.[dev,embeddings]'
+```
+
+说明：
+- 仅安装 `memolite`：适合 hash embedder / 不启用本地 reranker 的场景
+- 安装 `memolite[embeddings]`：同时覆盖 embedding 和 reranker 依赖
+
 适用：普通用户、生产环境、快速上手。
 
 ### 方式 B：源码安装（开发者）
@@ -271,7 +283,7 @@ memolite openclaw uninstall
 
 ## 6. 最小调用流程（REST）
 
-### 4.1 创建项目
+### 6.1 创建项目
 
 ```bash
 curl -X POST http://127.0.0.1:18731/projects \
@@ -283,7 +295,7 @@ curl -X POST http://127.0.0.1:18731/projects \
   }'
 ```
 
-### 4.2 创建会话
+### 6.2 创建会话
 
 ```bash
 curl -X POST http://127.0.0.1:18731/sessions \
@@ -297,7 +309,7 @@ curl -X POST http://127.0.0.1:18731/sessions \
   }'
 ```
 
-### 4.3 写入记忆
+### 6.3 写入记忆
 
 ```bash
 curl -X POST http://127.0.0.1:18731/memories \
@@ -319,7 +331,7 @@ curl -X POST http://127.0.0.1:18731/memories \
   }'
 ```
 
-### 4.4 检索记忆
+### 6.4 检索记忆
 
 ```bash
 curl -X POST http://127.0.0.1:18731/memories/search \

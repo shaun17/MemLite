@@ -105,6 +105,12 @@ async def test_graph_store_related_and_directional_queries(tmp_path: Path):
         relation_table="DERIVED_FROM",
         target_table="Episode",
     )
+    outgoing_batch = await store.search_related_nodes_batch(
+        source_table="Derivative",
+        source_uids=["der-1", "missing-derivative"],
+        relation_table="DERIVED_FROM",
+        target_table="Episode",
+    )
     incoming = await store.search_directional_nodes(
         source_table="Episode",
         source_uid="ep-1",
@@ -114,6 +120,8 @@ async def test_graph_store_related_and_directional_queries(tmp_path: Path):
     )
 
     assert [node.properties["uid"] for node in outgoing] == ["ep-1"]
+    assert [node.properties["uid"] for node in outgoing_batch["der-1"]] == ["ep-1"]
+    assert outgoing_batch["missing-derivative"] == []
     assert [node.properties["uid"] for node in incoming] == ["der-1"]
 
     await engine.close()

@@ -134,7 +134,7 @@ BOOTSTRAP_STATEMENTS = (
     """
     CREATE TABLE IF NOT EXISTS semantic_feature_vectors (
         feature_id INTEGER PRIMARY KEY,
-        embedding_json TEXT NOT NULL,
+        embedding BLOB NOT NULL,
         FOREIGN KEY(feature_id) REFERENCES semantic_features(id) ON DELETE CASCADE
     )
     """,

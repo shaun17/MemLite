@@ -156,7 +156,12 @@ class SqliteVecIndex:
         limit: int = 10,
         allowed_item_ids: set[int] | None = None,
     ) -> list[VectorSearchResult]:
-        """Return top-k vectors ranked by cosine similarity."""
+        """Return top-k vectors ranked by cosine similarity.
+
+        This is currently a Python fallback that scans all candidate rows loaded
+        from SQLite, so it is suitable for lightweight/single-node datasets but
+        not for large-scale ANN workloads.
+        """
         started = perf_counter()
         if allowed_item_ids is not None and not allowed_item_ids:
             return []

@@ -14,6 +14,6 @@ def create_embedder(settings: Settings) -> EmbedderProvider:
     if provider in ("hash", "default"):
         return HashEmbedderProvider()
     if provider == "sentence_transformer":
-        model_name = settings.embedder_model or "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+        model_name = settings.embedder_model or "BAAI/bge-small-zh-v1.5"
         return SentenceTransformerEmbedderProvider(model_name=model_name)
     raise ValueError(f"unsupported embedder_provider: {provider}")

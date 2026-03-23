@@ -228,9 +228,11 @@ class SqliteEpisodeStore:
         producer_role: str | None = None,
         episode_type: str | None = None,
         include_deleted: bool = False,
+        limit: int | None = None,
+        offset: int = 0,
     ) -> list[EpisodeRecord]:
         clauses: list[str] = []
-        params: dict[str, Any] = {}
+        params: dict[str, Any] = {"offset": offset}
         for key, value in {
             "session_id": session_id,
             "session_key": session_key,
@@ -251,6 +253,9 @@ class SqliteEpisodeStore:
         if clauses:
             query += " WHERE " + " AND ".join(clauses)
         query += " ORDER BY sequence_num, created_at, uid"
+        if limit is not None:
+            query += " LIMIT :limit OFFSET :offset"
+            params["limit"] = limit
 
         engine = self._engine_factory.create_engine()
         async with engine.connect() as conn:

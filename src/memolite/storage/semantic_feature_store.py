@@ -457,11 +457,26 @@ class SqliteSemanticFeatureStore:
         set_ids: list[str] | None = None,
         is_ingested: bool | None = None,
     ) -> int:
-        messages = await self.get_history_messages(
-            set_ids=set_ids,
-            is_ingested=is_ingested,
-        )
-        return len(messages)
+        clauses: list[str] = []
+        params: dict[str, Any] = {}
+        if set_ids:
+            placeholders = ", ".join(f":set_id_{idx}" for idx in range(len(set_ids)))
+            clauses.append(f"set_id IN ({placeholders})")
+            params.update(
+                {f"set_id_{idx}": value for idx, value in enumerate(set_ids)}
+            )
+        if is_ingested is not None:
+            clauses.append("ingested = :ingested")
+            params["ingested"] = int(is_ingested)
+
+        query = "SELECT COUNT(*) FROM semantic_set_ingested_history"
+        if clauses:
+            query += " WHERE " + " AND ".join(clauses)
+
+        engine = self._engine_factory.create_engine()
+        async with engine.connect() as conn:
+            count = (await conn.execute(text(query), params)).scalar_one()
+        return int(count)
 
     async def add_history_to_set(self, set_id: str, history_id: str) -> None:
         async def _insert(session):

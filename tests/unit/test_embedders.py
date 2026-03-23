@@ -69,3 +69,39 @@ async def test_sentence_transformer_provider_uses_local_model_stub(monkeypatch):
 
     assert provider.dimensions == 3
     assert await provider.encode("hello") == [0.1, 0.2, 0.3]
+
+
+@pytest.mark.anyio
+async def test_sentence_transformer_warm_up(monkeypatch):
+    created: list[str] = []
+
+    class FakeModel:
+        def __init__(self, model_name: str):
+            created.append(model_name)
+
+        def get_sentence_embedding_dimension(self):
+            return 3
+
+        def encode(self, text: str, normalize_embeddings: bool = True):
+            return [0.1, 0.2, 0.3]
+
+    fake_module = types.SimpleNamespace(SentenceTransformer=FakeModel)
+    monkeypatch.setitem(sys.modules, "sentence_transformers", fake_module)
+
+    provider = SentenceTransformerEmbedderProvider(model_name="fake-model")
+
+    await provider.warm_up()
+    assert provider._model is not None
+    assert created == ["fake-model"]
+
+    assert await provider.encode("hello") == [0.1, 0.2, 0.3]
+    assert created == ["fake-model"]
+
+
+@pytest.mark.anyio
+async def test_hash_embedder_warm_up_is_noop():
+    provider = HashEmbedderProvider()
+
+    await provider.warm_up()
+
+    assert provider.name == "hash"

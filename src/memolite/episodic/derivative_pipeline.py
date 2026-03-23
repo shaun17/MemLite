@@ -44,6 +44,7 @@ class DerivativePipeline:
         self._graph_store = graph_store
         self._derivative_index = derivative_index
         self._embedder = embedder
+        self._initialized = False
 
     def chunk_text(self, content: str) -> list[str]:
         """Split an episode into sentence-level chunks."""
@@ -150,7 +151,9 @@ class DerivativePipeline:
         )
         # The vector index stores the same derivative uid through a stable
         # integer mapping, so graph hits and vector hits can be merged.
-        await self._derivative_index.initialize()
+        if not self._initialized:
+            await self._derivative_index.initialize()
+            self._initialized = True
         await self._derivative_index.batch_upsert(
             [(vector_item_id(record.uid), record.embedding) for record in derivative_records]
         )

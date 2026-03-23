@@ -197,14 +197,14 @@ class EpisodicSearchService:
         self,
         derivative_uids: list[str],
     ) -> dict[str, str]:
+        related_by_derivative_uid = await self._graph_store.search_related_nodes_batch(
+            source_table="Derivative",
+            source_uids=derivative_uids,
+            relation_table="DERIVED_FROM",
+            target_table="Episode",
+        )
         episode_uid_by_derivative_uid: dict[str, str] = {}
-        for derivative_uid in derivative_uids:
-            related = await self._graph_store.search_related_nodes(
-                source_table="Derivative",
-                source_uid=derivative_uid,
-                relation_table="DERIVED_FROM",
-                target_table="Episode",
-            )
+        for derivative_uid, related in related_by_derivative_uid.items():
             if not related:
                 continue
             episode_uid_by_derivative_uid[derivative_uid] = str(related[0].properties["uid"])
