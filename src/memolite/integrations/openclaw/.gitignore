@@ -1,3 +1,4 @@
 node_modules/
-dist/
 .vite/
+# dist/ is committed here — it's synced from integrations/openclaw/dist
+# so pip packages include the built plugin
